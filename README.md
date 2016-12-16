@@ -36,8 +36,6 @@ As a first step you need to setup IQueryPipe interface that will be used to exec
 using Belgrade.SqlClient;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace Catalog.Controllers
 {
     [Route("api/[controller]")]
@@ -61,7 +59,7 @@ Now you need to create async method that will serve requests. The only thing tha
         [HttpGet("Load")]
         public async Task Load()
         {
-            await sqlQuery.Stream("select name, surname, address, town from people for json path, root('data')", Response.Body, @"{""data"":[]");
+            await sqlQuery.Stream("select * from people for json path", Response.Body, "[]");
         }
 ```
 
@@ -74,6 +72,7 @@ To implement OData Service, you would need to add the following fields in your c
  - UriParser that will parse OData Http request and extract information from $select, $filter, $orderby, $top, and $skip parameters
  - QueryBuilder that will create T-SQL query that will be executed. 
 
+Example is shown in the following code:
 ```
         IQueryPipe sqlQuery = null;
         
@@ -87,7 +86,7 @@ To implement OData Service, you would need to add the following fields in your c
         }
 ```
 
-Now you need to create async method that will serve OData requests. First you need to parse Request parameters using UriParser in order to extract QuerySpec. Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide SqlQuery to QueryPipe that will stream results to client:
+Now you need to create async method that will serve OData requests. First, you need to parse Request parameters using UriParser in order to extract QuerySpec. Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to client using Response.Body:
 
 ```
        // GET api/People
