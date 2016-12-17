@@ -3,7 +3,7 @@ using Belgrade.SqlClient.SqlDb;
 using Microsoft.Extensions.DependencyInjection;
 using System.Data.SqlClient;
 
-namespace SqlServerRestApi.SQL
+namespace SqlServerRestApi
 {
     public static class StartUp
     {

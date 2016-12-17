@@ -12,8 +12,9 @@ PM> Install-Package Sql-Server-Rest-Api
 You will need to configure data access components in Startup class (Configure service method):
 
 ```
-using SqlServerRestApi.SQL;
+using SqlServerRestApi;
 
+namespace MyApp {
 
     public class Startup
     {
@@ -24,8 +25,26 @@ using SqlServerRestApi.SQL;
             services.AddSqlClient(Configuration["ConnectionStrings:MyConnection"]);
         }
 
+	}
+}
 ```
-Assumption in this example is that your connection string is stored in application.config file under key MyConnection.
+Assumption in this example is that your connection string is stored in appsettings.config file under key MyConnection.
+
+```
+{
+  "Logging": {
+    "IncludeScopes": false,  
+    "LogLevel": {
+      "Default": "Debug",
+      "System": "Information",
+      "Microsoft": "Information"
+    }
+  },
+  "ConnectionStrings": {
+    "MyConnection": "Server=.;Database=MyDatabase;Integrated Security=true"
+  }
+}
+```
 
 # Create ASP.NET Controller that will serve Http requests
 
@@ -96,3 +115,52 @@ First, you need to parse Request parameters using UriParser in order to extract 
  ```
 
 That's everything that you need to do. With three lines of code you can get OData service on any table.
+
+
+## Implement REST service that process JQuery DataTables Ajax request
+
+[JQuery DataTables](https://datatables.net/) is JQuery component that enhances HTML tables and adds rich client-side functionalities such as filtering, pagination, ordering by columns, etc. JQuery DataTables component might work in two modes:
+ - Client-side mode where rows are loaded into the table in browser, and then all sorting, filering and pagination operations are done via JavaScript.
+ - Server-side mode where AJAX request with informaiton about the curent page, sort/filter condition, is sent to the server, and REST API should return results that should be shown in the table.
+
+ In order to configure JQuery DataTables in server-side processing mode, you need to put an empty HTML table in your HTML page, and specify that DataTables plugin should be applied on this page with the following options:
+ ```
+$('#mytable').DataTable({
+        "serverSide": true,
+        "ajax": "/api/People",
+        "columns": [
+            { "data": "name", "width": "10%" },
+            { "data": "surname", "width": "10%" },
+            { "data": "address", "width": "50%" },
+            { "data": "town", "width": "10%" }
+        ]
+    });
+ ```
+Option "serverSide" will tell DataTables plugin to send AJAX request to the service that will return results that should be shown. Url of the service is defined in "ajax" option. The last option is list of the columns that shoudl be shown.
+To implement REST service that handles AJAX requests that JQuery DataTables sends in server-side mode, you would need to add the TableSpec object that describes the structure of the table that will be queried (name and columns). An example is shown in the following code:
+```
+        IQueryPipe sqlQuery = null;
+        
+        TableSpec tableSpec = new TableSpec("dbo.People", "name,surname,address,town");
+        
+        public PeopleController(IQueryPipe sqlQueryService)
+        {
+            this.sqlQuery = sqlQueryService;
+        }
+```
+
+Now you need to create async method that will serve JQuery DataTables AJAX requests with following classes:
+ - UriParser that will parse Http request parameters that JQuery DataTables component sends
+ - QueryBuilder that will create T-SQL query that will be executed. 
+First, you need to parse Request parameters using UriParser in order to extract the definition of query (QuerySpec object). Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to JQuery DataTables using Response.Body:
+
+```
+       // GET api/People
+        [HttpGet]
+        public async Task Get()
+        {            
+            var querySpec = JQueryDataTables.UriParser.Parse(tableSpec, this.Request);
+            var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
+            await sqlQuery.Stream(sql, Response.Body, "[]");
+        }
+ ```
