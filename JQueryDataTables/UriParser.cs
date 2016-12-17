@@ -7,7 +7,7 @@ namespace SqlServerRestApi.JQueryDataTable
 {
     public class UriParser
     {
-        public QuerySpec Parse (TableSpec tabSpec, HttpRequest Request)
+        public static QuerySpec Parse (TableSpec tabSpec, HttpRequest Request)
         {
             var spec = new QuerySpec();
             spec.skip = Convert.ToInt32(Request.Query["start"]);

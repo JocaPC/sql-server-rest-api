@@ -4,23 +4,24 @@ using System.Text;
 
 namespace SqlServerRestApi.SQL
 {
-    internal class QueryBuilder
+    public static class QueryBuilder
     {
-        private StringBuilder sql = new StringBuilder();
-        internal SqlCommand Build(QuerySpec spec, TableSpec table)
+        
+        public static SqlCommand Build(QuerySpec spec, TableSpec table)
         {
             SqlCommand res = new SqlCommand();
-            
-            BuildSelectClause(spec, table);
-            BuildWherePredicate(spec, res);
-            BuildOrderByClause(spec);
-            BuildOffsetFetchClause(spec);
+            StringBuilder sql = new StringBuilder();
+
+            BuildSelectClause(spec, table, sql);
+            BuildWherePredicate(spec, res, sql);
+            BuildOrderByClause(spec, sql);
+            BuildOffsetFetchClause(spec, sql);
 
             res.CommandText = sql.ToString();
             return res;
         }
 
-        private void BuildSelectClause(QuerySpec spec, TableSpec table)
+        private static void BuildSelectClause(QuerySpec spec, TableSpec table, StringBuilder sql)
         {
             sql.Append("select ");
 
@@ -39,7 +40,7 @@ namespace SqlServerRestApi.SQL
         /// </summary>
         /// <param name="spec"></param>
         /// <param name="res"></param>
-        private void BuildWherePredicate(QuerySpec spec, SqlCommand res)
+        private static void BuildWherePredicate(QuerySpec spec, SqlCommand res, StringBuilder sql)
         {
             if (spec.predicate != null)
             {
@@ -111,7 +112,7 @@ namespace SqlServerRestApi.SQL
             }
         }
 
-        private void BuildOrderByClause(QuerySpec spec)
+        private static void BuildOrderByClause(QuerySpec spec, StringBuilder sql)
         {
             if (spec.order != null && spec.order.Count > 0)
             {
@@ -131,7 +132,7 @@ namespace SqlServerRestApi.SQL
             }
         }
         
-        private void BuildOffsetFetchClause(QuerySpec spec)
+        private static void BuildOffsetFetchClause(QuerySpec spec, StringBuilder sql)
         {
             if (spec.top == 0 && spec.skip == 0)
                 return; // Nothing to generate
@@ -150,10 +151,6 @@ namespace SqlServerRestApi.SQL
             
         }
 
-    }
-
-    public static class QueryBuilderExtension
-    {
         public static SqlCommand AsJson(this SqlCommand cmd)
         {
             cmd.CommandText += " for json path";

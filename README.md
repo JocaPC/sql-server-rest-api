@@ -67,34 +67,30 @@ Note that FOR JSON clause is used in SQL query. FOR JSON clause will generate JS
 
 ## Implement OData service
 
-To implement OData Service, you would need to add the following fields in your controller:
- - TableSpec hat describes the structure of the table that will be queried (name and columns)
- - UriParser that will parse OData Http request and extract information from $select, $filter, $orderby, $top, and $skip parameters
- - QueryBuilder that will create T-SQL query that will be executed. 
-
-Example is shown in the following code:
+To implement OData Service, you would need to add the TableSpec object that describes the structure of the table that will be queried (name and columns). An example is shown in the following code:
 ```
         IQueryPipe sqlQuery = null;
         
         TableSpec tableSpec = new TableSpec("dbo.People", "name,surname,address,town");
-        UriParser uriParser = new UriParser();
-        QueryBuilder queryBuilder = new QueryBuilder();
-
+        
         public PeopleController(IQueryPipe sqlQueryService)
         {
             this.sqlQuery = sqlQueryService;
         }
 ```
 
-Now you need to create async method that will serve OData requests. First, you need to parse Request parameters using UriParser in order to extract QuerySpec. Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to client using Response.Body:
+Now you need to create async method that will serve OData requests with following classes:
+ - UriParser that will parse OData Http request and extract information from $select, $filter, $orderby, $top, and $skip parameters
+ - QueryBuilder that will create T-SQL query that will be executed. 
+First, you need to parse Request parameters using UriParser in order to extract the definition of query (QuerySpec object). Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to client using Response.Body:
 
 ```
        // GET api/People
         [HttpGet]
         public async Task Get()
         {            
-            var querySpec = uriParser.Parse(tableSpec, this.Request);
-            var sql = queryBuilder.Build(querySpec, tableSpec).AsJson();
+            var querySpec = OData.UriParser.Parse(tableSpec, this.Request);
+            var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
             await sqlQuery.Stream(sql, Response.Body, "[]");
         }
  ```
