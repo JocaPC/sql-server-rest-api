@@ -21,7 +21,7 @@ namespace SqlServerRestApi.JQueryDataTable
 
         private static void ParseSearch(HttpRequest Request, QuerySpec spec)
         {
-            spec.keyword = Request.Query[$"[search][value]"].ToString();
+            spec.keyword = Request.Query["search[value]"].ToString();
             spec.columnFilter = new Hashtable();
             int i = 0;
             

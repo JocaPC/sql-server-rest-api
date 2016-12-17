@@ -7,30 +7,41 @@ using System.Threading.Tasks;
 
 namespace SqlServerRestApi.Controller
 {
-    public class RestApiController : Microsoft.AspNetCore.Mvc.Controller
+    public static class RestApiControllerExtensions 
     {
-        IQueryPipe sqlQuery = null;
-        TableSpec tableSpec = null;
-
-        public RestApiController(TableSpec tableSpec, IQueryPipe sqlQueryService)
+        public static async Task ProcessODataRequest(
+            this Microsoft.AspNetCore.Mvc.Controller ctrl,
+            TableSpec tableSpec,
+            IQueryPipe sqlQuery)
         {
-            this.sqlQuery = sqlQueryService;
-            this.tableSpec = tableSpec;
-        }
-
-        public async Task ProcessODataRequest(string defaultOutput)
-        {
-            var querySpec = OData.UriParser.Parse(this.tableSpec, this.Request);
+            var querySpec = OData.UriParser.Parse(tableSpec, ctrl.Request);
             var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
-            await sqlQuery.Stream(sql, Response.Body, defaultOutput);
+            await sqlQuery.Stream(sql, ctrl.Response.Body, "[]");
         }
 
         
-        public async Task ProcessJQueryDataTablesRequest(string defaultOutput)
+        public static async Task ProcessJQueryDataTablesRequest(
+            this Microsoft.AspNetCore.Mvc.Controller ctrl,
+            TableSpec tableSpec,
+            IQueryPipe sqlQuery)
         {
-            var querySpec = JQueryDataTable.UriParser.Parse(this.tableSpec, this.Request);
+            var Request = ctrl.Request;
+            var draw = Request.Query["draw"].ToString();
+            var start = Convert.ToInt32(Request.Query["start"]);
+            var length = Convert.ToInt32(Request.Query["length"]);
+            var header = System.Text.Encoding.UTF8.GetBytes(
+$@"{{ 
+    ""draw"":""{draw}"",
+    ""recordsTotal"":""{start + length + 1}"",
+    ""recordsFiltered"":""{start + length + 1}"",
+    ""data"":");
+            await ctrl.Response.Body.WriteAsync(header, 0, header.Length);
+
+            var querySpec = JQueryDataTable.UriParser.Parse(tableSpec, Request);
             var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
-            await sqlQuery.Stream(sql, Response.Body, defaultOutput);
+            await sqlQuery.Stream(sql, ctrl.Response.Body, "[]");
+
+            await ctrl.Response.Body.WriteAsync(System.Text.Encoding.UTF8.GetBytes("}"), 0, 1);
         }
     }
 }

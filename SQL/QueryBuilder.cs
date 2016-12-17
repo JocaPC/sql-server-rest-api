@@ -56,7 +56,7 @@ namespace SqlServerRestApi.SQL
             {
                 StringBuilder columnfilter = null;
                 if (spec.keyword != "" && spec.columnFilter != null)
-                    res.Parameters.AddWithValue("kwd", spec.keyword);
+                    res.Parameters.AddWithValue("kwd", "%" + spec.keyword + "%");
                 else
                     columnfilter = new StringBuilder();
 
@@ -106,7 +106,7 @@ namespace SqlServerRestApi.SQL
                         }
                     }
 
-                    if (spec.keyword != "")
+                    if (!string.IsNullOrEmpty(spec.keyword) && columnfilter != null)
                         sql.Append(" or (").Append(columnfilter.ToString()).Append(")");
                 }
             }
