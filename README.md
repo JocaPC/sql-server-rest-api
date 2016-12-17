@@ -116,16 +116,17 @@ First, you need to parse Request parameters using UriParser in order to extract 
 
 That's everything that you need to do. With three lines of code you can get OData service on any table.
 
-
 ## Implement REST service that process JQuery DataTables Ajax request
 
 [JQuery DataTables](https://datatables.net/) is JQuery component that enhances HTML tables and adds rich client-side functionalities such as filtering, pagination, ordering by columns, etc. JQuery DataTables component might work in two modes:
  - Client-side mode where rows are loaded into the table in browser, and then all sorting, filering and pagination operations are done via JavaScript.
- - Server-side mode where AJAX request with informaiton about the curent page, sort/filter condition, is sent to the server, and REST API should return results that should be shown in the table.
+ - [Server-side mode](https://datatables.net/examples/data_sources/server_side.html) where AJAX request with information about the curent page, sort/filter condition, is sent to the server, and REST API should return results that should be shown in the table.
 
  In order to configure JQuery DataTables in server-side processing mode, you need to put an empty HTML table in your HTML page, and specify that DataTables plugin should be applied on this page with the following options:
  ```
-$('#mytable').DataTable({
+$(document).ready(function() {
+
+    $('#example').DataTable( {
         "serverSide": true,
         "ajax": "/api/People",
         "columns": [
@@ -134,10 +135,14 @@ $('#mytable').DataTable({
             { "data": "address", "width": "50%" },
             { "data": "town", "width": "10%" }
         ]
-    });
- ```
-Option "serverSide" will tell DataTables plugin to send AJAX request to the service that will return results that should be shown. Url of the service is defined in "ajax" option. The last option is list of the columns that shoudl be shown.
-To implement REST service that handles AJAX requests that JQuery DataTables sends in server-side mode, you would need to add the TableSpec object that describes the structure of the table that will be queried (name and columns). An example is shown in the following code:
+    } );
+
+} );
+```
+Option "serverSide" will tell DataTables plugin to send AJAX request to the service that will return results that should be shown. Url of the service is defined in "ajax" option.
+The last option is list of the columns that should be shown. This library supports [object data source](https://datatables.net/examples/ajax/objects.html), so columns property is requied.
+
+In order to implement REST service that handles AJAX requests that JQuery DataTables sends in server-side mode, you would need to add the TableSpec object that describes the structure of the table that will be queried (name and columns). An example is shown in the following code:
 ```
         IQueryPipe sqlQuery = null;
         
@@ -176,5 +181,7 @@ First, you need to parse Request parameters using UriParser in order to extract 
             await Response.Body.WriteAsync(System.Text.Encoding.UTF8.GetBytes("}"), 0, 1);
         }
  ```
- [JQuery DataTables](https://datatables.net/) component requires AJAX response in some pre-defined format, so you woudl need to wrap results from database with header that contains number of total and number of filtered records.
+ [JQuery DataTables](https://datatables.net/) component requires AJAX response in some pre-defined format, so you would need to wrap results from database with header that contains number of total and number of filtered records.
+ Note that JQuery DataTables plugin uses **recordsTotal** and **recordsFiltered** to build pagination. Since you would need two additional queries . Reccomendation is to use alternative (paging plugins)[https://datatables.net/plug-ins/pagination/]
+ that don't require these options.
 
