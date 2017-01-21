@@ -1,9 +1,9 @@
-﻿{
+{
   "version": "1.0.0-*",
 
   "dependencies": {
     "Antlr4": "4.5.3",
-    "Belgrade.Sql.Client": "0.6.1",
+    "Belgrade.Sql.Client": "0.6.2",
     "Microsoft.AspNetCore.Mvc": "1.0.0"
   },
 
