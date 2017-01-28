@@ -8,16 +8,21 @@ namespace SqlServerRestApi
 {
     public static class StartUp
     {
-        public static IServiceCollection AddSqlClient(this IServiceCollection services, string ConnString)
+        public static IServiceCollection AddSqlClient(this IServiceCollection services, string ConnString, Action<Option> init = null)
         {
-            // Adding data access services/components.
-            services.AddScoped<IQueryPipe>(
-                sp => new QueryPipe(new SqlConnection(ConnString)));
+            if (init == null)
+            {
+                // Adding data access services/components.
+                services.AddScoped<IQueryPipe>(
+                    sp => new QueryPipe(new SqlConnection(ConnString)));
 
-            services.AddScoped<ICommand>(
-                sp => new Command(new SqlConnection(ConnString)));
-
-            return services;
+                services.AddScoped<ICommand>(
+                    sp => new Command(new SqlConnection(ConnString)));
+                return services;
+            } else
+            {
+                return AddSqlClient(services, option => { init(option); option.ConnString = ConnString; });
+            }
         }
 
         public static IServiceCollection AddSqlClient(this IServiceCollection services, Action<Option> init)
@@ -27,8 +32,13 @@ namespace SqlServerRestApi
 
             // Adding data access services/components.
             string QueryConnString = options.ConnString;
-            if(options.UseReadOnlyConnectionForQuery)
-                QueryConnString = options.ReadOnlyConnString;
+            if(options.ReadScaleOut){
+                if(options.ReadOnlyConnString == null){
+                    QueryConnString = options.ConnString + "ApplicationIntent=ReadOnly;";
+                } else {
+                    QueryConnString = options.ReadOnlyConnString;
+                }
+            }
             string ConnString = options.ConnString;
 
             switch (options.ServiceScope) {
@@ -64,7 +74,7 @@ namespace SqlServerRestApi
     public class Option {
 
         public string ConnString;
-        public bool UseReadOnlyConnectionForQuery = false;
+        public bool ReadScaleOut = false;
         public string ReadOnlyConnString;
 
         public enum ServiceScopeEnum { SINGLETON, SCOPED, TRANSIENT };
