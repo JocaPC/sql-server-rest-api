@@ -1,8 +1,12 @@
-﻿using Antlr4.Runtime;
+﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
+// Licensed under the BSD License. See LICENSE.txt in the project root for license information.
+
+using Antlr4.Runtime;
 using Microsoft.AspNetCore.Http;
 using SqlServerRestApi.SQL;
 using System;
 using System.Collections;
+using System.Net.Http;
 using System.Text;
 
 namespace SqlServerRestApi.OData
@@ -21,6 +25,19 @@ namespace SqlServerRestApi.OData
             tabSpec.Validate(spec);
             return spec;
         }
+
+        public static QuerySpec Parse(TableSpec tabSpec, HttpRequestMessage Request)
+        {
+            var spec = new QuerySpec();
+            spec.skip = Convert.ToInt32(Request.RequestUri.ParseQueryString()["$skip"]);
+            spec.top = Convert.ToInt32(Request.RequestUri.ParseQueryString()["$top"]);
+            spec.select = Request.RequestUri.ParseQueryString()["$select"];
+            ParseSearch(Request.RequestUri.ParseQueryString()["$filter"], spec, tabSpec);
+            ParseOrderBy(tabSpec, Request.RequestUri.ParseQueryString()["$orderby"], spec);
+            tabSpec.Validate(spec);
+            return spec;
+        }
+
 
         private static void ParseSearch(string filter, QuerySpec spec, TableSpec tabSpec)
         {

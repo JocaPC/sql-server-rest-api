@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
+// Licensed under the BSD License. See LICENSE.txt in the project root for license information.
+
+using System.Collections;
 
 namespace SqlServerRestApi.SQL
 {

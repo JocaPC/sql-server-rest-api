@@ -3,8 +3,10 @@
 
   "dependencies": {
     "Antlr4": "4.5.3",
-    "Belgrade.Sql.Client": "0.6.2",
-    "Microsoft.AspNetCore.Mvc": "1.0.0"
+    "Belgrade.Sql.Client": "0.6.5",
+    "Microsoft.AspNetCore.Mvc": "1.0.0",
+    "Microsoft.AspNetCore.Mvc.WebApiCompatShim": "1.0.1",
+    "Microsoft.AspNet.WebApi.Client": "5.2.2"
   },
 
   "frameworks": {
@@ -14,12 +16,17 @@
         "portable-net45+win8"
       ],
       "dependencies": {
+        
         "Microsoft.NETCore.App": {
           "version": "1.0.0",
           "type": "platform"
         }
       }
     },
-    "net46": {}
+    "net46": {
+      "dependencies": {
+        
+      }
+    }
   }
 }

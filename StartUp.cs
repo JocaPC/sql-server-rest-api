@@ -1,4 +1,7 @@
-﻿using Belgrade.SqlClient;
+﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
+// Licensed under the BSD License. See LICENSE.txt in the project root for license information.
+
+using Belgrade.SqlClient;
 using Belgrade.SqlClient.SqlDb;
 using Microsoft.Extensions.DependencyInjection;
 using System;

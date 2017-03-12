@@ -1,11 +1,12 @@
-﻿using Belgrade.SqlClient;
+﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
+// Licensed under the BSD License. See LICENSE.txt in the project root for license information.
+
+using Belgrade.SqlClient;
 using SqlServerRestApi.SQL;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace SqlServerRestApi.Controller
+namespace SqlServerRestApi
 {
     public static class RestApiControllerExtensions 
     {
@@ -18,7 +19,6 @@ namespace SqlServerRestApi.Controller
             var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
             await sqlQuery.Stream(sql, ctrl.Response.Body, "[]");
         }
-
         
         public static async Task ProcessJQueryDataTablesRequest(
             this Microsoft.AspNetCore.Mvc.Controller ctrl,
