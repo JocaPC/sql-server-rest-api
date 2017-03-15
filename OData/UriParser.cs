@@ -17,6 +17,7 @@ namespace SqlServerRestApi.OData
         public static QuerySpec Parse (TableSpec tabSpec, HttpRequest Request)
         {
             var spec = new QuerySpec();
+            spec.count = (Request.Query["$count"].Count == 1);
             spec.skip = Convert.ToInt32(Request.Query["$skip"]);
             spec.top = Convert.ToInt32(Request.Query["$top"]);
             spec.select = Request.Query["$select"];
@@ -29,15 +30,16 @@ namespace SqlServerRestApi.OData
         public static QuerySpec Parse(TableSpec tabSpec, HttpRequestMessage Request)
         {
             var spec = new QuerySpec();
-            spec.skip = Convert.ToInt32(Request.RequestUri.ParseQueryString()["$skip"]);
-            spec.top = Convert.ToInt32(Request.RequestUri.ParseQueryString()["$top"]);
-            spec.select = Request.RequestUri.ParseQueryString()["$select"];
-            ParseSearch(Request.RequestUri.ParseQueryString()["$filter"], spec, tabSpec);
-            ParseOrderBy(tabSpec, Request.RequestUri.ParseQueryString()["$orderby"], spec);
+            var parameters = Request.RequestUri.ParseQueryString();
+            spec.count = (parameters["$count"] != null);
+            spec.skip = Convert.ToInt32(parameters["$skip"]);
+            spec.top = Convert.ToInt32(parameters["$top"]);
+            spec.select = parameters["$select"];
+            ParseSearch(parameters["$filter"], spec, tabSpec);
+            ParseOrderBy(tabSpec, parameters["$orderby"], spec);
             tabSpec.Validate(spec);
             return spec;
         }
-
 
         private static void ParseSearch(string filter, QuerySpec spec, TableSpec tabSpec)
         {

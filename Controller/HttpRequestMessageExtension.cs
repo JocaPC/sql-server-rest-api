@@ -20,7 +20,9 @@ namespace SqlServerRestApi
             IQueryPipe sqlQuery)
         {
             var querySpec = OData.UriParser.Parse(tableSpec, req);
-            var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
+            var sql = QueryBuilder.Build(querySpec, tableSpec);
+            if (!querySpec.count)
+                sql = sql.AsJson();
             return await CreateSqlResponse(req, sqlQuery, sql);
         }
 

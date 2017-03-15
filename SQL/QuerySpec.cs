@@ -8,6 +8,7 @@ namespace SqlServerRestApi.SQL
     public class QuerySpec
     {
         public string select = "*";
+        public bool count = false;
         public int top;
         public int skip;
         public Hashtable columnFilter;

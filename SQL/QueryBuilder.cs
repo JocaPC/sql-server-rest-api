@@ -15,23 +15,32 @@ namespace SqlServerRestApi.SQL
             SqlCommand res = new SqlCommand();
             StringBuilder sql = new StringBuilder();
 
-            BuildSelectClause(spec, table, sql);
-            BuildWherePredicate(spec, res, sql);
-            BuildOrderByClause(spec, sql);
-            BuildOffsetFetchClause(spec, sql);
+            BuildSelectFromClause(spec, table, sql);
+            if (!spec.count)
+            {
+                BuildWherePredicate(spec, res, sql);
+                BuildOrderByClause(spec, sql);
+                BuildOffsetFetchClause(spec, sql);
+            }
 
             res.CommandText = sql.ToString();
             return res;
         }
 
-        private static void BuildSelectClause(QuerySpec spec, TableSpec table, StringBuilder sql)
+        private static void BuildSelectFromClause(QuerySpec spec, TableSpec table, StringBuilder sql)
         {
             sql.Append("select ");
 
-            if (spec.top != 0 && spec.skip == 0)
-                sql.Append("top ").Append(spec.top).Append(" ");
+            if (spec.count) {
+                sql.Append("cast(count(*) as nvarchar) ");
+            }
+            else
+            {
+                if (spec.top != 0 && spec.skip == 0)
+                    sql.Append("top ").Append(spec.top).Append(" ");
 
-            sql.Append(spec.select??table.columnList);
+                sql.Append(spec.select ?? table.columnList);
+            }
             sql.Append(" from ");
             sql.Append(table.FullName);
         }
