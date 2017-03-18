@@ -2,6 +2,8 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using System.Collections;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace SqlServerRestApi.SQL
 {
@@ -12,6 +14,7 @@ namespace SqlServerRestApi.SQL
         public int top;
         public int skip;
         public Hashtable columnFilter;
+        public LinkedList<SqlParameter> parameters;
         public string predicate;
         public Hashtable order;
         internal string keyword;

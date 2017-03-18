@@ -12,7 +12,7 @@ lexer grammar FilterTranslator;
 	{
 		this.tableSpec = tableSpec;
 		this.querySpec = querySpec;
-		this.querySpec.columnFilter = new System.Collections.Hashtable();
+		this.querySpec.parameters = new System.Collections.Generic.LinkedList<System.Data.SqlClient.SqlParameter>();
 		_interp = new LexerATNSimulator(this,_ATN);
 	}
 }
@@ -23,10 +23,13 @@ OPERATOR : 'eq' { Text = "="; } | 'ne' { Text = "<>"; } |
 			'lt' { Text = "<"; } | 'le' { Text = "<="; } |
 			'add' { Text = "+"; } | 'sub' { Text = "-"; } |
 			'mul' { Text = "*"; } | 'div' { Text = "/"; } |
-			'mod' { Text = "%"; };
+			'mod' { Text = "%"; } |
+			// Operators that are not translated but they need to skip identifier check.
+			'and' { Text = " AND "; } | 'or' { Text = " OR "; } |
+			'not' { Text = " NOT "; };
 FUNCTION :	'contains(' { Text = "odata.contains("; } |
-			'endswith' { Text = "odata.endswith("; } |
-			'indexof' { Text = "odata.indexof("; } |
+			'endswith(' { Text = "odata.endswith("; } |
+			'indexof(' { Text = "odata.indexof("; } |
 			'length(' { Text = "len("; } |
 			'startswith(' { Text = "odata.startswith("; } |
 			'tolower(' { Text = "lower("; } |
@@ -36,12 +39,27 @@ FUNCTION :	'contains(' { Text = "odata.contains("; } |
 			'day(' { Text = "datepart(day,"; } |
 			'hour(' { Text = "datepart(hour,"; } |
 			'minute(' { Text = "datepart(minute,"; } |
-			'second(' { Text = "datepart(second,"; };
+			'second(' { Text = "datepart(second,"; }
+// Non standard functions
+			| 'json_value(' { Text = "json_value(,"; }
+			| 'json_query(' { Text = "json_query(,"; }
+			| 'isjson(' { Text = "isjson(,"; }
+			;
 
-UNSUPPORTEDFUNCTION: '[a-zA-Z][a-zA-Z0-9"."]*(' {throw new System.ArgumentException("Unsupported function: " + Text);};
+UNSUPPORTEDFUNCTION: '[_a-zA-Z][_a-zA-Z0-9"."]*(' {throw new System.ArgumentException("Unsupported function: " + Text);};
 
 WS : [ \n\u000D\r\t]+ -> skip;
-STRING_LITERAL : ['].*?['] { this.querySpec.columnFilter.Add("@p"+i, Text.Substring(1,Text.Length-2)); Text = "@p"+(i++); };
-NUMBER : [1-9][0-9]*;
-PROPERTY : [a-zA-Z][a-zA-Z0-9]* { this.tableSpec.HasColumn(Text);};
+STRING_LITERAL : ['].*?['] { 
+		var p = new System.Data.SqlClient.SqlParameter("@p"+i, System.Data.SqlDbType.NVarChar, 4000);
+		p.Value = Text.Substring(1,Text.Length-2);
+		this.querySpec.parameters.AddFirst(p);
+		Text = "@p"+(i++);
+};
+NUMBER : [1-9][0-9]* {
+		var p = new System.Data.SqlClient.SqlParameter("@p"+i, System.Data.SqlDbType.Int);
+		p.Value = System.Convert.ToInt32(Text);
+		this.querySpec.parameters.AddFirst(p);
+		Text = "@p"+(i++); 
+};
+PROPERTY : [_@#a-zA-Z][a-zA-Z0-9_@#]* { this.tableSpec.HasColumn(Text);};
 TEXT : [".""("")"]+;

@@ -18,7 +18,7 @@ namespace SqlServerRestApi.SQL
             BuildSelectFromClause(spec, table, sql);
             if (!spec.count)
             {
-                BuildWherePredicate(spec, res, sql);
+                BuildWherePredicate(spec, res, sql, table);
                 BuildOrderByClause(spec, sql);
                 BuildOffsetFetchClause(spec, sql);
             }
@@ -29,19 +29,19 @@ namespace SqlServerRestApi.SQL
 
         private static void BuildSelectFromClause(QuerySpec spec, TableSpec table, StringBuilder sql)
         {
-            sql.Append("select ");
+            sql.Append("SELECT ");
 
             if (spec.count) {
-                sql.Append("cast(count(*) as nvarchar) ");
+                sql.Append(" cast(count(*) as nvarchar(50)) ");
             }
             else
             {
                 if (spec.top != 0 && spec.skip == 0)
-                    sql.Append("top ").Append(spec.top).Append(" ");
+                    sql.Append("TOP ").Append(spec.top).Append(" ");
 
                 sql.Append(spec.select ?? table.columnList);
             }
-            sql.Append(" from ");
+            sql.Append(" FROM ");
             sql.Append(table.FullName);
         }
 
@@ -52,76 +52,99 @@ namespace SqlServerRestApi.SQL
         /// </summary>
         /// <param name="spec"></param>
         /// <param name="res"></param>
-        private static void BuildWherePredicate(QuerySpec spec, SqlCommand res, StringBuilder sql)
+        private static void BuildWherePredicate(QuerySpec spec, SqlCommand res, StringBuilder sql, TableSpec table)
         {
-            if (spec.predicate != null)
+            bool isWhereClauseAdded = false;
+
+            // If there is a global search by keyword in JQuery Datatable or $search param in OData add this parameter.
+            if ( !string.IsNullOrEmpty(spec.keyword) )
             {
-                sql.Append(" WHERE ").Append(spec.predicate);
-                if (spec.columnFilter != null && spec.columnFilter.Count > 0)
-                {
-                    foreach (DictionaryEntry entry in spec.columnFilter)
-                    {
-                        res.Parameters.AddWithValue(entry.Key.ToString(), entry.Value);
-                    }
-                }
-            } else
+                var p = new SqlParameter("kwd", System.Data.SqlDbType.NVarChar, 4000);
+                p.Value = "%" + spec.keyword + "%";
+                res.Parameters.Add(p);
+            }
+
+            // If there are some literals that are transformed to parameters add them in command.
+            if (spec.parameters != null && spec.parameters.Count > 0)
             {
-                StringBuilder columnfilter = null;
-                if (spec.keyword != "" && spec.columnFilter != null)
-                    res.Parameters.AddWithValue("kwd", "%" + spec.keyword + "%");
-                else
-                    columnfilter = new StringBuilder();
-
-                if (spec.columnFilter != null && spec.columnFilter.Count > 0)
+                foreach (var parameter in spec.parameters)
                 {
-                    bool first = true;
-                    bool firstColumnFilter = true;
-                    foreach (DictionaryEntry entry in spec.columnFilter)
-                    {
-                        if (spec.keyword != "")
-                        {
-                            if (first)
-                            {
-                                sql.Append(" where ");
-                                first = false;
-                            }
-                            else if (spec.keyword != "")
-                                sql.Append(" or "); // if there is a keyword, let's start with or logic.
-
-                            sql.Append(entry.Key.ToString()).Append(" LIKE @kwd");
-
-                            if (!string.IsNullOrWhiteSpace(entry.Value.ToString()))
-                            {
-                                if (firstColumnFilter)
-                                    firstColumnFilter = false;
-                                else
-                                    sql.Append(" or ");
-
-                                columnfilter.Append(entry.Key.ToString()).Append(" LIKE @").Append(entry.Key.ToString());
-                                res.Parameters.AddWithValue(entry.Key.ToString(), "%" + entry.Value.ToString() + "%");
-                            }
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrWhiteSpace(entry.Value.ToString()))
-                            {
-                                if (first)
-                                {
-                                    sql.Append(" where ");
-                                    first = false;
-                                }
-                                else
-                                    sql.Append(" and ");
-                                sql.Append(entry.Key.ToString()).Append(" LIKE @").Append(entry.Key.ToString());
-                                res.Parameters.AddWithValue(entry.Key.ToString(), "%" + entry.Value.ToString() + "%");
-                            }
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(spec.keyword) && columnfilter != null)
-                        sql.Append(" or (").Append(columnfilter.ToString()).Append(")");
+                    res.Parameters.Add(parameter);
                 }
             }
+
+            // If there are filters per columns add them as parameters
+            if (spec.columnFilter != null && spec.columnFilter.Count > 0)
+            {
+                foreach (DictionaryEntry entry in spec.columnFilter)
+                {
+                    var p = new SqlParameter(entry.Key.ToString(), System.Data.SqlDbType.NVarChar, 4000);
+                    p.Value = entry.Value;
+                    res.Parameters.Add(p);
+                }
+            }
+
+            if ( !string.IsNullOrEmpty(spec.predicate) )
+            {
+                // This is T-SQL predicate that is provided via Url (e.g. using OData $filter clause)
+                sql.Append(" WHERE (").Append(spec.predicate).Append(")");
+                isWhereClauseAdded = true;
+            }
+
+            if (!string.IsNullOrEmpty(spec.keyword) )
+            {
+                if (!isWhereClauseAdded)
+                {
+                    sql.Append(" WHERE (");
+                    isWhereClauseAdded = true;
+                }
+                else
+                {
+                    sql.Append(" OR (");
+                }
+
+                bool isFirstColumn = true;
+                foreach (var column in table.columns)
+                {
+                    if (!isFirstColumn)
+                    {
+                        sql.Append(" OR ");
+                    }
+                    sql.Append("(").Append(column).Append(" like @kwd)");
+                    isFirstColumn = false;
+                }
+                sql.Append(" ) ");
+            }
+
+            // Add filter predicates for individual columns.
+            if (spec.columnFilter != null && spec.columnFilter.Count > 0)
+            {
+                if (!isWhereClauseAdded)
+                {
+                    sql.Append(" WHERE (");
+                    isWhereClauseAdded = true;
+                }
+                else
+                {
+                    sql.Append(" OR (");
+                }
+
+                bool isFirstColumn = true;
+                foreach (DictionaryEntry entry in spec.columnFilter)
+                {
+                    
+                    if (!isFirstColumn)
+                    {
+                        sql.Append(" AND ");
+                    }
+                    
+                    sql.Append("(").Append(entry.Key.ToString()).Append(" LIKE @").Append(entry.Key.ToString()).Append(")");
+                    isFirstColumn = false;
+                }
+
+                sql.Append(")");
+            }
+            
         }
 
         private static void BuildOrderByClause(QuerySpec spec, StringBuilder sql)
@@ -133,7 +156,7 @@ namespace SqlServerRestApi.SQL
                 {
                     if (first)
                     {
-                        sql.Append(" order by ");
+                        sql.Append(" ORDER BY ");
                         first = false;
                     }
                     else
@@ -154,7 +177,7 @@ namespace SqlServerRestApi.SQL
             // At this point we know that spec.skip is != null
 
             if (spec.order == null || spec.order.Keys.Count == 0)
-                sql.Append(" order by 1 "); // Add mandatory order by clause if it is not yet there.
+                sql.Append(" ORDER BY 1 "); // Add mandatory order by clause if it is not yet there.
 
             sql.AppendFormat(" OFFSET {0} ROWS ", spec.skip);
 
@@ -165,13 +188,13 @@ namespace SqlServerRestApi.SQL
 
         public static SqlCommand AsJson(this SqlCommand cmd)
         {
-            cmd.CommandText += " for json path";
+            cmd.CommandText += " FOR JSON PATH";
             return cmd;
         }
 
         public static SqlCommand AsSingleJson(this SqlCommand cmd)
         {
-            cmd.CommandText += " for json path, without_array_wrapper";
+            cmd.CommandText += " FOR JSON PATH, WITHOUT_ARRAY_WRAPPER";
             return cmd;
         }
     }

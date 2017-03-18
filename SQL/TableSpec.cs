@@ -46,7 +46,7 @@ namespace SqlServerRestApi.SQL
         public void HasColumn(string column)
         {
             if (!this.columnSet.Contains(column))
-                throw new ArgumentOutOfRangeException($"Column {column} does not belong to the table.");
+                throw new ArgumentOutOfRangeException($"Column '{column}' does not belong to the table.");
         }
     }
 }

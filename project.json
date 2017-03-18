@@ -3,7 +3,7 @@
 
   "dependencies": {
     "Antlr4": "4.5.3",
-    "Belgrade.Sql.Client": "0.6.5",
+    "Belgrade.Sql.Client": "0.7.0",
     "Microsoft.AspNetCore.Mvc": "1.0.0",
     "Microsoft.AspNetCore.Mvc.WebApiCompatShim": "1.0.1",
     "Microsoft.AspNet.WebApi.Client": "5.2.2"

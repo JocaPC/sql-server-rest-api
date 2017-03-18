@@ -6,4 +6,4 @@ STRING_LITERAL=5
 NUMBER=6
 PROPERTY=7
 TEXT=8
-'[a-zA-Z][a-zA-Z0-9"."]*('=3
+'[_a-zA-Z][_a-zA-Z0-9"."]*('=3

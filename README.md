@@ -99,7 +99,7 @@ To implement OData Service, you would need to add the TableSpec object that desc
 ```
 
 Now you need to create async method that will serve OData requests with following classes:
- - UriParser that will parse OData Http request and extract information from $select, $filter, $orderby, $top, and $skip parameters
+ - UriParser that will parse OData Http request and extract information from $select, $filter, $orderby, $top, and $skip parameters. $count is also supported.
  - QueryBuilder that will create T-SQL query that will be executed. 
 First, you need to parse Request parameters using UriParser in order to extract the definition of query (QuerySpec object). Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to client using Response.Body:
 
@@ -114,7 +114,7 @@ First, you need to parse Request parameters using UriParser in order to extract 
         }
  ```
 
-That's everything that you need to do. With three lines of code you can get OData service on any table.
+That's everything that you need to do. With three lines of code you can create OData service on any table.
 
 ## Implement REST service that process JQuery DataTables Ajax request
 

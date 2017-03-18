@@ -21,6 +21,7 @@ namespace SqlServerRestApi.OData
             spec.skip = Convert.ToInt32(Request.Query["$skip"]);
             spec.top = Convert.ToInt32(Request.Query["$top"]);
             spec.select = Request.Query["$select"];
+            spec.keyword = Request.Query["$search"];
             ParseSearch(Request.Query["$filter"], spec, tabSpec);
             ParseOrderBy(tabSpec, Request.Query["$orderby"], spec);
             tabSpec.Validate(spec);
