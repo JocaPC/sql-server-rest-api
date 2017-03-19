@@ -32,7 +32,7 @@ namespace SqlServerRestApi.SQL
             sql.Append("SELECT ");
 
             if (spec.count) {
-                sql.Append(" cast(count(*) as nvarchar(50)) ");
+                sql.Append("CAST(count(*) as nvarchar(50)) ");
             }
             else
             {
@@ -78,8 +78,10 @@ namespace SqlServerRestApi.SQL
             {
                 foreach (DictionaryEntry entry in spec.columnFilter)
                 {
+                    if (string.IsNullOrEmpty(entry.Value.ToString()))
+                        continue;
                     var p = new SqlParameter(entry.Key.ToString(), System.Data.SqlDbType.NVarChar, 4000);
-                    p.Value = entry.Value;
+                    p.Value = "%"+entry.Value+"%";
                     res.Parameters.Add(p);
                 }
             }
@@ -113,36 +115,41 @@ namespace SqlServerRestApi.SQL
                     sql.Append("(").Append(column).Append(" like @kwd)");
                     isFirstColumn = false;
                 }
-                sql.Append(" ) ");
+                sql.Append(" ) "); // Add closing ) for WHERE ( or OR ( that is added in this block
             }
 
             // Add filter predicates for individual columns.
             if (spec.columnFilter != null && spec.columnFilter.Count > 0)
             {
-                if (!isWhereClauseAdded)
-                {
-                    sql.Append(" WHERE (");
-                    isWhereClauseAdded = true;
-                }
-                else
-                {
-                    sql.Append(" OR (");
-                }
-
-                bool isFirstColumn = true;
+                bool isFirstColumn = true, isWhereClauseAddedInColumnFiler = false;
                 foreach (DictionaryEntry entry in spec.columnFilter)
                 {
-                    
-                    if (!isFirstColumn)
-                    {
-                        sql.Append(" AND ");
-                    }
-                    
-                    sql.Append("(").Append(entry.Key.ToString()).Append(" LIKE @").Append(entry.Key.ToString()).Append(")");
-                    isFirstColumn = false;
-                }
+                    if (!string.IsNullOrEmpty(entry.Value.ToString())) {
 
-                sql.Append(")");
+                        if (isFirstColumn)
+                        {
+                            if (!isWhereClauseAdded)
+                            {
+                                sql.Append(" WHERE (");
+                            }
+                            else
+                            {
+                                sql.Append(" OR (");
+                            }
+                            isWhereClauseAddedInColumnFiler = true;
+                        } else
+                        {
+                            sql.Append(" AND ");
+                        }
+
+                        sql.Append("(").Append(entry.Key.ToString()).Append(" LIKE @").Append(entry.Key.ToString()).Append(")");
+                        isFirstColumn = false;
+                    }
+                }
+                if (isWhereClauseAddedInColumnFiler)
+                {
+                    sql.Append(")");
+                }
             }
             
         }

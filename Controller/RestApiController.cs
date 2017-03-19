@@ -4,12 +4,52 @@
 using Belgrade.SqlClient;
 using SqlServerRestApi.SQL;
 using System;
+using System.Data.SqlClient;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace SqlServerRestApi
 {
+    public class ODataHandler
+    {
+        private SqlCommand cmd;
+        private IQueryPipe pipe;
+        private Stream stream;
+
+        internal ODataHandler(SqlCommand cmd, IQueryPipe pipe, Stream stream)
+        {
+            this.cmd = cmd;
+            this.pipe = pipe;
+            this.stream = stream;
+        }
+        public ODataHandler OnError(Action<Exception> onErrorHandler)
+        {
+            pipe.OnError(onErrorHandler);
+            return this;
+        }
+
+        public async Task Process()
+        {
+            await pipe.Stream(cmd, stream, "[]");
+        }
+
+    }
+
     public static class RestApiControllerExtensions 
     {
+
+        public static ODataHandler ODataHandler(
+            this Microsoft.AspNetCore.Mvc.Controller ctrl,
+            TableSpec tableSpec,
+            IQueryPipe sqlQuery)
+        {
+            var querySpec = SqlServerRestApi.OData.UriParser.Parse(tableSpec, ctrl.Request);
+            var sql = SqlServerRestApi.SQL.QueryBuilder.Build(querySpec, tableSpec);
+            if (!querySpec.count)
+                sql = sql.AsJson();
+            return new ODataHandler(sql, sqlQuery, ctrl.Response.Body);
+        }
+
         public static async Task ProcessODataRequest(
             this Microsoft.AspNetCore.Mvc.Controller ctrl,
             TableSpec tableSpec,
