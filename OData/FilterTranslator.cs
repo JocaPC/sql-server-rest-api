@@ -40,12 +40,12 @@ public partial class FilterTranslator : Lexer {
 	};
 
 
-	    SqlServerRestApi.SQL.TableSpec tableSpec;
-		SqlServerRestApi.SQL.QuerySpec querySpec;
+	    SqlServerRestApi.TableSpec tableSpec;
+		SqlServerRestApi.QuerySpec querySpec;
 		int i = 0;
 		public FilterTranslator(ICharStream input,
-								SqlServerRestApi.SQL.TableSpec tableSpec,
-								SqlServerRestApi.SQL.QuerySpec querySpec): base(input) 
+								SqlServerRestApi.TableSpec tableSpec,
+								SqlServerRestApi.QuerySpec querySpec): base(input) 
 		{
 			this.tableSpec = tableSpec;
 			this.querySpec = querySpec;

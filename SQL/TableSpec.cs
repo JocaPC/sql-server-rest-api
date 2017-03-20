@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SqlServerRestApi.SQL
+namespace SqlServerRestApi
 {
     public class TableSpec
     {

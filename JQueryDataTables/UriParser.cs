@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Microsoft.AspNetCore.Http;
-using SqlServerRestApi.SQL;
 using System;
 using System.Collections;
 

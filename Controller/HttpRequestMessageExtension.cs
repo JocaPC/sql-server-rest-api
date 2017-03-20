@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Belgrade.SqlClient;
-using SqlServerRestApi.SQL;
 using System.Data.SqlClient;
 using System.IO;
 using System.Net;
@@ -22,7 +21,7 @@ namespace SqlServerRestApi
             var querySpec = OData.UriParser.Parse(tableSpec, req);
             var sql = QueryBuilder.Build(querySpec, tableSpec);
             if (!querySpec.count)
-                sql = sql.AsJson();
+                sql = sql.AsJson("value");
             return await CreateSqlResponse(req, sqlQuery, sql);
         }
 
@@ -47,7 +46,7 @@ namespace SqlServerRestApi
             IQueryMapper mapper)
         {
             var querySpec = OData.UriParser.Parse(tableSpec, req);
-            var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
+            var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson("value");
             return await CreateSqlResponse(req, mapper, sql);
         }
 
@@ -64,6 +63,5 @@ namespace SqlServerRestApi
 
             return new HttpResponseMessage() { Content = new StringContent(body), StatusCode = httpStatus };
         }
-
     }
 }

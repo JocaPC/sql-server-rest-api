@@ -5,7 +5,7 @@ using System.Collections;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace SqlServerRestApi.SQL
+namespace SqlServerRestApi
 {
     public static class QueryBuilder
     {
@@ -191,18 +191,6 @@ namespace SqlServerRestApi.SQL
             if (spec.top != 0)
                 sql.AppendFormat(" FETCH NEXT {0} ROWS ONLY ", spec.top);
             
-        }
-
-        public static SqlCommand AsJson(this SqlCommand cmd)
-        {
-            cmd.CommandText += " FOR JSON PATH";
-            return cmd;
-        }
-
-        public static SqlCommand AsSingleJson(this SqlCommand cmd)
-        {
-            cmd.CommandText += " FOR JSON PATH, WITHOUT_ARRAY_WRAPPER";
-            return cmd;
         }
     }
 }
