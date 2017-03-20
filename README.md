@@ -104,17 +104,15 @@ Now you need to create async method that will serve OData requests with followin
 First, you need to parse Request parameters using UriParser in order to extract the definition of query (QuerySpec object). Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to client using Response.Body:
 
 ```
-       // GET api/People
-        [HttpGet]
-        public async Task Get()
-        {            
-            var querySpec = OData.UriParser.Parse(tableSpec, this.Request);
-            var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
-            await sqlQuery.Stream(sql, Response.Body, "[]");
-        }
+public async Task OData()
+{
+    await this
+            .ODataHandler(tableSpec, pipe)
+            .Process();
+}
  ```
 
-That's everything that you need to do. With three lines of code you can create OData service on any table.
+That's everything that you need to do. With three lines of code you can create OData service on any table. You can find more more details in [OData documentation](doc/odata.md) page.
 
 ## Implement REST service that process JQuery DataTables Ajax request
 
