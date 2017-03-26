@@ -112,7 +112,7 @@ namespace SqlServerRestApi
                     {
                         sql.Append(" OR ");
                     }
-                    sql.Append("(").Append(column).Append(" like @kwd)");
+                    sql.Append("(").Append(column.Name).Append(" like @kwd)");
                     isFirstColumn = false;
                 }
                 sql.Append(" ) "); // Add closing ) for WHERE ( or OR ( that is added in this block
