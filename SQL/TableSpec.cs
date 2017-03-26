@@ -3,22 +3,50 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SqlServerRestApi
 {
+    public class ColumnSpec
+    {
+        public string Name;
+        public string SqlType;
+        public int Size;
+        public bool IsKey = false;
+    }
     public class TableSpec
     {
+        public string Schema;
+        public string Name;
         public string FullName;
-        public string[] columns;
+        public List<ColumnSpec> columns;
         public string columnList;
         private ISet<string> columnSet;
 
-        public TableSpec(string fullTableName, string columnList) {
-            this.FullName = fullTableName;
+        public TableSpec(string schema, string name, string columnList = null)
+        {
+            this.Name = name;
+            this.Schema = schema;
+            this.FullName = schema+"."+name;
             this.columnList = columnList;
-            this.columns = columnList.Split(',');
-            this.columnSet = new HashSet<string>(columns);
+            this.columnSet = new HashSet<string>();
+            this.columns = new List<ColumnSpec>();
+            if (columnList != null)
+            {
+                foreach (var col in columnList.Split(','))
+                {
+                    columnSet.Add(col);
+                    columns.Add(new ColumnSpec() { Name = col });
+                }
+            }
+        }
+        
+        public TableSpec AddColumn(string name, string sqlType = null, int typeSize = 0, bool isKeyColumn = false)
+        {
+            if(columnSet.Contains(name))
+                throw new ArgumentException("The column " + name + " already exists in the table.");
+            columnSet.Add(name);
+            columns.Add(new ColumnSpec() { Name = name, SqlType = sqlType, Size = typeSize, IsKey = isKeyColumn });
+            return this;
         }
 
         public void Validate(QuerySpec querySpec, bool parametersAreColumnNames = false)
@@ -27,8 +55,8 @@ namespace SqlServerRestApi
             {
                 foreach (string column in querySpec.order.Keys)
                 {
-                    if (this.columns.All(col => col != column))
-                        throw new ArgumentException("Column " + column + "does not exists in table.");
+                    if (!this.columnSet.Contains(column))
+                        throw new ArgumentException("The column " + column + " does not exists in the table.");
                 }
             }
 
@@ -37,8 +65,8 @@ namespace SqlServerRestApi
             {
                 foreach (string column in querySpec.columnFilter.Keys)
                 {
-                    if (this.columns.All(col => col != column))
-                        throw new ArgumentException("Column " + column + "does not exists in table.");
+                    if (!this.columnSet.Contains(column))
+                        throw new ArgumentException("The column " + column + " does not exists in the table.");
                 }
             }
         }

@@ -48,7 +48,7 @@ namespace SqlServerRestApi.JQueryDataTable
                 spec.order.Add(
                         tabSpec.columns[
                             Convert.ToInt16(
-                                Request.Query[$"order[{i}][column]"][0].ToString())],
+                                Request.Query[$"order[{i}][column]"][0].ToString())].Name,
                         Request.Query[$"order[{i}][dir]"] == "asc" ? "asc" : "desc"
                     );
                 i++;
