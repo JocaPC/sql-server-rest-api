@@ -100,6 +100,8 @@ $@"{{
 
         public async override Task Get()
         {
+            if (tableSpec.columns.Count == 0)
+                throw new Exception("Columns are not defined in table definition for table " + this.tableSpec.Schema + "." + this.tableSpec.Name);
             if (metadata == Metadata.NONE)
             {
                 response.ContentType = "application/json;odata.metadata=none;odata=nometadata";
