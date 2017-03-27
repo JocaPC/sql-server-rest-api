@@ -39,7 +39,7 @@ namespace SqlServerRestApi
                 if (spec.top != 0 && spec.skip == 0)
                     sql.Append("TOP ").Append(spec.top).Append(" ");
 
-                sql.Append(spec.select ?? table.columnList);
+                sql.Append(spec.select ?? table.columnList ?? "*");
             }
             sql.Append(" FROM ");
             sql.Append(table.FullName);

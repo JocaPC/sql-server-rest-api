@@ -46,6 +46,12 @@ namespace SqlServerRestApi
                 throw new ArgumentException("The column " + name + " already exists in the table.");
             columnSet.Add(name);
             columns.Add(new ColumnSpec() { Name = name, SqlType = sqlType, Size = typeSize, IsKey = isKeyColumn });
+
+            if (string.IsNullOrEmpty(columnList))
+                this.columnList = name;
+            else
+                this.columnList += "," + name;
+
             return this;
         }
 

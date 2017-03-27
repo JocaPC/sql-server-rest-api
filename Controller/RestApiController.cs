@@ -117,7 +117,19 @@ $@"{{
             
         }
 
-        public static string GetMetadataV4(TableSpec[] tables, string Namespace, string DefaultContainerName = "Default")
+        public static string GetRootMetadataJsonV4(string ODataMetadataUrl, TableSpec[] tables)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat(@"{""@odata.context"":""{0}/$metadata"",""value"":[", ODataMetadataUrl);
+            foreach (var t in tables)
+            {
+                sb.AppendFormat(@"{""name"":""{0}"",""kind"":""EntitySet"",""url"":""{0}""}", t.Name);
+            }
+            sb.Append("]}");
+            return sb.ToString();
+        }
+
+        public static string GetMetadataXmlV4(TableSpec[] tables, string Namespace, string DefaultContainerName = "Default")
         {
             var metadata = new StringBuilder();
             metadata
