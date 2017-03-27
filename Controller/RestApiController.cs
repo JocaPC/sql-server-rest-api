@@ -140,14 +140,33 @@ $@"{{
             foreach (var tableSpec in tables) {
                 metadata.AppendFormat(@"
             <EntityType Name=""{0}"">", tableSpec.Name);
+
+                // Generate Keys
+                bool isKeyGenerated = false;
                 for (int i = 0; i < tableSpec.columns.Count; i++)
                 {
                     var column = tableSpec.columns[i];
                     if (column.IsKey)
-                        metadata.AppendFormat(@"
-                <Key><PropertyRef Name=""{0}""/></Key>", column.Name);
-                    metadata.AppendFormat(@"
-                <Property Name=""{0}"" Type=""{1}""/>", column.Name, SqlTypeToEdmType(column.SqlType));
+                    {
+                        if (!isKeyGenerated)
+                        {
+                            metadata.Append("<Key>");
+                            isKeyGenerated = true;
+                        }
+                        metadata.AppendFormat(@"<PropertyRef Name=""{0}""/>", column.Name);
+                    }
+                }
+                if (isKeyGenerated)
+                    metadata.Append("</Key>");
+
+                // Generate properties
+                for (int i = 0; i < tableSpec.columns.Count; i++)
+                {
+                    var column = tableSpec.columns[i];
+                    if(column.IsKey)
+                        metadata.AppendFormat(@"<Property Name=""{0}"" Type=""{1}"" Nullable=""false""/>", column.Name, SqlTypeToEdmType(column.SqlType));
+                    else
+                        metadata.AppendFormat(@"<Property Name=""{0}"" Type=""{1}""/>", column.Name, SqlTypeToEdmType(column.SqlType));
                 }
 
                 metadata
