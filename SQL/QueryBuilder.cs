@@ -16,10 +16,14 @@ namespace SqlServerRestApi
             StringBuilder sql = new StringBuilder();
 
             BuildSelectFromClause(spec, table, sql);
+            // We should build WHERE clause even if we need just a count.
+            // Client may need count of filtered rows.
+            BuildWherePredicate(spec, res, sql, table);
             if (!spec.count)
             {
-                BuildWherePredicate(spec, res, sql, table);
+                // Don't need ORDER BY for count
                 BuildOrderByClause(spec, sql);
+                // Don't need pagination for count
                 BuildOffsetFetchClause(spec, sql);
             }
 
