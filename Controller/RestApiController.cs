@@ -126,10 +126,10 @@ $@"{{
         public static string GetRootMetadataJsonV4(string ODataMetadataUrl, TableSpec[] tables)
         {
             var sb = new StringBuilder();
-            sb.AppendFormat(@"{""@odata.context"":""{0}/$metadata"",""value"":[", ODataMetadataUrl);
+            sb.Append("{\"@odata.context\":\"").Append(ODataMetadataUrl).Append("/$metadata\",\"value\":[");
             foreach (var t in tables)
             {
-                sb.AppendFormat(@"{""name"":""{0}"",""kind"":""EntitySet"",""url"":""{0}""}", t.Name);
+                sb.Append("{\"name\":\"").Append(ODataMetadataUrl).Append("\",\"kind\":\"EntitySet\",\"url\":\"").Append(ODataMetadataUrl).Append("\"}");
             }
             sb.Append("]}");
             return sb.ToString();
