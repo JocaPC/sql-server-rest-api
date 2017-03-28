@@ -16,7 +16,16 @@ namespace SqlServerRestApi.OData
         public static QuerySpec Parse (TableSpec tabSpec, HttpRequest Request)
         {
             var spec = new QuerySpec();
-            spec.count = (Request.Query["$count"].Count == 1);
+            if (Request.Query["$count"].Count == 1)
+                throw new ArgumentException("Parameter $count is not supported.");
+            if (Request.Query["$format"].Count == 1)
+                throw new ArgumentException("Parameter $format is not supported.");
+            if (Request.Query["$expand"].Count == 1)
+                throw new ArgumentException("Parameter $format is not supported.");
+            if (Request.Query["$skiptoken"].Count == 1)
+                throw new ArgumentException("Parameter $skiptoken is not supported.");
+
+            spec.count = Request.Path.Value.EndsWith("/$count");
             spec.skip = Convert.ToInt32(Request.Query["$skip"]);
             spec.top = Convert.ToInt32(Request.Query["$top"]);
             spec.select = Request.Query["$select"];

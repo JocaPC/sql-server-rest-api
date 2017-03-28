@@ -90,19 +90,25 @@ $@"{{
         private readonly TableSpec tableSpec;
         private readonly Metadata metadata;
         private readonly string metadataUrl;
+        private bool countOnly = false;
 
-        internal ODataHandler(SqlCommand cmd, IQueryPipe pipe, HttpResponse response, TableSpec tableSpec, string metadataUrl, Metadata metadata = Metadata.NONE) : base(cmd, pipe, response)
+        internal ODataHandler(SqlCommand cmd, IQueryPipe pipe, HttpResponse response, TableSpec tableSpec, string metadataUrl, Metadata metadata = Metadata.NONE, bool countOnly = false) : base(cmd, pipe, response)
         {
             this.tableSpec = tableSpec;
             this.metadata = metadata;
             this.metadataUrl = metadataUrl;
+            this.countOnly = countOnly;
         }
 
         public async override Task Get()
         {
             if (tableSpec.columns.Count == 0)
                 throw new Exception("Columns are not defined in table definition for table " + this.tableSpec.Schema + "." + this.tableSpec.Name);
-            if (metadata == Metadata.NONE)
+            if (this.countOnly)
+            {
+                await pipe.Stream(cmd, response.Body, "-1");
+            }
+            else if(metadata == Metadata.NONE)
             {
                 response.ContentType = "application/json;odata.metadata=none;odata=nometadata";
                 await pipe.Stream(cmd, response.Body, "{\"value\":[]}");
@@ -249,7 +255,7 @@ private static string SqlTypeToEdmType(string sqlType)
                 else
                     sql = sql.AsJson();
             }
-            return new ODataHandler(sql, sqlQuery, ctrl.Response, tableSpec, metadataUrl??((ctrl.Request.Scheme + "://" + ctrl.Request.Host + ctrl.Request.Path.Value.Replace("/"+tableSpec.Name, ""))), metadata);
+            return new ODataHandler(sql, sqlQuery, ctrl.Response, tableSpec, metadataUrl??((ctrl.Request.Scheme + "://" + ctrl.Request.Host + ctrl.Request.Path.Value.Replace("/"+tableSpec.Name, ""))), metadata, countOnly: querySpec.count);
         }
 
         public static RequestHandler JQueryDataTablesHandler(
