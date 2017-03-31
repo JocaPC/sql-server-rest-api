@@ -34,6 +34,7 @@ FUNCTION :	'contains(' { Text = "odata.contains("; } |
 			'startswith(' { Text = "odata.startswith("; } |
 			'tolower(' { Text = "lower("; } |
 			'touper(' { Text = "lower("; } |
+			'trim(' { Text = "TRIM( CHAR(20) FROM "; } |
 			'year(' { Text = "datepart(year,"; } |			
 			'month(' { Text = "datepart(month,"; } |
 			'day(' { Text = "datepart(day,"; } |
@@ -41,12 +42,21 @@ FUNCTION :	'contains(' { Text = "odata.contains("; } |
 			'minute(' { Text = "datepart(minute,"; } |
 			'second(' { Text = "datepart(second,"; }
 // Non standard functions
-			| 'json_value(' { Text = "json_value(,"; }
-			| 'json_query(' { Text = "json_query(,"; }
-			| 'isjson(' { Text = "isjson(,"; }
+			| 'json_value(' { Text = "json_value("; }
+			| 'json_query(' { Text = "json_query("; }
+			| 'json_modify(' { Text = "json_modify("; }
+			| 'isjson(' { Text = "isjson("; }
 			;
 
 UNSUPPORTEDFUNCTION: '[_a-zA-Z][_a-zA-Z0-9"."]*(' {throw new System.ArgumentException("Unsupported function: " + Text);};
+DATETIME_LITERAL: 'datetime'STRING_LITERAL { 
+
+		var p = new System.Data.SqlClient.SqlParameter("@p"+i, System.Data.SqlDbType.DateTimeOffset);
+		p.Value = System.DateTime.Parse(Text.Substring(9,Text.Length-10));
+		this.querySpec.parameters.AddFirst(p);
+		Text = "@p"+(i++);
+
+};
 
 WS : [ \n\u000D\r\t]+ -> skip;
 STRING_LITERAL : ['].*?['] { 
