@@ -15,6 +15,14 @@ namespace SqlServerRestApi
             }
         }
 
+        public virtual string ModelNamespace
+        {
+            get
+            {
+                return this.ControllerContext.ActionDescriptor.ControllerName + ".Models";
+            }
+        }
+
         public abstract TableSpec[] GetTableSpec { get; }
 
         [Produces("application/json; odata.metadata=minimal")]
@@ -28,7 +36,7 @@ namespace SqlServerRestApi
         [HttpGet("$metadata")]
         public string Metadata()
         {
-            return ODataHandler.GetMetadataXmlV4(this.GetTableSpec, "Demo.Models");
+            return ODataHandler.GetMetadataXmlV4(this.GetTableSpec, this.ModelNamespace);
         }
     }
 }
