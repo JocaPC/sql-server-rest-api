@@ -46,6 +46,7 @@ FUNCTION :	'contains(' { Text = "odata.contains("; } |
 			| 'json_query(' { Text = "json_query("; }
 			| 'json_modify(' { Text = "json_modify("; }
 			| 'isjson(' { Text = "isjson("; }
+			| 'json_cast(' { Text = "json_query("; }
 			;
 
 UNSUPPORTEDFUNCTION: '[_a-zA-Z][_a-zA-Z0-9"."]*(' {throw new System.ArgumentException("Unsupported function: " + Text);};
