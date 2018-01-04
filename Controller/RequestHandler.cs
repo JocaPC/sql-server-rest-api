@@ -31,15 +31,37 @@ namespace SqlServerRestApi
 
         public virtual async Task Process()
         {
-            await pipe.Stream(cmd, response.Body, "[]");
+            await pipe
+                .OnError(e => ReturnClientError(response))
+                .Stream(cmd, response.Body, "[]");
         }
-
 
         public virtual async Task Get()
         {
             response.ContentType = "application/json";
-            await pipe.Stream(cmd, response.Body, "[]");
+            await pipe
+                .OnError(e => ReturnClientError(response))
+                .Stream(cmd, response.Body, "[]");
         }
+
+        protected void ReturnClientError(HttpResponse response)
+        {
+            try
+            {
+                response.StatusCode = 500;
+            }
+            catch { };
+            try
+            {
+#if net46 || netcoreapp2_0
+                response.Body.Close();
+#else
+                response.Body.Dispose();
+#endif
+            }
+            catch { };
+        }
+
     }
 
     public class JQueryDataTablesHandler : RequestHandler
@@ -110,13 +132,17 @@ $@"{{
             else if(metadata == Metadata.NONE)
             {
                 response.ContentType = "application/json;odata.metadata=none;odata=nometadata";
-                await pipe.Stream(cmd, response.Body, "{\"value\":[]}");
+                await pipe
+                    .OnError(e => ReturnClientError(response))
+                    .Stream(cmd, response.Body, "{\"value\":[]}");
             }
             else
             {
                 response.ContentType = "application/json;odata.metadata=minimal";
                 await response.WriteAsync("{\"@odata.context\":\""+ this.metadataUrl + "#" + this.tableSpec.Name + "\",\"value\":");
-                await pipe.Stream(cmd, response.Body, "[]");
+                await pipe
+                    .OnError(e => ReturnClientError(response))
+                    .Stream(cmd, response.Body, "[]");
                 await response.WriteAsync("}");
             }
         }

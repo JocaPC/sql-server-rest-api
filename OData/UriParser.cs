@@ -35,7 +35,7 @@ namespace SqlServerRestApi.OData
             tabSpec.Validate(spec);
             return spec;
         }
-
+#if net46
         public static QuerySpec Parse(TableSpec tabSpec, HttpRequestMessage Request)
         {
             var spec = new QuerySpec();
@@ -49,6 +49,7 @@ namespace SqlServerRestApi.OData
             tabSpec.Validate(spec);
             return spec;
         }
+#endif
 
         private static void ParseSearch(string filter, QuerySpec spec, TableSpec tabSpec)
         {

@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;netcoreapp1.0;netstandard1.6;net46</TargetFrameworks>
+    <AssemblyName>sql-server-rest-api</AssemblyName>
+    <PackageId>Sql-Server-Rest-Api</PackageId>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);dotnet5.6;portable-net45+win8</PackageTargetFallback>
+    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.0.4</RuntimeFrameworkVersion>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Sql-Server-Rest-Api</Authors>
+    <Version>0.4</Version>
+    <Description>Utility library that enables you to create REST API using .Net and SQL Server</Description>
+    <PackageTags>SQL Server,REST,C#,OData,JQuery DataTables</PackageTags>
+    <RepositoryUrl>https://github.com/JocaPC/sql-server-rest-api</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/JocaPC/sql-server-rest-api</PackageProjectUrl>
+    <Copyright>Jovan Popovic</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4" Version="4.6.4" />
+    <PackageReference Include="Belgrade.Sql.Client" Version="0.7.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+    <Reference Include="System" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client">
+      <Version>5.2.3</Version>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

@@ -19,6 +19,9 @@ namespace SqlServerRestApi
                 services.AddScoped<IQueryPipe>(
                     sp => new QueryPipe(new SqlConnection(ConnString)));
 
+                services.AddScoped<IQueryMapper>(
+                    sp => new QueryMapper(new SqlConnection(ConnString)));
+
                 services.AddScoped<ICommand>(
                     sp => new Command(new SqlConnection(ConnString)));
                 return services;

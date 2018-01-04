@@ -3,6 +3,7 @@
 
 using Belgrade.SqlClient;
 using System;
+using System.Data.SqlClient;
 
 namespace SqlServerRestApi
 {
@@ -14,24 +15,44 @@ namespace SqlServerRestApi
             TableSpec tableSpec,
             IQueryPipe sqlQuery,
             ODataHandler.Metadata metadata = ODataHandler.Metadata.NONE,
-            string metadataUrl = null)
+            string metadataUrl = null,
+            object id = null)
         {
             var querySpec = SqlServerRestApi.OData.UriParser.Parse(tableSpec, ctrl.Request);
+            if (id != null)
+            {
+                querySpec.predicate = tableSpec.primaryKey + " = @Id";
+                var p = new SqlParameter("Id", id);
+                querySpec.parameters.AddFirst(p);
+            }
             var sql = QueryBuilder.Build(querySpec, tableSpec);
-            if (!querySpec.count)
+
+            if (id == null)
+            {
+                sql = sql.AsSingleJson();
+            } else if (!querySpec.count)
             {
                 if (metadata == ODataHandler.Metadata.NONE)
                     sql = sql.AsJson("value");
                 else
                     sql = sql.AsJson();
             }
+
             return new ODataHandler(sql, sqlQuery, ctrl.Response, tableSpec, 
                 metadataUrl??
                 ((ctrl is ODataController) ? (ctrl as ODataController).MetadataUrl : null) ?? 
                 ((ctrl.Request.Scheme + "://" + ctrl.Request.Host + ctrl.Request.Path.Value.Replace("/"+tableSpec.Name, ""))), metadata, countOnly: querySpec.count);
         }
 
-        public static RequestHandler JQueryDataTables(
+        [Obsolete]
+        public static RequestHandler JQueryDataTables(this Microsoft.AspNetCore.Mvc.Controller ctrl,
+            TableSpec tableSpec,
+            IQueryPipe sqlQuery)
+        {
+            return Table(ctrl, tableSpec, sqlQuery);
+        }
+
+        public static RequestHandler Table(
             this Microsoft.AspNetCore.Mvc.Controller ctrl,
             TableSpec tableSpec,
             IQueryPipe sqlQuery)

@@ -21,13 +21,15 @@ namespace SqlServerRestApi
         public List<ColumnSpec> columns;
         public string columnList;
         private ISet<string> columnSet;
+        public string primaryKey;
 
-        public TableSpec(string schema, string name, string columnList = null)
+        public TableSpec(string schema, string name, string columnList = null, string primaryKey = null)
         {
             this.Name = name;
             this.Schema = schema;
             this.FullName = schema+"."+name;
             this.columnList = columnList;
+            this.primaryKey = primaryKey;
             this.columnSet = new HashSet<string>();
             this.columns = new List<ColumnSpec>();
             if (columnList != null)
@@ -36,6 +38,10 @@ namespace SqlServerRestApi
                 {
                     columnSet.Add(col);
                     columns.Add(new ColumnSpec() { Name = col });
+                    if(this.primaryKey == null)
+                    {
+                        this.primaryKey = col;
+                    }
                 }
             }
         }
@@ -51,6 +57,11 @@ namespace SqlServerRestApi
                 this.columnList = name;
             else
                 this.columnList += "," + name;
+
+            if (this.primaryKey == null)
+            {
+                this.primaryKey = name;
+            }
 
             return this;
         }

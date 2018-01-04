@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace SqlServerRestApi
 {
+#if net46
     public static class HttpRequestMessageExtension
     { 
 
@@ -64,4 +65,5 @@ namespace SqlServerRestApi
             return new HttpResponseMessage() { Content = new StringContent(body), StatusCode = httpStatus };
         }
     }
+#endif
 }
