@@ -11,9 +11,9 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Jovan Popovic</Authors>
-    <Version>0.4</Version>
+    <Version>0.4.1</Version>
     <Description>ASP.NET Library that enables fast development of REST API that read data from SQL Server 2016+ and Azure SQL database.</Description>
-    <PackageTags>SQL Server,REST,C#,OData,JQuery DataTables</PackageTags>
+    <PackageTags>SqlServer,REST,C#,OData,JQueryDataTables</PackageTags>
     <RepositoryUrl>https://github.com/JocaPC/sql-server-rest-api</RepositoryUrl>
     <PackageProjectUrl>https://github.com/JocaPC/sql-server-rest-api</PackageProjectUrl>
     <Copyright>Jovan Popovic</Copyright>

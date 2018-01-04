@@ -27,7 +27,7 @@ namespace SqlServerRestApi
             }
             var sql = QueryBuilder.Build(querySpec, tableSpec);
 
-            if (id == null)
+            if (id != null)
             {
                 sql = sql.AsSingleJson();
             } else if (!querySpec.count)
@@ -44,7 +44,7 @@ namespace SqlServerRestApi
                 ((ctrl.Request.Scheme + "://" + ctrl.Request.Host + ctrl.Request.Path.Value.Replace("/"+tableSpec.Name, ""))), metadata, countOnly: querySpec.count);
         }
 
-        [Obsolete]
+        [Obsolete("Use Table(...) method instead of this one.")]
         public static RequestHandler JQueryDataTables(this Microsoft.AspNetCore.Mvc.Controller ctrl,
             TableSpec tableSpec,
             IQueryPipe sqlQuery)
