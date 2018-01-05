@@ -7,7 +7,6 @@ using System.Data.SqlClient;
 
 namespace SqlServerRestApi
 {
-
     public static class RestApiControllerExtensions 
     {
         public static RequestHandler OData(
@@ -23,6 +22,10 @@ namespace SqlServerRestApi
             {
                 querySpec.predicate = tableSpec.primaryKey + " = @Id";
                 var p = new SqlParameter("Id", id);
+                if(querySpec.parameters == null)
+                {
+                    querySpec.parameters = new System.Collections.Generic.LinkedList<SqlParameter>();
+                }
                 querySpec.parameters.AddFirst(p);
             }
             var sql = QueryBuilder.Build(querySpec, tableSpec);
@@ -41,7 +44,9 @@ namespace SqlServerRestApi
             return new ODataHandler(sql, sqlQuery, ctrl.Response, tableSpec, 
                 metadataUrl??
                 ((ctrl is ODataController) ? (ctrl as ODataController).MetadataUrl : null) ?? 
-                ((ctrl.Request.Scheme + "://" + ctrl.Request.Host + ctrl.Request.Path.Value.Replace("/"+tableSpec.Name, ""))), metadata, countOnly: querySpec.count);
+                ((ctrl.Request.Scheme + "://" + ctrl.Request.Host + ctrl.Request.Path.Value.Replace("/"+tableSpec.Name, ""))), metadata,
+                countOnly: querySpec.count,
+                returnSingleResult: (id != null));
         }
 
         [Obsolete("Use Table(...) method instead of this one.")]

@@ -15,12 +15,14 @@ namespace SqlServerRestApi
         protected SqlCommand cmd;
         protected IQueryPipe pipe;
         protected HttpResponse response;
+        protected bool IsSingletonResponse = false;
 
-        internal RequestHandler(SqlCommand cmd, IQueryPipe pipe, HttpResponse response)
+        internal RequestHandler(SqlCommand cmd, IQueryPipe pipe, HttpResponse response, bool isSingleton = false)
         {
             this.cmd = cmd;
             this.pipe = pipe;
             this.response = response;
+            this.IsSingletonResponse = isSingleton;
         }
 
         public virtual RequestHandler OnError(Action<Exception> onErrorHandler)
@@ -33,7 +35,7 @@ namespace SqlServerRestApi
         {
             await pipe
                 .OnError(e => ReturnClientError(response))
-                .Stream(cmd, response.Body, "[]");
+                .Stream(cmd, response.Body, IsSingletonResponse?"{}":"[]");
         }
 
         public virtual async Task Get()
@@ -41,7 +43,7 @@ namespace SqlServerRestApi
             response.ContentType = "application/json";
             await pipe
                 .OnError(e => ReturnClientError(response))
-                .Stream(cmd, response.Body, "[]");
+                .Stream(cmd, response.Body, IsSingletonResponse ? "{}" : "[]");
         }
 
         protected void ReturnClientError(HttpResponse response)
@@ -113,7 +115,7 @@ $@"{{
         private readonly string metadataUrl;
         private bool countOnly = false;
 
-        internal ODataHandler(SqlCommand cmd, IQueryPipe pipe, HttpResponse response, TableSpec tableSpec, string metadataUrl, Metadata metadata = Metadata.NONE, bool countOnly = false) : base(cmd, pipe, response)
+        internal ODataHandler(SqlCommand cmd, IQueryPipe pipe, HttpResponse response, TableSpec tableSpec, string metadataUrl, Metadata metadata = Metadata.NONE, bool countOnly = false, bool returnSingleResult = false) : base(cmd, pipe, response, returnSingleResult)
         {
             this.tableSpec = tableSpec;
             this.metadata = metadata;
