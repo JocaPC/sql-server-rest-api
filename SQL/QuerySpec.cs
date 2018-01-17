@@ -11,8 +11,8 @@ namespace SqlServerRestApi
     {
         public string select = "*";
         public bool count = false;
-        public int top;
-        public int skip;
+        public int top = -1;
+        public int skip = -1;
         public Hashtable columnFilter;
         public LinkedList<SqlParameter> parameters;
         public string predicate;

@@ -26,8 +26,10 @@ namespace SqlServerRestApi.OData
                 throw new ArgumentException("Parameter $skiptoken is not supported.");
 
             spec.count = Request.Path.Value.EndsWith("/$count");
-            spec.skip = Convert.ToInt32(Request.Query["$skip"]);
-            spec.top = Convert.ToInt32(Request.Query["$top"]);
+            if (Request.Query.ContainsKey("$skip"))
+                spec.skip = Convert.ToInt32(Request.Query["$skip"]);
+            if(Request.Query.ContainsKey("$top"))
+                spec.top = Convert.ToInt32(Request.Query["$top"]);
             spec.select = Request.Query["$select"];
             spec.keyword = Request.Query["$search"];
             ParseSearch(Request.Query["$filter"], spec, tabSpec);

@@ -81,29 +81,25 @@ namespace SqlServerRestApi
         
         public override async Task Process()
         {
-            var header = System.Text.Encoding.UTF8.GetBytes(
+            var header = 
 $@"{{ 
     ""draw"":""{draw}"",
     ""recordsTotal"":""{start + length + 1}"",
     ""recordsFiltered"":""{start + length + 1}"",
-    ""data"":");
-            await response.Body.WriteAsync(header, 0, header.Length);
-            await pipe.Stream(cmd, response.Body, "[]");
-            await response.Body.WriteAsync(Encoding.UTF8.GetBytes("}"), 0, 1);
+    ""data"":";
+            await pipe.Stream(cmd, response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}" });
         }
 
         public override async Task Get()
         {
             response.ContentType = "application/json";
-            var header = Encoding.UTF8.GetBytes(
+            var header =
 $@"{{ 
     ""draw"":""{draw}"",
     ""recordsTotal"":""{start + length + 1}"",
     ""recordsFiltered"":""{start + length + 1}"",
-    ""data"":");
-            await response.Body.WriteAsync(header, 0, header.Length);
-            await pipe.Stream(cmd, response.Body, "[]");
-            await response.Body.WriteAsync(Encoding.UTF8.GetBytes("}"), 0, 1);
+    ""data"":";
+            await pipe.Stream(cmd, response.Body, new Options { Prefix = header, DefaultOutput="[]", Suffix = "}"});
         }
     }
 
@@ -121,6 +117,13 @@ $@"{{
             this.metadata = metadata;
             this.metadataUrl = metadataUrl;
             this.countOnly = countOnly;
+        }
+
+        public override async Task Process()
+        {
+            await pipe
+                .OnError(e => ReturnClientError(response))
+                .Stream(cmd, response.Body, IsSingletonResponse ? "{}" : "{\"value\":[]}");
         }
 
         public async override Task Get()
@@ -141,11 +144,10 @@ $@"{{
             else
             {
                 response.ContentType = "application/json;odata.metadata=minimal";
-                await response.WriteAsync("{\"@odata.context\":\""+ this.metadataUrl + "#" + this.tableSpec.Name + "\",\"value\":");
+                var header = "{\"@odata.context\":\"" + this.metadataUrl + "#" + this.tableSpec.Name + "\",\"value\":";
                 await pipe
                     .OnError(e => ReturnClientError(response))
-                    .Stream(cmd, response.Body, "[]");
-                await response.WriteAsync("}");
+                    .Stream(cmd, response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}"});
             }
         }
 

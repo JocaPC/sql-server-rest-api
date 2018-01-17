@@ -5,13 +5,16 @@ lexer grammar FilterTranslator;
 @lexer::members {
     SqlServerRestApi.TableSpec tableSpec;
 	SqlServerRestApi.QuerySpec querySpec;
+	string odataHelperSqlSchema;
 	int i = 0;
 	public FilterTranslator(ICharStream input,
 							SqlServerRestApi.TableSpec tableSpec,
-							SqlServerRestApi.QuerySpec querySpec): base(input) 
+							SqlServerRestApi.QuerySpec querySpec,
+							string odataHelperSqlSchema = "odata"): base(input) 
 	{
 		this.tableSpec = tableSpec;
 		this.querySpec = querySpec;
+		this.odataHelperSqlSchema = odataHelperSqlSchema;
 		this.querySpec.parameters = new System.Collections.Generic.LinkedList<System.Data.SqlClient.SqlParameter>();
 		_interp = new LexerATNSimulator(this,_ATN);
 	}
@@ -27,11 +30,13 @@ OPERATOR : 'eq' { Text = "="; } | 'ne' { Text = "<>"; } |
 			// Operators that are not translated but they need to skip identifier check.
 			'and' { Text = " AND "; } | 'or' { Text = " OR "; } |
 			'not' { Text = " NOT "; };
-FUNCTION :	'contains(' { Text = "odata.contains("; } |
-			'endswith(' { Text = "odata.endswith("; } |
-			'indexof(' { Text = "odata.indexof("; } |
+LITERAL : 'true' { Text = "1"; } | 'false' { Text = "0"; };
+FUNCTION :	'contains(' { Text = this.odataHelperSqlSchema+".contains("; } |
+			'endswith(' { Text = this.odataHelperSqlSchema+".endswith("; } |
+			'indexof(' { Text = this.odataHelperSqlSchema+".indexof("; } |
+			'substringof(' { Text = this.odataHelperSqlSchema+".substringof("; } |
 			'length(' { Text = "len("; } |
-			'startswith(' { Text = "odata.startswith("; } |
+			'startswith(' { Text = this.odataHelperSqlSchema+"startswith("; } |
 			'tolower(' { Text = "lower("; } |
 			'touper(' { Text = "lower("; } |
 			'trim(' { Text = "TRIM( CHAR(20) FROM "; } |

@@ -28,6 +28,7 @@ namespace SqlServerRestApi
             }
 
             res.CommandText = sql.ToString();
+            res.CommandTimeout = 360;
             return res;
         }
 
@@ -40,7 +41,7 @@ namespace SqlServerRestApi
             }
             else
             {
-                if (spec.top != 0 && spec.skip == 0)
+                if (spec.top >= 0 && spec.skip <= 0)
                     sql.Append("TOP ").Append(spec.top).Append(" ");
 
                 sql.Append(spec.select ?? table.columnList ?? "*");
@@ -180,19 +181,18 @@ namespace SqlServerRestApi
         
         private static void BuildOffsetFetchClause(QuerySpec spec, StringBuilder sql)
         {
-            if (spec.top == 0 && spec.skip == 0)
-                return; // Nothing to generate
-            if (spec.top != 0 && spec.skip == 0)
+            if (spec.top >= 0 && spec.skip <= 0)
                 return; // This case is covered with TOP
 
             // At this point we know that spec.skip is != null
 
             if (spec.order == null || spec.order.Keys.Count == 0)
-                sql.Append(" ORDER BY 1 "); // Add mandatory order by clause if it is not yet there.
+                sql.Append(" ORDER BY 1 "); // Add mandatory order by clause if it is not already there.
 
-            sql.AppendFormat(" OFFSET {0} ROWS ", spec.skip);
+            if (spec.skip >= 0)
+                sql.AppendFormat(" OFFSET {0} ROWS ", spec.skip);
 
-            if (spec.top != 0)
+            if (spec.top >= 0)
                 sql.AppendFormat(" FETCH NEXT {0} ROWS ONLY ", spec.top);
             
         }
