@@ -62,12 +62,12 @@ namespace SqlServerRestApi
         private static IQueryMapper CreateQueryMapper(Option options, IServiceProvider sp)
         {
             var m = new QueryMapper(new SqlConnection(options.ReadScaleOut? (options.ReadOnlyConnString?? (options.ConnString + "ApplicationIntent=ReadOnly;")): options.ConnString));
-            if (options.SessionContext.Count >= 1)
+            if (options.SessionContext != null && options.SessionContext.Count >= 1)
             {
-                var rls = options.SessionContext.First();
-                m.AddRls(rls.Key, () => rls.Value(sp));
-                if (options.SessionContext.Count > 1)
-                    throw new Exception("Multiple session context variables are still not supported!");
+                foreach (var rls in options.SessionContext)
+                {
+                    m.AddContextVariable(rls.Key, () => rls.Value(sp));
+                }
             }
             return m;
         }
@@ -75,12 +75,12 @@ namespace SqlServerRestApi
         private static IQueryPipe CreateQueryPipe(Option options, IServiceProvider sp)
         {
             var m = new QueryPipe(new SqlConnection(options.ReadScaleOut ? (options.ReadOnlyConnString ?? (options.ConnString + "ApplicationIntent=ReadOnly;")) : options.ConnString));
-            if (options.SessionContext.Count >= 1)
+            if (options.SessionContext != null && options.SessionContext.Count >= 1)
             {
-                var rls = options.SessionContext.First();
-                m.AddRls(rls.Key, () => rls.Value(sp));
-                if (options.SessionContext.Count > 1)
-                    throw new Exception("Multiple session context variables are still not supported!");
+                foreach (var rls in options.SessionContext)
+                {
+                    m.AddContextVariable(rls.Key, () => rls.Value(sp));
+                }
             }
             return m;
         }
@@ -88,12 +88,12 @@ namespace SqlServerRestApi
         private static ICommand CreateCommand(Option options, IServiceProvider sp)
         {
             var m = new Command(new SqlConnection(options.ConnString));
-            if (options.SessionContext.Count >= 1)
+            if (options.SessionContext != null && options.SessionContext.Count >= 1)
             {
-                var rls = options.SessionContext.First();
-                m.AddRls(rls.Key, () => rls.Value(sp));
-                if (options.SessionContext.Count > 1)
-                    throw new Exception("Multiple session context variables are still not supported!");
+                foreach (var rls in options.SessionContext)
+                {
+                    m.AddContextVariable(rls.Key, () => rls.Value(sp));
+                }
             }
             return m;
         }
