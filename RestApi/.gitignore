@@ -1,0 +1,10 @@
+*.xproj.user
+.vs/*
+.vscode/*
+packages/*
+nuget/*
+bin/*
+obj/*
+*.sln
+*.log
+*.lock.json
