@@ -26,35 +26,59 @@ namespace SqlServerRestApi
             this.countOnly = countOnly;
         }
 
-        public override async Task Process()
+        public override async Task Process(bool useDefaultContentType = true)
         {
-            await pipe
+            if (tableSpec.columns.Count == 0)
+                throw new Exception("Columns are not defined in table definition for table " + this.tableSpec.Schema + "." + this.tableSpec.Name);
+            if (this.countOnly)
+            {
+                await pipe.Sql(cmd).Stream(response.Body, "-1");
+            }
+            else if (metadata == Metadata.NONE)
+            {
+                await pipe
+                .Sql(cmd)
                 .OnError(e => ReturnClientError(response))
-                .Stream(cmd, response.Body, IsSingletonResponse ? "{}" : "{\"value\":[]}");
+                .Stream(response.Body, IsSingletonResponse ? "{}" : "{\"value\":[]}");
+            }  else if (metadata == Metadata.MINIMAL)
+            {
+                response.ContentType = "application/json;odata.metadata=minimal";
+                var header = "{\"@odata.context\":\"" + this.metadataUrl + "#" + this.tableSpec.Name + "\",\"value\":";
+                await pipe
+                    .Sql(cmd)
+                    .OnError(e => ReturnClientError(response))
+                    .Stream(response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}" });
+            } else
+            {
+                throw new InvalidOperationException("Cannot generate response for metadata type: " + metadata); 
+            }
         }
 
+        [Obsolete("Use Process()")]
         public async override Task Get()
         {
             if (tableSpec.columns.Count == 0)
                 throw new Exception("Columns are not defined in table definition for table " + this.tableSpec.Schema + "." + this.tableSpec.Name);
             if (this.countOnly)
             {
-                await pipe.Stream(cmd, response.Body, "-1");
+                await pipe.Sql(cmd).Stream(response.Body, "-1");
             }
             else if(metadata == Metadata.NONE)
             {
                 response.ContentType = "application/json;odata.metadata=none;odata=nometadata";
                 await pipe
+                    .Sql(cmd)
                     .OnError(e => ReturnClientError(response))
-                    .Stream(cmd, response.Body, "{\"value\":[]}");
+                    .Stream(response.Body, "{\"value\":[]}");
             }
             else
             {
                 response.ContentType = "application/json;odata.metadata=minimal";
                 var header = "{\"@odata.context\":\"" + this.metadataUrl + "#" + this.tableSpec.Name + "\",\"value\":";
                 await pipe
+                    .Sql(cmd)
                     .OnError(e => ReturnClientError(response))
-                    .Stream(cmd, response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}"});
+                    .Stream(response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}"});
             }
         }
 

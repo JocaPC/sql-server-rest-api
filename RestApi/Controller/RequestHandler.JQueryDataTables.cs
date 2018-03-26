@@ -3,6 +3,7 @@
 
 using Belgrade.SqlClient;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
@@ -21,17 +22,21 @@ namespace SqlServerRestApi
             this.length = length;
         }
         
-        public override async Task Process()
+        public override async Task Process(bool useDefaultContentType = true)
         {
+            if (useDefaultContentType) response.ContentType = "application/json";
             var header = 
 $@"{{ 
     ""draw"":""{draw}"",
     ""recordsTotal"":""{start + length + 1}"",
     ""recordsFiltered"":""{start + length + 1}"",
     ""data"":";
-            await pipe.Stream(cmd, response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}" });
+            await pipe
+                .Sql(cmd)
+                .Stream(response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}" });
         }
 
+        [Obsolete("Use Process()")]
         public override async Task Get()
         {
             response.ContentType = "application/json";
@@ -41,7 +46,9 @@ $@"{{
     ""recordsTotal"":""{start + length + 1}"",
     ""recordsFiltered"":""{start + length + 1}"",
     ""data"":";
-            await pipe.Stream(cmd, response.Body, new Options { Prefix = header, DefaultOutput="[]", Suffix = "}"});
+            await pipe
+                .Sql(cmd)
+                .Stream(response.Body, new Options { Prefix = header, DefaultOutput="[]", Suffix = "}"});
         }
     }
 

@@ -31,19 +31,21 @@ namespace SqlServerRestApi
             return this;
         }
 
-        public virtual async Task Process()
+        public virtual async Task Process(bool useDefaultContentType = true)
         {
-            await pipe
+            if(useDefaultContentType) response.ContentType = "application/json";
+            await pipe.Sql(cmd)
                 .OnError(e => ReturnClientError(response))
-                .Stream(cmd, response.Body, IsSingletonResponse?"{}":"[]");
+                .Stream(response.Body, IsSingletonResponse?"{}":"[]");
         }
 
+        [Obsolete("Use Process()")]
         public virtual async Task Get()
         {
             response.ContentType = "application/json";
-            await pipe
+            await pipe.Sql(cmd)
                 .OnError(e => ReturnClientError(response))
-                .Stream(cmd, response.Body, IsSingletonResponse ? "{}" : "[]");
+                .Stream(response.Body, IsSingletonResponse ? "{}" : "[]");
         }
 
         protected void ReturnClientError(HttpResponse response)

@@ -5,8 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SqlServerRestApi
 {
+    /// <summary>
+    /// Controller class that should be used to expose OData REST API with minimal metadata.
+    /// </summary>
     public abstract class ODataController : Controller
     {
+        /// <summary>
+        /// Url that will be placed in XML metadata.
+        /// </summary>
         public virtual string MetadataUrl
         {
             get
