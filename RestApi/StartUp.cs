@@ -47,6 +47,9 @@ namespace SqlServerRestApi
                     services.AddSingleton<ICommand>(sp => CreateCommand(options, sp));
                     break;
             }
+            Belgrade.SqlClient.SqlDb.RetryErrorHandlerBuilder.Enable(options.EnableRetryLogic);
+            Belgrade.SqlClient.SqlDb.RetryErrorHandlerBuilder.EnableDelayedRetries(options.EnableDelayedRetryLogic);
+
             return services;
         }
 
@@ -122,6 +125,8 @@ namespace SqlServerRestApi
         public bool ReadScaleOut = false;
         public string ReadOnlyConnString;
         public void UseSqlServer(string ConnString) => this.ConnString = ConnString;
+        public bool EnableRetryLogic = true;
+        public bool EnableDelayedRetryLogic = true;
 
         public enum ServiceScopeEnum { SINGLETON, SCOPED, TRANSIENT };
 
