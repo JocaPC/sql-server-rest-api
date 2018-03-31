@@ -5,6 +5,8 @@ using Belgrade.SqlClient;
 using Belgrade.SqlClient.SqlDb;
 using Belgrade.SqlClient.SqlDb.Rls;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using RestApi.Util;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -16,24 +18,13 @@ namespace SqlServerRestApi
     {
         public static IServiceCollection AddSqlClient(this IServiceCollection services, string ConnString, Action<Option> init = null)
         {
-            if (init == null)
-            {
-                // Adding data access services/components.
-                services.AddScoped<IQueryPipe>(
-                    sp => new QueryPipe(new SqlConnection(ConnString)));
-
-                services.AddScoped<IQueryMapper>(
-                    sp => new QueryMapper(new SqlConnection(ConnString)));
-
-                services.AddScoped<ICommand>(
-                    sp => new Command(new SqlConnection(ConnString)));
-                return services;
-            } else
-            {
-                return AddSqlClient(services, option => { init(option); option.ConnString = ConnString; });
-            }
+            return AddSqlClient(services, options =>
+                                            {
+                                                options.UseSqlServer(ConnString);
+                                                if(init!=null) init(options);
+                                            });
         }
-
+        
         public static IServiceCollection AddSqlClient(this IServiceCollection services, Action<Option> init)
         {
             Option options = new Option();
@@ -62,6 +53,9 @@ namespace SqlServerRestApi
         private static IQueryMapper CreateQueryMapper(Option options, IServiceProvider sp)
         {
             var m = new QueryMapper(new SqlConnection(options.ReadScaleOut? (options.ReadOnlyConnString?? (options.ConnString + "ApplicationIntent=ReadOnly;")): options.ConnString));
+            var logger = TryGetLogger<QueryPipe>(sp);
+            if (logger != null)
+                m.AddLogger(logger);
             if (options.SessionContext != null && options.SessionContext.Count >= 1)
             {
                 foreach (var rls in options.SessionContext)
@@ -74,31 +68,52 @@ namespace SqlServerRestApi
 
         private static IQueryPipe CreateQueryPipe(Option options, IServiceProvider sp)
         {
-            var m = new QueryPipe(new SqlConnection(options.ReadScaleOut ? (options.ReadOnlyConnString ?? (options.ConnString + "ApplicationIntent=ReadOnly;")) : options.ConnString));
+            var pipe = new QueryPipe(new SqlConnection(options.ReadScaleOut ? (options.ReadOnlyConnString ?? (options.ConnString + "ApplicationIntent=ReadOnly;")) : options.ConnString));
+            var logger = TryGetLogger<QueryPipe>(sp);
+            if (logger != null)
+                pipe.AddLogger(logger);
             if (options.SessionContext != null && options.SessionContext.Count >= 1)
             {
                 foreach (var rls in options.SessionContext)
                 {
-                    m.AddContextVariable(rls.Key, () => rls.Value(sp));
+                    pipe.AddContextVariable(rls.Key, () => rls.Value(sp));
                 }
             }
-            return m;
+            return pipe;
         }
 
         private static ICommand CreateCommand(Option options, IServiceProvider sp)
         {
-            var m = new Command(new SqlConnection(options.ConnString));
+            var cmd = new Command(new SqlConnection(options.ConnString));
+            var logger = TryGetLogger<QueryPipe>(sp);
+            if (logger != null)
+                cmd.AddLogger(logger);
             if (options.SessionContext != null && options.SessionContext.Count >= 1)
             {
                 foreach (var rls in options.SessionContext)
                 {
-                    m.AddContextVariable(rls.Key, () => rls.Value(sp));
+                    cmd.AddContextVariable(rls.Key, () => rls.Value(sp));
                 }
             }
-            return m;
+            return cmd;
         }
 
+        private static Common.Logging.ILog TryGetLogger<T>(IServiceProvider sp)
+        {
+            var commonLogger = sp.GetServices<Common.Logging.ILogManager>().FirstOrDefault();
+            if (commonLogger != null)
+            {
+                return commonLogger.GetLogger<T>();
+            } else {
+                var logger = sp.GetServices<ILoggerFactory>().FirstOrDefault();
+                if (logger != null)
+                {
+                    return new CommonILogAdapter4ExtensionILogger(logger.CreateLogger<T>());
+                }
+            }
 
+            return null;
+        }
     }
 
     public class Option {
@@ -106,6 +121,7 @@ namespace SqlServerRestApi
         public string ConnString;
         public bool ReadScaleOut = false;
         public string ReadOnlyConnString;
+        public void UseSqlServer(string ConnString) => this.ConnString = ConnString;
 
         public enum ServiceScopeEnum { SINGLETON, SCOPED, TRANSIENT };
 

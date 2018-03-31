@@ -36,7 +36,7 @@ namespace SqlServerRestApi
             using (var sw = new StringWriter())
             {
                 pipe.OnError(ex => httpStatus = HttpStatusCode.InternalServerError);
-                await pipe.Stream(sql, sw, "[]");
+                await pipe.Sql(sql).Stream(sw, "[]");
                 return new HttpResponseMessage() { Content = new StringContent(sw.ToString()), StatusCode = httpStatus };
             }
         }
