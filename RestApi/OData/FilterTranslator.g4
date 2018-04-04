@@ -10,13 +10,12 @@ lexer grammar FilterTranslator;
 	public FilterTranslator(ICharStream input,
 							SqlServerRestApi.TableSpec tableSpec,
 							SqlServerRestApi.QuerySpec querySpec,
-							string odataHelperSqlSchema = "odata"): base(input) 
+							string odataHelperSqlSchema = "odata"): this(input) 
 	{
 		this.tableSpec = tableSpec;
 		this.querySpec = querySpec;
 		this.odataHelperSqlSchema = odataHelperSqlSchema;
 		this.querySpec.parameters = new System.Collections.Generic.LinkedList<System.Data.SqlClient.SqlParameter>();
-		this.Interpreter = new LexerATNSimulator(this,_ATN, decisionToDFA, sharedContextCache);
 	}
 }
 
