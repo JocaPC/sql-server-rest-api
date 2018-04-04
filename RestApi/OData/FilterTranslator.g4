@@ -16,7 +16,7 @@ lexer grammar FilterTranslator;
 		this.querySpec = querySpec;
 		this.odataHelperSqlSchema = odataHelperSqlSchema;
 		this.querySpec.parameters = new System.Collections.Generic.LinkedList<System.Data.SqlClient.SqlParameter>();
-		_interp = new LexerATNSimulator(this,_ATN);
+		this.Interpreter = new LexerATNSimulator(this,_ATN, decisionToDFA, sharedContextCache);
 	}
 }
 
@@ -64,7 +64,7 @@ DATETIME_LITERAL: 'datetime'STRING_LITERAL {
 
 };
 
-WS : [ \n\u000D\r\t]+ -> skip;
+WS : [ \n\u000D\t]+ -> skip;
 STRING_LITERAL : ['].*?['] { 
 		var p = new System.Data.SqlClient.SqlParameter("@p"+i, System.Data.SqlDbType.NVarChar, 4000);
 		p.Value = Text.Substring(1,Text.Length-2);
@@ -78,4 +78,4 @@ NUMBER : [1-9][0-9]* {
 		Text = "@p"+(i++); 
 };
 PROPERTY : [_@#a-zA-Z][a-zA-Z0-9_@#]* { this.tableSpec.HasColumn(Text);};
-TEXT : [".""("")"]+;
+TEXT : [()]+;

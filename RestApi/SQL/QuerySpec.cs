@@ -16,6 +16,7 @@ namespace SqlServerRestApi
         public Hashtable columnFilter;
         public LinkedList<SqlParameter> parameters;
         public string predicate;
+        public string groupBy;
         public Hashtable order;
         internal string keyword;
     }

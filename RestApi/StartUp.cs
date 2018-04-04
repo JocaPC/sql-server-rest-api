@@ -47,8 +47,9 @@ namespace SqlServerRestApi
                     services.AddSingleton<ICommand>(sp => CreateCommand(options, sp));
                     break;
             }
-            Belgrade.SqlClient.SqlDb.RetryErrorHandlerBuilder.Enable(options.EnableRetryLogic);
-            Belgrade.SqlClient.SqlDb.RetryErrorHandlerBuilder.EnableDelayedRetries(options.EnableDelayedRetryLogic);
+
+            Belgrade.SqlClient.SqlDb.RetryErrorHandler.Enable(options.EnableRetryLogic);
+            Belgrade.SqlClient.SqlDb.RetryErrorHandler.EnableDelayedRetries(options.EnableDelayedRetryLogic);
 
             return services;
         }

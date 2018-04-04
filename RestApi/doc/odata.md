@@ -87,15 +87,15 @@ Then you need to create a controller that will expose OData service using some m
 using Belgrade.SqlClient;
 using SqlServerRestApi;
 
-namespace MyMvcApp.Controllers
+namespace MyApp.Controllers
 {
     [Route("api/[controller]")]
     public class PeopleController : Controller
     {
-        IQueryPipe pipe = null;
-        public PeopleController(IQueryPipe sqlQueryService)
+        IComand cmd = null;
+        public PeopleController(ICommand sqlQueryService)
         {
-            this.pipe = sqlQueryService;
+            this.cmd = sqlQueryService;
         }
 
         /// <summary>
@@ -106,8 +106,8 @@ namespace MyMvcApp.Controllers
         [HttpGet("odata")]
         public async Task OData()
         {
-            var tableSpec = new TableSpec("dbo.People", "name,surname,address,town");
-            await this.OData(tableSpec, pipe).Process();
+            var tableSpec = new TableSpec("Application.People", "PersonID,FullName,PhoneNumber");
+            await this.OData(tableSpec, cmd).Process();
         }
     }
 }

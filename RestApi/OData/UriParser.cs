@@ -2,7 +2,9 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
 using System.Net.Http;
@@ -18,10 +20,10 @@ namespace SqlServerRestApi.OData
             var spec = new QuerySpec();
             if (Request.Query["$count"].Count == 1)
                 throw new ArgumentException("Parameter $count is not supported.");
-            if (Request.Query["$format"].Count == 1)
+            if (Request.Query["$format"].Count == 1 && Request.Query["$format"].ToString().ToLower() != "json")
                 throw new ArgumentException("Parameter $format is not supported.");
             if (Request.Query["$expand"].Count == 1)
-                throw new ArgumentException("Parameter $format is not supported.");
+                throw new ArgumentException("Parameter $expand is not supported.");
             if (Request.Query["$skiptoken"].Count == 1)
                 throw new ArgumentException("Parameter $skiptoken is not supported.");
 
@@ -33,9 +35,31 @@ namespace SqlServerRestApi.OData
             spec.select = Request.Query["$select"];
             spec.keyword = Request.Query["$search"];
             ParseSearch(Request.Query["$filter"], spec, tabSpec);
+            ParseGroupBy(Request.Query["$apply"], spec, tabSpec);
             ParseOrderBy(tabSpec, Request.Query["$orderby"], spec);
             tabSpec.Validate(spec);
             return spec;
+        }
+
+        private static void ParseGroupBy(string apply, QuerySpec spec, TableSpec tabSpec)
+        {
+            if (string.IsNullOrEmpty(apply))
+                return;
+            var lexer = new ApplyTranslatorLexer(new AntlrInputStream(apply));
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            // Pass the tokens to the parser
+            var parser = new ApplyTranslatorParser(tokens);
+
+            // Run root rule ("apply" in this grammar)
+            parser.apply();
+
+            spec.select = parser.GroupBy;
+            foreach (var a in parser.Aggregates)
+            {
+                spec.select += ((spec.select == null) ?"":",") + a.AggregateColumnAlias + "=" + a.AggregateMethod + "(" + a.AggregateColumn + ")";
+            }
+            spec.groupBy = parser.GroupBy;
+
         }
 #if net46
         public static QuerySpec Parse(TableSpec tabSpec, HttpRequestMessage Request)
@@ -59,9 +83,10 @@ namespace SqlServerRestApi.OData
             {
                 var lexer = new FilterTranslator(new AntlrInputStream(filter), tabSpec, spec);
                 var predicate = new StringBuilder();
-                while (!lexer._hitEOF)
+                while (!lexer.HitEOF)
                 {
-                    predicate.Append(lexer.NextToken().Text);
+                    var token = lexer.NextToken();
+                    predicate.Append(token.Text);
                 }
                 spec.predicate = predicate.ToString();
             }

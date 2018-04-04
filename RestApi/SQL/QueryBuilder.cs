@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Data.SqlClient;
 using System.Text;
@@ -19,6 +20,7 @@ namespace SqlServerRestApi
             // We should build WHERE clause even if we need just a count.
             // Client may need count of filtered rows.
             BuildWherePredicate(spec, res, sql, table);
+            BuildGroupByClause(spec, res, sql, table);
             if (!spec.count)
             {
                 // Don't need ORDER BY for count
@@ -30,6 +32,14 @@ namespace SqlServerRestApi
             res.CommandText = sql.ToString();
             res.CommandTimeout = 360;
             return res;
+        }
+
+        private static void BuildGroupByClause(QuerySpec spec, SqlCommand res, StringBuilder sql, TableSpec table)
+        {
+            if (spec.groupBy != null)
+            {
+                sql.Append(" GROUP BY ").Append(spec.groupBy);
+            }
         }
 
         private static void BuildSelectFromClause(QuerySpec spec, TableSpec table, StringBuilder sql)
