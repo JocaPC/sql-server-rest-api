@@ -35,15 +35,6 @@
     <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
-    <Reference Include="System" />
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Util\" />
-  </ItemGroup>
-
   <ItemGroup>
     <Antlr4 Include="OData\ApplyTranslator.g4">
       <Generator>MSBuild:Compile</Generator>
