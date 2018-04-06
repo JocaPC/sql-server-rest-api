@@ -83,7 +83,7 @@ namespace SqlServerRestApi.OData
             {
                 var lexer = new FilterTranslator(new AntlrInputStream(filter), tabSpec, spec);
                 var predicate = new StringBuilder();
-                while (!lexer.HitEOF)
+                while (!lexer._hitEOF)
                 {
                     var token = lexer.NextToken();
                     predicate.Append(token.Text);

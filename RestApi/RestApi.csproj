@@ -21,25 +21,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.1.1" />
+    <PackageReference Include="Antlr4.Runtime" Version="4.6.4" />
     <PackageReference Include="Belgrade.Sql.Client" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.7" />
     <PackageReference Include="Common.Logging" Version="3.4.1" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
-    <Reference Include="System" />
-    <Reference Include="System.Net.Http" />
+  <ItemGroup>
+    <!--
+      Include the ANTLR 4 code generator for building this project, but do not add a dependency to the resulting NuGet
+      package.
+    -->
+    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Util\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="OData\ApplyTranslator.g4">
-      <Generator>antlr</Generator>
-    </None>
+    <Antlr4 Include="OData\ApplyTranslator.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>SqlServerRestApi.OData</CustomToolNamespace>
+    </Antlr4>
+    <Antlr4 Include="OData\FilterTranslator.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>SqlServerRestApi.OData</CustomToolNamespace>
+    </Antlr4>
   </ItemGroup>
 
 </Project>
