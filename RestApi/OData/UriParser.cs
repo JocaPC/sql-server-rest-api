@@ -71,6 +71,7 @@ namespace SqlServerRestApi.OData
             spec.top = Convert.ToInt32(parameters["$top"]);
             spec.select = parameters["$select"];
             ParseSearch(parameters["$filter"], spec, tabSpec);
+            ParseGroupBy(Request.Query["$apply"], spec, tabSpec);
             ParseOrderBy(tabSpec, parameters["$orderby"], spec);
             tabSpec.Validate(spec);
             return spec;
