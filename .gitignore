@@ -7,4 +7,3 @@ bin/
 obj/
 *.sln
 *.log
-*.lock.json
