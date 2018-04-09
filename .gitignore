@@ -5,5 +5,4 @@ packages/
 nuget/
 bin/
 obj/
-*.sln
 *.log
