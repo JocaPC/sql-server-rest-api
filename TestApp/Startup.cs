@@ -27,6 +27,7 @@ namespace MyApp
             services
                 .AddSqlClient(Configuration["ConnectionStrings:WWI"]);
 
+            
             services.AddMvc();
 
         }
@@ -38,6 +39,8 @@ namespace MyApp
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseStaticFiles();
 
             app.UseMvc(routes =>
             {

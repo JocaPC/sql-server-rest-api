@@ -17,7 +17,9 @@ namespace SqlServerRestApi
         public LinkedList<SqlParameter> parameters;
         public string predicate;
         public string groupBy;
+        public string systemTimeAsOf;
         public Hashtable order;
+        internal bool IsOrderClauseValidated = false;
         internal string keyword;
     }
 }

@@ -19,6 +19,7 @@ namespace SqlServerRestApi
         public string Name;
         public string FullName;
         public List<ColumnSpec> columns;
+        private ISet<string> derivedColumns;
         public string columnList;
         private ISet<string> columnSet;
         public string primaryKey;
@@ -66,13 +67,23 @@ namespace SqlServerRestApi
             return this;
         }
 
+
+        public TableSpec AddDerivedColumn(string name)
+        {
+            if (derivedColumns == null)
+                derivedColumns = new HashSet<string>();
+            derivedColumns.Add(name);
+            
+            return this;
+        }
+
         public void Validate(QuerySpec querySpec, bool parametersAreColumnNames = false)
         {
-            if (querySpec.order != null)
+            if (querySpec.order != null && !querySpec.IsOrderClauseValidated)
             {
                 foreach (string column in querySpec.order.Keys)
                 {
-                    if (!this.columnSet.Contains(column))
+                    if (!this.columnSet.Contains(column) && !(this.derivedColumns!=null && this.derivedColumns.Contains(column)))
                         throw new ArgumentException("The column " + column + " does not exists in the table.");
                 }
             }

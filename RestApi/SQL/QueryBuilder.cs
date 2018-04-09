@@ -58,6 +58,9 @@ namespace SqlServerRestApi
             }
             sql.Append(" FROM ");
             sql.Append(table.FullName);
+
+            if(!string.IsNullOrWhiteSpace(spec.systemTimeAsOf))
+                sql.Append(" FOR SYSTEM_TIME AS OF '").Append(spec.systemTimeAsOf).Append("'");
         }
 
         /// <summary>

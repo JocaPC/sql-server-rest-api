@@ -15,6 +15,8 @@ namespace SqlServerRestApi.OData
 
     public class UriParser
     {
+        public static bool Strict { get; set; }
+
         public static QuerySpec Parse (TableSpec tabSpec, HttpRequest Request)
         {
             var spec = new QuerySpec();
@@ -37,6 +39,14 @@ namespace SqlServerRestApi.OData
             ParseSearch(Request.Query["$filter"], spec, tabSpec);
             ParseGroupBy(Request.Query["$apply"], spec, tabSpec);
             ParseOrderBy(tabSpec, Request.Query["$orderby"], spec);
+            if (Request.Query.ContainsKey("$systemat"))
+            {
+                spec.systemTimeAsOf = Request.Query["$systemat"];
+                DateTime asof;
+                if (!DateTime.TryParse(spec.systemTimeAsOf, out asof))
+                    throw new ArgumentException(spec.systemTimeAsOf + " is not valid date.");
+            }
+                
             tabSpec.Validate(spec);
             return spec;
         }
@@ -45,10 +55,10 @@ namespace SqlServerRestApi.OData
         {
             if (string.IsNullOrEmpty(apply))
                 return;
-            var lexer = new ApplyTranslatorLexer(new AntlrInputStream(apply));
+            var lexer = new ApplyTranslatorLexer(new AntlrInputStream(apply),tabSpec, spec);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             // Pass the tokens to the parser
-            var parser = new ApplyTranslatorParser(tokens);
+            var parser = new ApplyTranslatorParser(tokens, tabSpec);
 
             // Run root rule ("apply" in this grammar)
             parser.apply();
@@ -100,12 +110,35 @@ namespace SqlServerRestApi.OData
                 spec.order = new Hashtable();
                 foreach (var colDir in orderby.Split(','))
                 {
-                    var pair = colDir.Split(' ');
-                    string column = pair[0].Trim();
-                    tabSpec.HasColumn(column);
-                    string dir = pair.Length == 1 ? "asc" : (pair[1].Trim() == "asc" ? "asc" : "desc");
+                    string dir = "asc", column = colDir;
+                    if (colDir.EndsWith(" desc"))
+                    {
+                        dir = "desc";
+                        column = colDir.Substring(0, colDir.Length - 5).Trim();
+                    }
+                    else if (colDir.EndsWith(" asc"))
+                    {
+                        column = colDir.Substring(0, colDir.Length - 4).Trim();
+                    }
+
+                    if (Strict)
+                    {
+                        tabSpec.HasColumn(column);
+                    } else
+                    {
+                        var lexer = new FilterTranslator(new AntlrInputStream(column), tabSpec, spec);
+                        var predicate = new StringBuilder();
+                        while (!lexer._hitEOF)
+                        {
+                            var token = lexer.NextToken();
+                            predicate.Append(token.Text);
+                        }
+                        column = predicate.ToString();
+                    }
+
                     spec.order.Add(column, dir);
                 }
+                spec.IsOrderClauseValidated = true;
             }
         }
     }

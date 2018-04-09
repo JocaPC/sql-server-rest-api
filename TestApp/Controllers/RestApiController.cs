@@ -39,7 +39,7 @@ namespace MyApp.Controllers
         [HttpGet("odata")]
         public async Task OData()
         {
-            var tableSpec = new TableSpec("Application", "People", "PersonID,FullName,PhoneNumber");
+            var tableSpec = new TableSpec("Application", "People", "PersonID,FullName,PhoneNumber,FaxNumber,EmailAddress,ValidTo");
             await this.OData(tableSpec, queryService).Process();
         }
     }

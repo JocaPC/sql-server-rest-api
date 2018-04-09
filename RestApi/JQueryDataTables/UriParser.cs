@@ -17,6 +17,13 @@ namespace SqlServerRestApi.JQueryDataTable
             spec.select = null;//JQuery datatables don't provide column list.
             ParseSearch(Request, spec);
             ParseOrderBy(tabSpec, Request, spec);
+            if (Request.Query.ContainsKey("$systemat"))
+            {
+                spec.systemTimeAsOf = Request.Query["$systemat"];
+                DateTime asof;
+                if (!DateTime.TryParse(spec.systemTimeAsOf, out asof))
+                    throw new ArgumentException(spec.systemTimeAsOf + " is not valid date.");
+            }
             tabSpec.Validate(spec, true);
             return spec;
         }
