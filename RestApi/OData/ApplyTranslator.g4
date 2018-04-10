@@ -50,32 +50,55 @@ grammar ApplyTranslator;
 	}
 }
 
+orderby
+	returns [string orderbyclause]:
+		e=expression w=with_clause
+		{ $orderbyclause = _localctx.w.fun==null?_localctx.e.expr:(_localctx.w.fun+"("+_localctx.e.expr+")"); };
+
+with_clause
+	returns [string fun]:
+		('with' agg=('sum'|'avg'|'min'|'max'|'count')
+		 { $fun = _localctx.agg.Text; } )
+		 |
+		 { $fun = null; }
+		 ;
+
+//// Main production for $apply parameter
 apply : ('groupby(' columns ',' aggregates ')') 
 		| aggregates;
 
 columns: '(' list=ids { this.GroupBy = _localctx.list.ColumnNames; } ')' ;
 ids 
 returns [string ColumnNames]: 
-	c1=column {$ColumnNames=_localctx.c1.Name;} ( ',' c2=column { $ColumnNames += _localctx.c2.Name; } )* ;
+	c1=column {$ColumnNames=_localctx.c1.Name;} ( ',' c2=column { $ColumnNames += ","+_localctx.c2.Name; } )* ;
 
 aggregates: aggregate (',' aggregate)*;
 
-aggregate: 'aggregate(' agg_exp = expression 'with' agg=('sum'|'avg'|'min'|'max'|'count') 'as' alias=IDENT ')'
+aggregate: 'aggregate(' agg_exp = agg_function 'as' alias=IDENT ')'
 			{
-				this.AddAggregateExpression(_localctx.agg.Text, _localctx.agg_exp.expr, _localctx.alias.Text);
+				this.AddAggregateExpression(_localctx.agg_exp.fun, _localctx.agg_exp.expr, _localctx.alias.Text);
 			};
 
+agg_function
+	returns [string fun, string expr]
+	: agg_exp=expression 'with' agg=('sum'|'avg'|'min'|'max'|'count')
+			{
+				$fun = _localctx.agg.Text; $expr = _localctx.agg_exp.expr;
+			};
 			
 expression
 	returns [string expr]
 	:
 		{ System.Text.StringBuilder sb = new System.Text.StringBuilder(); } 
 		(
-			operand1 = (LITERAL | STRING_LITERAL | DATETIME_LITERAL | NUMBER |FUNCTION | PAR)
-			{ sb.Append(_localctx.operand1.Text).Append(" "); }
+			(	operand1 = (LITERAL | STRING_LITERAL | DATETIME_LITERAL | NUMBER | PAR)
+				{ sb.Append(_localctx.operand1.Text).Append(" "); }	)
 			|
-			c1=column
-			{ sb.Append(_localctx.c1.Name).Append(" "); }
+			(	f=FUNCTION e=expression ')'
+				{ sb.Append(_localctx.f.Text).Append(" ").Append(_localctx.e.expr).Append(")"); }
+			)
+			|
+			( c1=column { sb.Append(_localctx.c1.Name).Append(" "); } )
 		)
 		(
 			op=OPERATOR
@@ -83,15 +106,20 @@ expression
 				sb.Append(_localctx.op.Text).Append(" "); 
 			}
 			(
-				operand2=(LITERAL | STRING_LITERAL | DATETIME_LITERAL | NUMBER |FUNCTION | PAR)	
+				(operand2=(LITERAL | STRING_LITERAL | DATETIME_LITERAL | NUMBER | PAR)	
 				{
 					sb.Append(_localctx.operand2.Text).Append(" "); 
 				}
+				)
 				|
-				c2=column
+				(	f=FUNCTION e=expression ')'
+					{ sb.Append(_localctx.f.Text).Append(" ").Append(_localctx.e.expr).Append(")"); }
+				)
+				|
+				(c2=column
 				{
 					sb.Append(_localctx.c2.Name).Append(" ");
-				}
+				})
 			)
 		)*
 			{

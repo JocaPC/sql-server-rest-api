@@ -126,14 +126,11 @@ namespace SqlServerRestApi.OData
                         tabSpec.HasColumn(column);
                     } else
                     {
-                        var lexer = new FilterTranslator(new AntlrInputStream(column), tabSpec, spec);
-                        var predicate = new StringBuilder();
-                        while (!lexer._hitEOF)
-                        {
-                            var token = lexer.NextToken();
-                            predicate.Append(token.Text);
-                        }
-                        column = predicate.ToString();
+                        var lexer = new ApplyTranslatorLexer(new AntlrInputStream(column), tabSpec, spec);
+                        CommonTokenStream tokens = new CommonTokenStream(lexer);
+                        // Pass the tokens to the parser
+                        var parser = new ApplyTranslatorParser(tokens, tabSpec);
+                        column = parser.orderby().orderbyclause;
                     }
 
                     spec.order.Add(column, dir);

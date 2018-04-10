@@ -42,5 +42,18 @@ namespace MyApp.Controllers
             var tableSpec = new TableSpec("Application", "People", "PersonID,FullName,PhoneNumber,FaxNumber,EmailAddress,ValidTo");
             await this.OData(tableSpec, queryService).Process();
         }
+
+
+        /// <summary>
+        /// Endpoint that exposes People information using JQuery DataTables protocol.
+        /// </summary>
+        /// <returns>JQuery DataTables response.</returns>
+        // GET /table
+        [HttpGet("table")]
+        public async Task Table()
+        {
+            var tableSpec = new TableSpec("Application", "People", "FullName,EmailAddress,PhoneNumber,FaxNumber");
+            await this.Table(tableSpec, queryService).Process();
+        }
     }
 }

@@ -50,6 +50,7 @@ namespace SqlServerRestApi
 
             Belgrade.SqlClient.SqlDb.RetryErrorHandler.Enable(options.EnableRetryLogic);
             Belgrade.SqlClient.SqlDb.RetryErrorHandler.EnableDelayedRetries(options.EnableDelayedRetryLogic);
+            SqlServerRestApi.OData.UriParser.Strict = !options.EnableODataExtensions;
 
             return services;
         }
@@ -128,6 +129,7 @@ namespace SqlServerRestApi
         public void UseSqlServer(string ConnString) => this.ConnString = ConnString;
         public bool EnableRetryLogic = true;
         public bool EnableDelayedRetryLogic = true;
+        public bool EnableODataExtensions = true;
 
         public enum ServiceScopeEnum { SINGLETON, SCOPED, TRANSIENT };
 
