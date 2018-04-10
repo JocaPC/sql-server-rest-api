@@ -7,7 +7,7 @@ groupby((PhoneNumber),   aggregate(PersonID with sum as Total),	aggregate(Person
 groupby((PhoneNumber,FaxNumber),   aggregate(PersonID with sum as Total),	aggregate(PersonID with min as Minimum))
 groupby((FullName),		aggregate(PersonID with sum as Total))
 */
-grammar ApplyTranslator;
+grammar ODataTranslator;
 
 @parser::members {
 
@@ -19,7 +19,7 @@ grammar ApplyTranslator;
 	}
 	public string GroupBy = null;
 	public SqlServerRestApi.TableSpec tableSpec;
-	public ApplyTranslatorParser(ITokenStream input,
+	public ODataTranslatorParser(ITokenStream input,
 							SqlServerRestApi.TableSpec tableSpec): this(input) 
 	{
 		this.tableSpec = tableSpec;
@@ -32,7 +32,7 @@ grammar ApplyTranslator;
 	SqlServerRestApi.QuerySpec querySpec;
 	string odataHelperSqlSchema = "odata";
 	int i = 0;
-	public ApplyTranslatorLexer(ICharStream input,
+	public ODataTranslatorLexer(ICharStream input,
 							SqlServerRestApi.TableSpec tableSpec,
 							SqlServerRestApi.QuerySpec querySpec,
 							string odataHelperSqlSchema = "odata"): this(input) 
@@ -136,6 +136,15 @@ column
 OPERATOR :  'add' { Text = "+"; } | 'sub' { Text = "-"; } |
 			'mul' { Text = "*"; } | 'div' { Text = "/"; } |
 			'mod' { Text = "%"; };
+
+RELOP : 'eq' { Text = "="; } | 'ne' { Text = "<>"; } |
+			'gt' { Text = ">"; } | 'ge' { Text = ">="; } |
+			'lt' { Text = "<"; } | 'le' { Text = "<="; } | 
+			'is' { Text = "IS"; };
+
+// Operators that are not translated but they need to skip identifier check.
+LOGOP:		'and' { Text = " AND "; } | 'or' { Text = " OR "; } |
+			'not' { Text = " NOT "; };
 
 IDENT : [_@#a-zA-Z][a-zA-Z0-9_@#]*;
 

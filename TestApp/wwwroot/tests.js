@@ -29,16 +29,20 @@ QUnit.cases
     .combinatorial([
         { param: "$skip=5&$top=10" },
         { param: "$select=PersonID,FullName&$skip=10" },
-        { filter2: "" }
+        { param: "" }
     ])
     .test("query test", function(params, assert) {
-    var done = assert.async();
+        var finishTest = assert.async();
         var data = null;
         $.ajax("/odata?$orderby=" + params.orderby + params.dir +
             "&$filter=" + params.filter1 + params.filter2 +
             "&" + params.param, { dataType: "json" })
         .done(result => {
             assert.ok(result.value !== null, "Response is retrieved");
+            for (i = 0; i < result.value.length; i++) {
+                assert.notEqual(result.value[i].PersonID, null, "PersonID should not be null");
+                assert.notEqual(result.value[i].FullName, null, "FullName should not be null");
+            }
+            finishTest();
         });
-        setTimeout(done,1000);
     });

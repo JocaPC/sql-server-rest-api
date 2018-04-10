@@ -50,7 +50,7 @@ namespace SqlServerRestApi
 
             Belgrade.SqlClient.SqlDb.RetryErrorHandler.Enable(options.EnableRetryLogic);
             Belgrade.SqlClient.SqlDb.RetryErrorHandler.EnableDelayedRetries(options.EnableDelayedRetryLogic);
-            SqlServerRestApi.OData.UriParser.Strict = !options.EnableODataExtensions;
+            SqlServerRestApi.OData.UriParser.EnableODataExtensions = options.EnableODataExtensions;
 
             return services;
         }

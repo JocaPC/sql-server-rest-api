@@ -2,12 +2,9 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
-using System.Net.Http;
 using System.Text;
 
 namespace SqlServerRestApi.OData
@@ -15,20 +12,25 @@ namespace SqlServerRestApi.OData
 
     public class UriParser
     {
-        public static bool Strict { get; set; }
+        public static bool EnableODataExtensions { get; set; }
 
         public static QuerySpec Parse (TableSpec tabSpec, HttpRequest Request)
         {
             var spec = new QuerySpec();
-            if (Request.Query["$count"].Count == 1)
-                throw new ArgumentException("Parameter $count is not supported.");
             if (Request.Query["$format"].Count == 1 && Request.Query["$format"].ToString().ToLower() != "json")
                 throw new ArgumentException("Parameter $format is not supported.");
-            if (Request.Query["$expand"].Count == 1)
-                throw new ArgumentException("Parameter $expand is not supported.");
-            if (Request.Query["$skiptoken"].Count == 1)
-                throw new ArgumentException("Parameter $skiptoken is not supported.");
 
+            foreach (var p in Request.Query.Keys)
+            {
+                if (p.StartsWith("$")
+                    && !(p == "$select" || p == "$orderby" || p == "$format"
+                        || p == "$apply" || p == "$systemat"
+                        || p == "$top" || p == "$skip"
+                        || p == "$filter" || p == "$search"))
+                {
+                    throw new ArgumentException("Parameter " + p + " is not supported.");
+                }
+            }
             spec.count = Request.Path.Value.EndsWith("/$count");
             if (Request.Query.ContainsKey("$skip"))
                 spec.skip = Convert.ToInt32(Request.Query["$skip"]);
@@ -55,10 +57,10 @@ namespace SqlServerRestApi.OData
         {
             if (string.IsNullOrEmpty(apply))
                 return;
-            var lexer = new ApplyTranslatorLexer(new AntlrInputStream(apply),tabSpec, spec);
+            var lexer = new ODataTranslatorLexer(new AntlrInputStream(apply),tabSpec, spec);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             // Pass the tokens to the parser
-            var parser = new ApplyTranslatorParser(tokens, tabSpec);
+            var parser = new ODataTranslatorParser(tokens, tabSpec);
 
             // Run root rule ("apply" in this grammar)
             parser.apply();
@@ -83,6 +85,13 @@ namespace SqlServerRestApi.OData
             ParseSearch(parameters["$filter"], spec, tabSpec);
             ParseGroupBy(Request.Query["$apply"], spec, tabSpec);
             ParseOrderBy(tabSpec, parameters["$orderby"], spec);
+            if (Request.Query.ContainsKey("$systemat"))
+            {
+                spec.systemTimeAsOf = Request.Query["$systemat"];
+                DateTime asof;
+                if (!DateTime.TryParse(spec.systemTimeAsOf, out asof))
+                    throw new ArgumentException(spec.systemTimeAsOf + " is not valid date.");
+            }
             tabSpec.Validate(spec);
             return spec;
         }
@@ -92,7 +101,7 @@ namespace SqlServerRestApi.OData
         {
             if (!string.IsNullOrWhiteSpace(filter))
             {
-                var lexer = new FilterTranslator(new AntlrInputStream(filter), tabSpec, spec);
+                var lexer = new ODataTranslatorLexer(new AntlrInputStream(filter), tabSpec, spec);
                 var predicate = new StringBuilder();
                 while (!lexer._hitEOF)
                 {
@@ -121,15 +130,15 @@ namespace SqlServerRestApi.OData
                         column = colDir.Substring(0, colDir.Length - 4).Trim();
                     }
 
-                    if (Strict)
+                    if (EnableODataExtensions)
                     {
                         tabSpec.HasColumn(column);
                     } else
                     {
-                        var lexer = new ApplyTranslatorLexer(new AntlrInputStream(column), tabSpec, spec);
+                        var lexer = new ODataTranslatorLexer(new AntlrInputStream(column), tabSpec, spec);
                         CommonTokenStream tokens = new CommonTokenStream(lexer);
                         // Pass the tokens to the parser
-                        var parser = new ApplyTranslatorParser(tokens, tabSpec);
+                        var parser = new ODataTranslatorParser(tokens, tabSpec);
                         column = parser.orderby().orderbyclause;
                     }
 

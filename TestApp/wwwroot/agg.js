@@ -21,7 +21,7 @@ QUnit.cases
         { agg: "length(FullName) add PersonID with max as Total" }
     ])
     .test("agg test", function(params, assert) {
-    var done = assert.async();
+        var finishTest = assert.async();
         var data = null;
         $.ajax("/odata?" + (params.orderby ? "$orderby=" + params.orderby:"") +
             "&$apply=(" + (params.groupby ? "groupby(" + params.groupby + ")," : "") +
@@ -29,6 +29,9 @@ QUnit.cases
             , { dataType: "json" })
         .done(result => {
             assert.ok(result.value !== null, "Response is retrieved");
+            for (i = 0; i < result.value.length; i++) {
+                assert.notEqual(result.value[i].Total, null, "Total should not be null");
+            }
+            finishTest();
         });
-        setTimeout(done,1000);
     });
