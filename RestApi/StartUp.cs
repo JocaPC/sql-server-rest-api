@@ -4,6 +4,7 @@
 using Belgrade.SqlClient;
 using Belgrade.SqlClient.SqlDb;
 using Belgrade.SqlClient.SqlDb.Rls;
+using Common.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RestApi.Util;
@@ -103,21 +104,30 @@ namespace SqlServerRestApi
             return cmd;
         }
 
+        static ILogManager _logManager = null;
+        static ILoggerFactory _loggerFactory = null;
+        internal static ILog GetLogger<T>() {
+            if (_logManager != null)
+                return _logManager.GetLogger<T>();
+            else 
+                if (_loggerFactory != null)
+                    return new CommonILogAdapter4ExtensionILogger(_loggerFactory.CreateLogger<T>());
+            return LogManager.GetLogger<T>();
+        }
+        
         private static Common.Logging.ILog TryGetLogger<T>(IServiceProvider sp)
-        {
-            var commonLogger = sp.GetServices<Common.Logging.ILogManager>().FirstOrDefault();
-            if (commonLogger != null)
+        {   
+            if (_logManager == null)
             {
-                return commonLogger.GetLogger<T>();
-            } else {
-                var logger = sp.GetServices<ILoggerFactory>().FirstOrDefault();
-                if (logger != null)
+                _logManager = sp.GetServices<ILogManager>().FirstOrDefault();
+            } 
+                if (_logManager == null && _loggerFactory == null)
                 {
-                    return new CommonILogAdapter4ExtensionILogger(logger.CreateLogger<T>());
+                    _loggerFactory = sp.GetServices<ILoggerFactory>().FirstOrDefault();
                 }
-            }
+            
 
-            return null;
+            return GetLogger<T>();
         }
     }
 
@@ -128,7 +138,7 @@ namespace SqlServerRestApi
         public string ReadOnlyConnString;
         public void UseSqlServer(string ConnString) => this.ConnString = ConnString;
         public bool EnableRetryLogic = true;
-        public bool EnableDelayedRetryLogic = true;
+        public bool EnableDelayedRetryLogic = false;
         public bool EnableODataExtensions = true;
 
         public enum ServiceScopeEnum { SINGLETON, SCOPED, TRANSIENT };

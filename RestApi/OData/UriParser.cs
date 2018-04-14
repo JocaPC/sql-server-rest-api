@@ -13,13 +13,20 @@ namespace SqlServerRestApi.OData
     public class UriParser
     {
         public static bool EnableODataExtensions { get; set; }
+        internal static Common.Logging.ILog _log { get; set; }
+        private static BailErrorStrategy FastFail = new BailErrorStrategy();
 
         public static QuerySpec Parse (TableSpec tabSpec, HttpRequest Request)
         {
+            if (_log == null)
+                _log = StartUp.GetLogger<RequestHandler>();
+
             var spec = new QuerySpec();
             if (Request.Query["$format"].Count == 1 && Request.Query["$format"].ToString().ToLower() != "json")
+            {
+                if (_log != null) _log.ErrorFormat("Unsupported {parameter} {value} provided to {type} Uri parser", "$format", Request.Query["$format"], "OData");
                 throw new ArgumentException("Parameter $format is not supported.");
-
+            }
             foreach (var p in Request.Query.Keys)
             {
                 if (p.StartsWith("$")
@@ -28,6 +35,7 @@ namespace SqlServerRestApi.OData
                         || p == "$top" || p == "$skip"
                         || p == "$filter" || p == "$search"))
                 {
+                    if (_log != null) _log.ErrorFormat("Unsupported {parameter} {value} provided to {type} Uri parser", p, Request.Query[p], "OData");
                     throw new ArgumentException("Parameter " + p + " is not supported.");
                 }
             }
@@ -46,7 +54,10 @@ namespace SqlServerRestApi.OData
                 spec.systemTimeAsOf = Request.Query["$systemat"];
                 DateTime asof;
                 if (!DateTime.TryParse(spec.systemTimeAsOf, out asof))
+                {
+                    if (_log != null) _log.ErrorFormat("Indalid date {value} provided as {parameter} in {type} Uri parser", spec.systemTimeAsOf, "$systemat", "OData");
                     throw new ArgumentException(spec.systemTimeAsOf + " is not valid date.");
+                }
             }
                 
             tabSpec.Validate(spec);
@@ -64,6 +75,11 @@ namespace SqlServerRestApi.OData
 
             // Run root rule ("apply" in this grammar)
             parser.apply();
+            if (parser.Aggregates.Count == 0)
+            {
+                _log.ErrorFormat("Cannot extract agregates from $apply= {apply} value. ", apply);
+                throw new ArgumentException("Cannot parse $apply operator.", "$apply");
+            }
 
             spec.select = parser.GroupBy;
             foreach (var a in parser.Aggregates)
@@ -132,16 +148,21 @@ namespace SqlServerRestApi.OData
 
                     if (EnableODataExtensions)
                     {
-                        tabSpec.HasColumn(column);
-                    } else
-                    {
                         var lexer = new ODataTranslatorLexer(new AntlrInputStream(column), tabSpec, spec);
                         CommonTokenStream tokens = new CommonTokenStream(lexer);
                         // Pass the tokens to the parser
                         var parser = new ODataTranslatorParser(tokens, tabSpec);
+                        //parser.ErrorHandler = FastFail;
                         column = parser.orderby().orderbyclause;
+                        if (string.IsNullOrWhiteSpace(column))
+                        {
+                            _log.ErrorFormat("Cannot extract order by clause from $orderby= {orderby} value. ", orderby);
+                            throw new ArgumentException("Cannot parse $orderby parameter.", "$orderby");
+                        }
+                    } else
+                    {
+                        tabSpec.HasColumn(column);
                     }
-
                     spec.order.Add(column, dir);
                 }
                 spec.IsOrderClauseValidated = true;

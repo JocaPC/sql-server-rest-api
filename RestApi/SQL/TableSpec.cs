@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+using Common.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -24,6 +25,8 @@ namespace SqlServerRestApi
         private ISet<string> columnSet;
         public string primaryKey;
 
+        private static ILog _log = null;
+
         public TableSpec(string schema, string name, string columnList = null, string primaryKey = null)
         {
             this.Name = name;
@@ -45,12 +48,18 @@ namespace SqlServerRestApi
                     }
                 }
             }
+
+            if (_log == null)
+                _log = StartUp.GetLogger<RequestHandler>();
         }
         
         public TableSpec AddColumn(string name, string sqlType = null, int typeSize = 0, bool isKeyColumn = false)
         {
-            if(columnSet.Contains(name))
+            if (columnSet.Contains(name))
+            {
+                if (_log != null) _log.ErrorFormat("The column {column} already exists in the {table}.", name, this);
                 throw new ArgumentException("The column " + name + " already exists in the table.");
+            }
             columnSet.Add(name);
             columns.Add(new ColumnSpec() { Name = name, SqlType = sqlType, Size = typeSize, IsKey = isKeyColumn });
 
@@ -83,8 +92,11 @@ namespace SqlServerRestApi
             {
                 foreach (string column in querySpec.order.Keys)
                 {
-                    if (!this.columnSet.Contains(column) && !(this.derivedColumns!=null && this.derivedColumns.Contains(column)))
+                    if (!this.columnSet.Contains(column) && !(this.derivedColumns != null && this.derivedColumns.Contains(column)))
+                    {
+                        if (_log != null) _log.ErrorFormat("Invalid column {column} referenced in table {table} in {query}", column, this, querySpec);
                         throw new ArgumentException("The column " + column + " does not exists in the table.");
+                    }
                 }
             }
 
@@ -94,7 +106,10 @@ namespace SqlServerRestApi
                 foreach (string column in querySpec.columnFilter.Keys)
                 {
                     if (!this.columnSet.Contains(column))
-                        throw new ArgumentException("The column " + column + " does not exists in the table.");
+                    {
+                        if (_log != null) _log.ErrorFormat("The column {column} from query {query} does not exists in the {table}.", column, querySpec, this);
+                        throw new ArgumentException("The column " + column + " does not exists in the table " + this.Name);
+                    }
                 }
             }
         }
@@ -102,7 +117,10 @@ namespace SqlServerRestApi
         public void HasColumn(string column)
         {
             if (!this.columnSet.Contains(column))
+            {
+                if (_log != null) _log.ErrorFormat("The column {column} does not exists in the {table}.", column, this);
                 throw new ArgumentOutOfRangeException($"Column '{column}' does not belong to the table.");
+            }
         }
     }
 }

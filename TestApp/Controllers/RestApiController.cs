@@ -1,4 +1,5 @@
 ﻿using Belgrade.SqlClient;
+using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SqlServerRestApi;
@@ -20,7 +21,8 @@ namespace MyApp.Controllers
         public async Task GetObjects()
         {
             await queryService
-                .Sql("SELECT * FROM sys.objects FOR JSON PATH")
+                .Sql("SELECT * FROM sys.object1s FOR JSON PATH")
+                .OnError(e=> { this._logger.LogError("Error: {error}", new { Exc = e }); throw e; })
                 .Stream(Response.Body);
         }
 

@@ -1,12 +1,3 @@
-/* Examples:
-aggregate(Amount with sum as Total)								=>	sum(Amount) as Total
-groupby((Country,Name),	aggregate(Amount with sum as Total))	=>	sum(Amount) as Total group by Country,Name
-WideWorldImporters database examples:
-aggregate(PersonID with min as Minimum)
-groupby((PhoneNumber),   aggregate(PersonID with sum as Total),	aggregate(PersonID with min as Minimum))
-groupby((PhoneNumber,FaxNumber),   aggregate(PersonID with sum as Total),	aggregate(PersonID with min as Minimum))
-groupby((FullName),		aggregate(PersonID with sum as Total))
-*/
 grammar ODataTranslator;
 
 @parser::members {

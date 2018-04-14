@@ -38,7 +38,7 @@ namespace SqlServerRestApi
             {
                 await pipe
                 .Sql(cmd)
-                .OnError(e => ReturnClientError(response))
+                .OnError(async e => await ReturnClientError(response, e))
                 .Stream(response.Body, IsSingletonResponse ? "{}" : "{\"value\":[]}");
             }  else if (metadata == Metadata.MINIMAL)
             {
@@ -46,7 +46,7 @@ namespace SqlServerRestApi
                 var header = "{\"@odata.context\":\"" + this.metadataUrl + "#" + this.tableSpec.Name + "\",\"value\":";
                 await pipe
                     .Sql(cmd)
-                    .OnError(e => ReturnClientError(response))
+                    .OnError(async e => await ReturnClientError(response, e))
                     .Stream(response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}" });
             } else
             {
@@ -68,7 +68,7 @@ namespace SqlServerRestApi
                 response.ContentType = "application/json;odata.metadata=none;odata=nometadata";
                 await pipe
                     .Sql(cmd)
-                    .OnError(e => ReturnClientError(response))
+                    .OnError(async e => await ReturnClientError(response, e))
                     .Stream(response.Body, "{\"value\":[]}");
             }
             else
@@ -77,7 +77,7 @@ namespace SqlServerRestApi
                 var header = "{\"@odata.context\":\"" + this.metadataUrl + "#" + this.tableSpec.Name + "\",\"value\":";
                 await pipe
                     .Sql(cmd)
-                    .OnError(e => ReturnClientError(response))
+                    .OnError(async e => await ReturnClientError(response, e))
                     .Stream(response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}"});
             }
         }
