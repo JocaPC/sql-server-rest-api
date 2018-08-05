@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>net46;netstandard1.6;netcoreapp1.0;netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+    <RootNamespace>SqlServerRestApi</RootNamespace>
+
     <PackageId>Sql-Server-Rest-Api</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Jovan Popovic</Authors>
@@ -13,7 +15,10 @@
     <Copyright>Jovan Popovic</Copyright>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://raw.githubusercontent.com/JocaPC/sql-server-rest-api/master/LICENSE</PackageLicenseUrl>
+  </PropertyGroup>
 
+  <PropertyGroup>
+    <Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net46|AnyCPU'">
@@ -39,14 +44,7 @@
       Include the ANTLR 4 code generator for building this project, but do not add a dependency to the resulting NuGet
       package.
     -->
-    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Antlr4 Include="OData\ODataTranslator.g4">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>SqlServerRestApi.OData</CustomToolNamespace>
-    </Antlr4>
+    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.5-beta002" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
