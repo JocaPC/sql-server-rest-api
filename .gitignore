@@ -1,10 +1,8 @@
-*.xproj.user
-.vs/*
-.vscode/*
-packages/*
-nuget/*
-bin/*
-obj/*
-*.sln
+*.user
+.vs/
+.vscode/
+packages/
+nuget/
+bin/
+obj/
 *.log
-*.lock.json
