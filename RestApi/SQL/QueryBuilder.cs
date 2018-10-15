@@ -56,11 +56,26 @@ namespace SqlServerRestApi
 
                 sql.Append(spec.select ?? table.columnList ?? "*");
             }
+            BuildExpand(spec, table, sql);
             sql.Append(" FROM ");
             sql.Append(table.FullName);
 
             if(!string.IsNullOrWhiteSpace(spec.systemTimeAsOf))
                 sql.Append(" FOR SYSTEM_TIME AS OF '").Append(spec.systemTimeAsOf).Append("'");
+        }
+
+        private static void BuildExpand(QuerySpec spec, TableSpec table, StringBuilder sql)
+        {
+            if (spec.expand == null || spec.expand.Count == 0)
+                return;
+
+            foreach (var expansion in spec.expand)
+            {
+                sql.Append(',');
+                sql.Append(expansion.Key).Append("=(");
+                BuildSelectFromClause(expansion.Value, table.Relations[expansion.Key], sql);
+                sql.Append(" WHERE ").Append(table.Relations[expansion.Key].primaryKey).Append(" FOR JSON PATH)");
+            }
         }
 
         /// <summary>

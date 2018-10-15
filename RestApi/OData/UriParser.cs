@@ -3,6 +3,7 @@
 
 using Antlr4.Runtime;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
 using System.Text;
@@ -33,7 +34,8 @@ namespace SqlServerRestApi.OData
                     && !(p == "$select" || p == "$orderby" || p == "$format"
                         || p == "$apply" || p == "$systemat"
                         || p == "$top" || p == "$skip"
-                        || p == "$filter" || p == "$search"))
+                        || p == "$filter" || p == "$search"
+                        || p == "$expand"))
                 {
                     if (_log != null) _log.ErrorFormat("Unsupported {parameter} {value} provided to {type} Uri parser", p, Request.Query[p], "OData");
                     throw new ArgumentException("Parameter " + p + " is not supported.");
@@ -45,6 +47,7 @@ namespace SqlServerRestApi.OData
             if(Request.Query.ContainsKey("$top"))
                 spec.top = Convert.ToInt32(Request.Query["$top"]);
             spec.select = Request.Query["$select"];
+            ParseExpand(Request.Query["$expand"], spec, tabSpec);
             spec.keyword = Request.Query["$search"];
             ParseSearch(Request.Query["$filter"], spec, tabSpec);
             ParseGroupBy(Request.Query["$apply"], spec, tabSpec);
@@ -62,6 +65,24 @@ namespace SqlServerRestApi.OData
                 
             tabSpec.Validate(spec);
             return spec;
+        }
+
+        private static void ParseExpand(StringValues expand, QuerySpec spec, TableSpec tabSpec)
+        {
+            if (string.IsNullOrEmpty(expand))
+                return;
+            
+            var lexer = new ODataTranslatorLexer(new AntlrInputStream(expand), tabSpec, spec);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            // Pass the tokens to the parser
+            var parser = new ODataTranslatorParser(tokens, tabSpec);
+
+            spec.expand = new System.Collections.Generic.Dictionary<string, QuerySpec>();
+            // Run  rule "expandItems" in this grammar
+            foreach (var rel in parser.expandItems().relations)
+            {
+                spec.expand.Add(rel.Key, new QuerySpec() { select = rel.Value.columnList ?? "*" });
+            }
         }
 
         private static void ParseGroupBy(string apply, QuerySpec spec, TableSpec tabSpec)

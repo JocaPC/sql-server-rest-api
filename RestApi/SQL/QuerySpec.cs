@@ -19,6 +19,7 @@ namespace SqlServerRestApi
         public string groupBy;
         public string systemTimeAsOf;
         public Hashtable order;
+        internal Dictionary<string,QuerySpec> expand = null;
         internal bool IsOrderClauseValidated = false;
         internal string keyword;
     }

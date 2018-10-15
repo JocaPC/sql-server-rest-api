@@ -9,6 +9,16 @@ grammar ODataTranslator;
 		this.Aggregates.AddLast(agg);
 	}
 	public string GroupBy = null;
+	public Dictionary<string, TableSpec> Relations = new Dictionary<string, TableSpec>();
+	internal void AddExpandRelation(string name) {
+		if(this.tableSpec.Relations == null)
+			throw new System.Exception("Relations are not specified in the table.");
+		if(!this.tableSpec.Relations.ContainsKey(name))
+			throw new System.Exception("Relation is not found " + name + " in the table.");
+		TableSpec relation = this.tableSpec.Relations[name];
+		this.Relations.Add(name, relation);
+	}
+
 	public SqlServerRestApi.TableSpec tableSpec;
 	public ODataTranslatorParser(ITokenStream input,
 							SqlServerRestApi.TableSpec tableSpec): this(input) 
@@ -77,6 +87,17 @@ agg_function
 				$fun = _localctx.agg.Text; $expr = _localctx.agg_exp.expr;
 			};
 			
+expandItems 
+	returns [Dictionary<string, TableSpec> relations]:
+	expandItem (',' expandItem)*
+			{
+				$relations = this.Relations;
+			};
+
+expandItem :
+	expand=IDENT { this.AddExpandRelation(_localctx.expand.Text); }; 
+// TODO Add full $expand query spec 5.1.2 System Query Option $expand: ( "(" ("$select=" columns | "$filter=" expression | )+ )?
+
 expression
 	returns [string expr]
 	:

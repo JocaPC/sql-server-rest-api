@@ -6,7 +6,7 @@ This library enables you to easily create REST services in ASP.NET based on the 
 
 Get REST API library from NuGet:
 ```
-PM> Install-Package Sql-Server-Rest-Api
+PM> Install-Package MsSql.RestApi
 ```
 
 You will need to configure data access components in Startup class (Configure service method):

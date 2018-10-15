@@ -24,6 +24,7 @@ namespace SqlServerRestApi
         public string columnList;
         private ISet<string> columnSet;
         public string primaryKey;
+        public Dictionary<string, TableSpec> Relations = null;
 
         private static ILog _log = null;
 
@@ -53,6 +54,20 @@ namespace SqlServerRestApi
                 _log = StartUp.GetLogger<RequestHandler>();
         }
         
+        public TableSpec AddRelatedTable(string relation, string schema, string name, string joinCondition, string columnList = null)
+        {
+            if (this.Relations == null)
+                this.Relations = new Dictionary<string, TableSpec>();
+
+            if (Relations.ContainsKey(relation))
+            {
+                if (_log != null) _log.ErrorFormat("The relation {relation} already exists in the {table}.", name, this);
+                throw new ArgumentException("The relation " + name + " already exists in the table.");
+            }
+            this.Relations.Add(relation, new TableSpec(schema, name, columnList, primaryKey: joinCondition));
+            return this;
+        }
+
         public TableSpec AddColumn(string name, string sqlType = null, int typeSize = 0, bool isKeyColumn = false)
         {
             if (columnSet.Contains(name))
