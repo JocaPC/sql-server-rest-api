@@ -4,33 +4,28 @@ grammar ODataTranslator;
 
 	public System.Collections.Generic.LinkedList<RestApi.OData.Aggregate> Aggregates =
         new System.Collections.Generic.LinkedList<RestApi.OData.Aggregate>();
-	private void AddAggregateExpression(string Method, string Column, string Alias){
-    var agg = new RestApi.OData.Aggregate() { AggregateMethod = Method, AggregateColumn = Column, AggregateColumnAlias = Alias };
-		this.Aggregates.AddLast(agg);
-	}
+	
 	public string GroupBy = null;
-	public Dictionary<string, TableSpec> Relations = new Dictionary<string, TableSpec>();
-	internal void AddExpandRelation(string name) {
-		if(this.tableSpec.Relations == null)
-			throw new System.Exception("Relations are not specified in the table.");
-		if(!this.tableSpec.Relations.ContainsKey(name))
-			throw new System.Exception("Relation is not found " + name + " in the table.");
-		TableSpec relation = this.tableSpec.Relations[name];
-		this.Relations.Add(name, relation);
-	}
+	public Dictionary<string, QuerySpec> Relations = new Dictionary<string, QuerySpec>();
+	
 
-	public SqlServerRestApi.TableSpec tableSpec;
+	internal SqlServerRestApi.TableSpec tableSpec;
+	internal SqlServerRestApi.TableSpec currentTableScopeSpec; // Used to validate columns in the current scope.
+	internal SqlServerRestApi.QuerySpec querySpec;
 	public ODataTranslatorParser(ITokenStream input,
-							SqlServerRestApi.TableSpec tableSpec): this(input) 
+							SqlServerRestApi.TableSpec tableSpec,
+							SqlServerRestApi.QuerySpec querySpec): this(input) 
 	{
 		this.tableSpec = tableSpec;
+		this.querySpec = querySpec;
+		this.currentTableScopeSpec = tableSpec; // we are initially validating root entity scope.
 	}
 }
 
 
 @lexer::members {
-	SqlServerRestApi.TableSpec tableSpec;
-	SqlServerRestApi.QuerySpec querySpec;
+	internal SqlServerRestApi.TableSpec tableSpec;
+	internal SqlServerRestApi.QuerySpec querySpec;
 	string odataHelperSqlSchema = "odata";
 	int i = 0;
 	public ODataTranslatorLexer(ICharStream input,
@@ -51,10 +46,18 @@ grammar ODataTranslator;
 	}
 }
 
-orderby
-	returns [string orderbyclause]:
+orderByItem
+	returns [string orderByExpression, string orderByDirection]:
+		{ $orderByDirection = "asc"; /* default */ }
+		orderByExpr=orderByItemExpr { $orderByExpression = _localctx.orderByExpr.value; }
+			('asc'|('desc'{ $orderByDirection = "desc"; }))?
+		;
+
+// Order by expression with optional aggergaiton functions, without trailing asc/desc, such as "PersonID" or "Price with sum"
+orderByItemExpr
+	returns [string value]:
 		e=expression w=with_clause
-		{ $orderbyclause = _localctx.w.fun==null?_localctx.e.expr:(_localctx.w.fun+"("+_localctx.e.expr+")"); };
+		{ $value = _localctx.w.fun==null?_localctx.e.expr:(_localctx.w.fun+"("+_localctx.e.expr+")"); };
 
 with_clause
 	returns [string fun]:
@@ -65,13 +68,14 @@ with_clause
 		 ;
 
 //// Main production for $apply parameter
-apply : ('groupby(' columns ',' aggregates ')') 
+apply : ('groupby((' columns '),' aggregates ')') 
 		| aggregates;
 
-columns: '(' list=ids { this.GroupBy = _localctx.list.ColumnNames; } ')' ;
+columns: list=ids { this.GroupBy = _localctx.list.ColumnNames; } ;
+
 ids 
-returns [string ColumnNames]: 
-	c1=column {$ColumnNames=_localctx.c1.Name;} ( ',' c2=column { $ColumnNames += ","+_localctx.c2.Name; } )* ;
+	returns [string ColumnNames]: 
+		c1=column {$ColumnNames=_localctx.c1.Name;} ( ',' c2=column { $ColumnNames += ","+_localctx.c2.Name; } )* ;
 
 aggregates: aggregate (',' aggregate)*;
 
@@ -88,15 +92,41 @@ agg_function
 			};
 			
 expandItems 
-	returns [Dictionary<string, TableSpec> relations]:
+	returns [Dictionary<string, QuerySpec> relations]:
 	expandItem (',' expandItem)*
 			{
 				$relations = this.Relations;
 			};
 
 expandItem :
-	expand=IDENT { this.AddExpandRelation(_localctx.expand.Text); }; 
-// TODO Add full $expand query spec 5.1.2 System Query Option $expand: ( "(" ("$select=" columns | "$filter=" expression | )+ )?
+	expand=IDENT 
+	{
+		this.SetValidationScope(_localctx.expand.Text);
+	}
+			( '(' es = expandSpec ')' )?
+	{ 
+		this.ResetValidationScope();
+		this.AddExpandRelation(_localctx.expand.Text, _localctx.es == null ? null : _localctx.es.props);
+	}; 
+
+expandSpec
+	returns [Dictionary<string, string> props]:
+		{ $props = new Dictionary<string, string>(); }
+		e=expandSpecItem { $props.Add(_localctx.e.key, _localctx.e.value); } 
+			( ',' e2=expandSpecItem { $props.Add(_localctx.e2.key, _localctx.e2.value); } )*;
+
+expandSpecItem
+	returns [string key, string value]:
+		'$select=' columnList=columns { $key = "select"; $value = _localctx.columnList.GetText(); }
+		|
+		'$filter=' where=expression { $key = "filter"; $value = _localctx.where.GetText(); }
+		|
+		'$top=' top=NUMBER  { $key = "top"; $value = _localctx.top.Text; }
+		|
+		'$skip=' skip=NUMBER  { $key = "skip"; $value = _localctx.skip.Text; }
+		|
+		'$orderBy=' obi=orderByItem  { $key = "orderBy"; $value = _localctx.obi.orderByExpression + " " + _localctx.obi.orderByDirection; }
+;
 
 expression
 	returns [string expr]
@@ -139,7 +169,7 @@ expression
 			}
 		;
 column 
-	returns [string Name]: c=IDENT { this.tableSpec.HasColumn(_localctx.c.Text); $Name = _localctx.c.Text;};
+	returns [string Name]: c=IDENT { this.ValidateColumn(_localctx.c.Text); $Name = _localctx.c.Text;};
 
 
 
@@ -208,5 +238,5 @@ NUMBER : [1-9][0-9]* {
 		this.querySpec.parameters.AddFirst(p);
 		Text = "@p"+(i++); 
 };
-//PROPERTY : [a-zA-Z][a-zA-Z0-9]* { this.tableSpec.HasColumn(Text);};
+//PROPERTY : [a-zA-Z][a-zA-Z0-9]* { this.ValidateColumn(Text);};
 PAR : [()];

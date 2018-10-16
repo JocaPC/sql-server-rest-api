@@ -18,7 +18,7 @@
     "TestApp": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "odata?$apply=(groupby(PhoneNumber),aggregate(PersonID%20with%20sum%20as%20Total))",
+      "launchUrl": "odata?$expand=Orders($top=2)",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

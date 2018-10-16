@@ -74,7 +74,20 @@ namespace SqlServerRestApi
                 sql.Append(',');
                 sql.Append(expansion.Key).Append("=(");
                 BuildSelectFromClause(expansion.Value, table.Relations[expansion.Key], sql);
-                sql.Append(" WHERE ").Append(table.Relations[expansion.Key].primaryKey).Append(" FOR JSON PATH)");
+                sql.Append(" WHERE ").Append(table.Relations[expansion.Key].primaryKey);
+
+
+                //BuildWherePredicate(expansion.Value, res, sql, table.Relations[expansion.Key]);
+                // should I suport group by in expand? 
+                // BuildGroupByClause(expansion.Value, res, sql, table.Relations[expansion.Key]);
+                if (!spec.count)
+                {
+                    // Don't need ORDER BY for count
+                    BuildOrderByClause(expansion.Value, sql);
+                    // Don't need pagination for count
+                    BuildOffsetFetchClause(expansion.Value, sql);
+                }
+                sql.Append(" FOR JSON PATH)");
             }
         }
 

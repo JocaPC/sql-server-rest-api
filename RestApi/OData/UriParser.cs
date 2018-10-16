@@ -75,14 +75,13 @@ namespace SqlServerRestApi.OData
             var lexer = new ODataTranslatorLexer(new AntlrInputStream(expand), tabSpec, spec);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             // Pass the tokens to the parser
-            var parser = new ODataTranslatorParser(tokens, tabSpec);
-
+            var parser = new ODataTranslatorParser(tokens, tabSpec, spec);
+            
             spec.expand = new System.Collections.Generic.Dictionary<string, QuerySpec>();
             // Run  rule "expandItems" in this grammar
-            foreach (var rel in parser.expandItems().relations)
-            {
-                spec.expand.Add(rel.Key, new QuerySpec() { select = rel.Value.columnList ?? "*" });
-            }
+
+            spec.expand = parser.expandItems().relations;
+           
         }
 
         private static void ParseGroupBy(string apply, QuerySpec spec, TableSpec tabSpec)
@@ -92,7 +91,7 @@ namespace SqlServerRestApi.OData
             var lexer = new ODataTranslatorLexer(new AntlrInputStream(apply),tabSpec, spec);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             // Pass the tokens to the parser
-            var parser = new ODataTranslatorParser(tokens, tabSpec);
+            var parser = new ODataTranslatorParser(tokens, tabSpec, spec);
 
             // Run root rule ("apply" in this grammar)
             parser.apply();
@@ -172,9 +171,9 @@ namespace SqlServerRestApi.OData
                         var lexer = new ODataTranslatorLexer(new AntlrInputStream(column), tabSpec, spec);
                         CommonTokenStream tokens = new CommonTokenStream(lexer);
                         // Pass the tokens to the parser
-                        var parser = new ODataTranslatorParser(tokens, tabSpec);
+                        var parser = new ODataTranslatorParser(tokens, tabSpec, spec);
                         //parser.ErrorHandler = FastFail;
-                        column = parser.orderby().orderbyclause;
+                        column = parser.orderByItemExpr().value;
                         if (string.IsNullOrWhiteSpace(column))
                         {
                             _log.ErrorFormat("Cannot extract order by clause from $orderby= {orderby} value. ", orderby);
