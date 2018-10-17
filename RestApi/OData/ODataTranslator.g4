@@ -119,7 +119,7 @@ expandSpecItem
 	returns [string key, string value]:
 		'$select=' columnList=columns { $key = "select"; $value = _localctx.columnList.GetText(); }
 		|
-		'$filter=' where=expression { $key = "filter"; $value = _localctx.where.GetText(); }
+		'$filter=' where=logExpression { $key = "filter"; $value = _localctx.where.GetText(); }
 		|
 		'$top=' top=NUMBER  { $key = "top"; $value = _localctx.top.Text; }
 		|
@@ -127,6 +127,30 @@ expandSpecItem
 		|
 		'$orderBy=' obi=orderByItem  { $key = "orderBy"; $value = _localctx.obi.orderByExpression + " " + _localctx.obi.orderByDirection; }
 ;
+
+logExpression
+	returns [string expr]:
+	{ System.Text.StringBuilder sb = new System.Text.StringBuilder(); } 
+	exp1=relExpression
+		{	sb.Append(_localctx.exp1.GetText()); }
+		(
+			loglop=LOGOP exp2=relExpression
+			{
+				sb.Append(_localctx.loglop.Text).Append(" ").Append(_localctx.exp2.GetText()); 
+			}
+		)+;
+
+relExpression
+	returns [string expr]:
+	{ System.Text.StringBuilder sb = new System.Text.StringBuilder(); } 
+	exp1=expression
+		{	sb.Append(_localctx.exp1.GetText()); }
+		(
+			relop=RELOP exp2=expression
+			{
+				sb.Append(_localctx.relop.Text).Append(" ").Append(_localctx.exp2.GetText()); 
+			}
+		)+;
 
 expression
 	returns [string expr]
