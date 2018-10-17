@@ -15,7 +15,7 @@ namespace SqlServerRestApi.OData
             TableSpec relation = parser.tableSpec.Relations[name];
             QuerySpec s = null;
 
-            if (props != null || props.Count > 0)
+            if (props != null && props.Count > 0)
             {
                 var top = -1;
                 var skip = -1;

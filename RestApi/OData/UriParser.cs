@@ -80,7 +80,8 @@ namespace SqlServerRestApi.OData
             spec.expand = new System.Collections.Generic.Dictionary<string, QuerySpec>();
             // Run  rule "expandItems" in this grammar
 
-            spec.expand = parser.expandItems().relations;
+            parser.expandItems();
+            spec.expand = parser.Relations;
            
         }
 

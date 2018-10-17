@@ -18,7 +18,7 @@
     "TestApp": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "odata?$expand=Orders($top=2)",
+      "launchUrl": "odata?$top=3&$expand=Orders($top=2)",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
