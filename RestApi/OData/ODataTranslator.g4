@@ -67,8 +67,8 @@ with_clause
 		 { $fun = null; }
 		 ;
 
-//// Main production for $apply parameter
-apply : ('groupby((' columns '),' aggregates ')') 
+//// Main production for $apply parameter - DO NOT MERGE ')' and ',' INTO '),' BECAUSE OTHER PROD RULES WILL FAIL
+apply : ('groupby((' columns ')' ',' aggregates ')') 
 		| aggregates;
 
 columns: list=ids { this.GroupBy = _localctx.list.ColumnNames; } ;
@@ -91,19 +91,15 @@ agg_function
 				$fun = _localctx.agg.Text; $expr = _localctx.agg_exp.expr;
 			};
 			
-expandItems 
-	returns [Dictionary<string, QuerySpec> relations]:
-	expandItem (',' expandItem)*
-			{
-				$relations = this.Relations;
-			};
+expandItems:
+	expandItem ( ',' expandItem )*;
 
 expandItem :
 	expand=IDENT 
 	{
 		this.SetValidationScope(_localctx.expand.Text);
 	}
-			( '(' es = expandSpec ')' )?
+	'(' es = expandSpec ')'
 	{ 
 		this.ResetValidationScope();
 		this.AddExpandRelation(_localctx.expand.Text, _localctx.es == null ? null : _localctx.es.props);
@@ -113,7 +109,8 @@ expandSpec
 	returns [Dictionary<string, string> props]:
 		{ $props = new Dictionary<string, string>(); }
 		e=expandSpecItem { $props.Add(_localctx.e.key, _localctx.e.value); } 
-			( ',' e2=expandSpecItem { $props.Add(_localctx.e2.key, _localctx.e2.value); } )*;
+			( ',' e2=expandSpecItem { $props.Add(_localctx.e2.key, _localctx.e2.value); } )*
+;
 
 expandSpecItem
 	returns [string key, string value]:
@@ -250,7 +247,7 @@ STRING_LITERAL : ['].*?['] {
 		this.querySpec.parameters.AddFirst(p);
 		Text = "@p"+(i++);
 };
-NUMBER : [1-9][0-9]* {
+NUMBER : [0-9]+ {
 		var p = new System.Data.SqlClient.SqlParameter("@p"+i, System.Data.SqlDbType.Int);
 		p.Value = System.Convert.ToInt32(Text);
 		this.querySpec.parameters.AddFirst(p);

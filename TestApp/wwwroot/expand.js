@@ -25,12 +25,12 @@ QUnit.cases
     .combinatorial([
         { filter2: " or month(OrderDate) lt 10" },
         { filter2: " or month(OrderDate) gt 4" },
-        { filter2: "" }
+        { filter2: " and OrderID gt 0" }
     ])
     .combinatorial([
         { param: "$skip=5,$top=10" },
-        { param: "$select=OrderID,OrderDate,$skip=10" },
-        { param: "" }
+        { param: "$select=OrderID,OrderDate,$skip=10,$top=4" },
+        { param: "$top=2" }
     ])
     .test("$expand test", function (params, assert) {
         var finishTest = assert.async();

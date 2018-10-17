@@ -58,7 +58,8 @@ namespace SqlServerRestApi.OData
             else
                 s = new QuerySpec()
                 {
-                    select = relation.columnList
+                    select = relation.columnList,
+                    predicate = relation.primaryKey
                 };
             parser.Relations.Add(name, s);
         }
