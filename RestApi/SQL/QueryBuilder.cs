@@ -19,7 +19,7 @@ namespace SqlServerRestApi
             BuildSelectFromClause(spec, table, sql);
             // We should build WHERE clause even if we need just a count.
             // Client may need count of filtered rows.
-            BuildWherePredicate(spec, res, sql, table);
+            BuildWherePredicate(spec, sql, table);
             BuildGroupByClause(spec, res, sql, table);
             if (!spec.count)
             {
@@ -28,8 +28,9 @@ namespace SqlServerRestApi
                 // Don't need pagination for count
                 BuildOffsetFetchClause(spec, sql);
             }
-
+            
             res.CommandText = sql.ToString();
+            AddParametersToSqlCommand(spec, res);
             res.CommandTimeout = 360;
             return res;
         }
@@ -74,10 +75,10 @@ namespace SqlServerRestApi
                 sql.Append(',');
                 sql.Append(expansion.Key).Append("=(");
                 BuildSelectFromClause(expansion.Value, table.Relations[expansion.Key], sql);
-                sql.Append(" WHERE ").Append(table.Relations[expansion.Key].primaryKey);
+                //sql.Append(" WHERE ").Append(table.Relations[expansion.Key].primaryKey);
 
 
-                //BuildWherePredicate(expansion.Value, res, sql, table.Relations[expansion.Key]);
+                BuildWherePredicate(expansion.Value, sql, table.Relations[expansion.Key]);
                 // should I suport group by in expand? 
                 // BuildGroupByClause(expansion.Value, res, sql, table.Relations[expansion.Key]);
                 if (!spec.count)
@@ -98,48 +99,20 @@ namespace SqlServerRestApi
         /// </summary>
         /// <param name="spec"></param>
         /// <param name="res"></param>
-        private static void BuildWherePredicate(QuerySpec spec, SqlCommand res, StringBuilder sql, TableSpec table)
+        private static void BuildWherePredicate(QuerySpec spec, StringBuilder sql, TableSpec table)
         {
             bool isWhereClauseAdded = false;
 
-            // If there is a global search by keyword in JQuery Datatable or $search param in OData add this parameter.
-            if ( !string.IsNullOrEmpty(spec.keyword) )
-            {
-                var p = new SqlParameter("kwd", System.Data.SqlDbType.NVarChar, 4000);
-                p.Value = "%" + spec.keyword + "%";
-                res.Parameters.Add(p);
-            }
+            
 
-            // If there are some literals that are transformed to parameters add them in command.
-            if (spec.parameters != null && spec.parameters.Count > 0)
-            {
-                foreach (var parameter in spec.parameters)
-                {
-                    res.Parameters.Add(parameter);
-                }
-            }
-
-            // If there are filters per columns add them as parameters
-            if (spec.columnFilter != null && spec.columnFilter.Count > 0)
-            {
-                foreach (DictionaryEntry entry in spec.columnFilter)
-                {
-                    if (string.IsNullOrEmpty(entry.Value.ToString()))
-                        continue;
-                    var p = new SqlParameter(entry.Key.ToString(), System.Data.SqlDbType.NVarChar, 4000);
-                    p.Value = "%"+entry.Value+"%";
-                    res.Parameters.Add(p);
-                }
-            }
-
-            if ( !string.IsNullOrEmpty(spec.predicate) )
+            if (!string.IsNullOrEmpty(spec.predicate))
             {
                 // This is T-SQL predicate that is provided via Url (e.g. using OData $filter clause)
                 sql.Append(" WHERE (").Append(spec.predicate).Append(")");
                 isWhereClauseAdded = true;
             }
 
-            if (!string.IsNullOrEmpty(spec.keyword) )
+            if (!string.IsNullOrEmpty(spec.keyword))
             {
                 if (!isWhereClauseAdded)
                 {
@@ -170,7 +143,8 @@ namespace SqlServerRestApi
                 bool isFirstColumn = true, isWhereClauseAddedInColumnFiler = false;
                 foreach (DictionaryEntry entry in spec.columnFilter)
                 {
-                    if (!string.IsNullOrEmpty(entry.Value.ToString())) {
+                    if (!string.IsNullOrEmpty(entry.Value.ToString()))
+                    {
 
                         if (isFirstColumn)
                         {
@@ -183,7 +157,8 @@ namespace SqlServerRestApi
                                 sql.Append(" OR (");
                             }
                             isWhereClauseAddedInColumnFiler = true;
-                        } else
+                        }
+                        else
                         {
                             sql.Append(" AND ");
                         }
@@ -197,7 +172,40 @@ namespace SqlServerRestApi
                     sql.Append(")");
                 }
             }
-            
+
+        }
+
+        private static void AddParametersToSqlCommand(QuerySpec spec, SqlCommand res)
+        {
+            // If there is a global search by keyword in JQuery Datatable or $search param in OData add this parameter.
+            if (!string.IsNullOrEmpty(spec.keyword))
+            {
+                var p = new SqlParameter("kwd", System.Data.SqlDbType.NVarChar, 4000);
+                p.Value = "%" + spec.keyword + "%";
+                res.Parameters.Add(p);
+            }
+
+            // If there are some literals that are transformed to parameters add them in command.
+            if (spec.parameters != null && spec.parameters.Count > 0)
+            {
+                foreach (var parameter in spec.parameters)
+                {
+                    res.Parameters.Add(parameter);
+                }
+            }
+
+            // If there are filters per columns add them as parameters
+            if (spec.columnFilter != null && spec.columnFilter.Count > 0)
+            {
+                foreach (DictionaryEntry entry in spec.columnFilter)
+                {
+                    if (string.IsNullOrEmpty(entry.Value.ToString()))
+                        continue;
+                    var p = new SqlParameter(entry.Key.ToString(), System.Data.SqlDbType.NVarChar, 4000);
+                    p.Value = "%" + entry.Value + "%";
+                    res.Parameters.Add(p);
+                }
+            }
         }
 
         private static void BuildOrderByClause(QuerySpec spec, StringBuilder sql)

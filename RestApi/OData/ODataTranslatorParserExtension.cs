@@ -46,7 +46,7 @@ namespace SqlServerRestApi.OData
                     select = props.ContainsKey("select") ? props["select"] : relation.columnList,
                     top = top,
                     skip = skip,
-                    predicate = props.ContainsKey("filter") ? props["filter"] : null
+                    predicate = props.ContainsKey("filter") ? relation.primaryKey + " AND " + props["filter"] : relation.primaryKey
                 };
 
                 if (props.ContainsKey("orderBy"))

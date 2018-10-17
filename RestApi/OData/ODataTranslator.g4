@@ -133,41 +133,35 @@ expression
 	:
 		{ System.Text.StringBuilder sb = new System.Text.StringBuilder(); } 
 		(
-			(	operand1 = (LITERAL | STRING_LITERAL | DATETIME_LITERAL | NUMBER | PAR)
-				{ sb.Append(_localctx.operand1.Text).Append(" "); }	)
-			|
-			(	f=FUNCTION e=expression ')'
-				{ sb.Append(_localctx.f.Text).Append(" ").Append(_localctx.e.expr).Append(")"); }
-			)
-			|
-			( c1=column { sb.Append(_localctx.c1.Name).Append(" "); } )
+			operand1=operand
+			{
+				sb.Append(_localctx.operand1.GetText()); 
+			}
 		)
 		(
 			op=OPERATOR
+			operand2 = operand
 			{
-				sb.Append(_localctx.op.Text).Append(" "); 
+				sb.Append(_localctx.op.Text).Append(" ").Append(_localctx.operand2.GetText()); 
 			}
-			(
-				(operand2=(LITERAL | STRING_LITERAL | DATETIME_LITERAL | NUMBER | PAR)	
-				{
-					sb.Append(_localctx.operand2.Text).Append(" "); 
-				}
-				)
-				|
-				(	f=FUNCTION e=expression ')'
-					{ sb.Append(_localctx.f.Text).Append(" ").Append(_localctx.e.expr).Append(")"); }
-				)
-				|
-				(c2=column
-				{
-					sb.Append(_localctx.c2.Name).Append(" ");
-				})
-			)
 		)*
 			{
 				$expr = sb.ToString();
 			}
 		;
+
+operand
+	returns [string expr]:
+	(	operand1 = (LITERAL | STRING_LITERAL | DATETIME_LITERAL | NUMBER | PAR)
+				{ $expr = _localctx.operand1.Text + " "; }	)
+			|
+			(	f=FUNCTION e=expression ')'
+				{ $expr = _localctx.f.Text + " " + _localctx.e.expr + ")"; }
+			)
+			|
+			( c1=column { $expr = _localctx.c1.Name + " "; } )
+;
+
 column 
 	returns [string Name]: c=IDENT { this.ValidateColumn(_localctx.c.Text); $Name = _localctx.c.Text;};
 
