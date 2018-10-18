@@ -42,13 +42,15 @@ QUnit.cases
                 assert.ok(result.value !== null, "Response is retrieved");
                 for (i = 0; i < result.value.length; i++) {
                     var orders = result.value[i].Orders;
-                    for (var o in orders) {
+                    for (var keyo in orders) {
+                        var o = orders[keyo];
                         assert.notEqual(o.OrderID, null, "OrderID should not be null");
                         assert.notEqual(o.OrderDate, null, "OrderDate should not be null");
                     }
                     var invoices = result.value[i].Invoices;
-                    for (var i in invoices) {
-                        assert.notEqual(o.InvoiceID, null, "InvoiceID should not be null");
+                    for (var keyi in invoices) {
+                        var i = invoices[keyi];
+                        assert.notEqual(i.InvoiceID, null, "InvoiceID should not be null");
                     }
                 }
                 finishTest();
