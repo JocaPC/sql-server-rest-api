@@ -24,7 +24,9 @@ QUnit.cases
     ])
     .combinatorial([
         { filter2: " or month(OrderDate) lt 10" },
+        { filter2: " and (month(OrderDate) lt 4)" },
         { filter2: " or (month(OrderDate) gt 4)" },
+        { filter2: " and (((3 sub OrderID) mod 4) eq 1)" },
         { filter2: " and OrderID gt 0" }
     ])
     .combinatorial([
@@ -42,10 +44,22 @@ QUnit.cases
                 assert.ok(result.value !== null, "Response is retrieved");
                 for (i = 0; i < result.value.length; i++) {
                     var orders = result.value[i].Orders;
+                    if (orders != null && params.param === "$top=2") {
+                        assert.equal(orders.length, 2, "Incorrect number of orders");
+                    }
+                    if (orders != null && params.param === "$select=OrderID,OrderDate,$skip=10,$top=4") {
+                        assert.equal(orders.length, 4, "Incorrect number of orders");
+                    }
                     for (var keyo in orders) {
                         var o = orders[keyo];
                         assert.notEqual(o.OrderID, null, "OrderID should not be null");
                         assert.notEqual(o.OrderDate, null, "OrderDate should not be null");
+                        if (params.filter2 === " and (((3 sub OrderID) mod 4) eq 1)") {
+                            assert.equal((3 - OrderID) % 4, 1, "OrderID " + OrderID + " should be ((3-OrderID) mod 4) eq 1)");
+                        }
+                        if (params.filter2 === " and (month(OrderDate) lt 4)") {
+                            assert.equal(true, new Date(o.OrderDate).getMonth() < 4, "Month " + new Date(o.OrderDate).getMonth() + " should be less than 4");
+                        }
                     }
                     var invoices = result.value[i].Invoices;
                     for (var keyi in invoices) {

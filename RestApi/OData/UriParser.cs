@@ -58,7 +58,7 @@ namespace SqlServerRestApi.OData
                 DateTime asof;
                 if (!DateTime.TryParse(spec.systemTimeAsOf, out asof))
                 {
-                    if (_log != null) _log.ErrorFormat("Indalid date {value} provided as {parameter} in {type} Uri parser", spec.systemTimeAsOf, "$systemat", "OData");
+                    if (_log != null) _log.ErrorFormat("Invalid date {value} provided as {parameter} in {type} Uri parser", spec.systemTimeAsOf, "$systemat", "OData");
                     throw new ArgumentException(spec.systemTimeAsOf + " is not valid date.");
                 }
             }
@@ -173,7 +173,7 @@ namespace SqlServerRestApi.OData
                         CommonTokenStream tokens = new CommonTokenStream(lexer);
                         // Pass the tokens to the parser
                         var parser = new ODataTranslatorParser(tokens, tabSpec, spec);
-                        //parser.ErrorHandler = FastFail;
+                        parser.ErrorHandler = FastFail;
                         column = parser.orderByItemExpr().value;
                         if (string.IsNullOrWhiteSpace(column))
                         {

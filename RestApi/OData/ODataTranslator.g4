@@ -19,6 +19,7 @@ grammar ODataTranslator;
 		this.tableSpec = tableSpec;
 		this.querySpec = querySpec;
 		this.currentTableScopeSpec = tableSpec; // we are initially validating root entity scope.
+		this.ErrorHandler = new BailErrorStrategy();
 	}
 }
 
