@@ -19,12 +19,12 @@ QUnit.cases
     ])
     .combinatorial([
         { filter1: "OrderID lt 5000" },
-        { filter1: "OrderID gt 300" },
+        { filter1: "(OrderID gt 300)" },
         { filter1: "month(OrderDate) gt 2" }
     ])
     .combinatorial([
         { filter2: " or month(OrderDate) lt 10" },
-        { filter2: " or month(OrderDate) gt 4" },
+        { filter2: " or (month(OrderDate) gt 4)" },
         { filter2: " and OrderID gt 0" }
     ])
     .combinatorial([

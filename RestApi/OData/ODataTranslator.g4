@@ -127,6 +127,8 @@ expandSpecItem
 
 logExpression
 	returns [string expr]:
+	'(' le=logExpression ')' { $expr = _localctx.le.GetText(); } 
+	|
 	{ System.Text.StringBuilder sb = new System.Text.StringBuilder(); } 
 	exp1=relExpression
 		{	sb.Append(_localctx.exp1.GetText()); }
@@ -135,10 +137,14 @@ logExpression
 			{
 				sb.Append(_localctx.loglop.Text).Append(" ").Append(_localctx.exp2.GetText()); 
 			}
-		)+;
+		)+
+	{ $expr = sb.ToString(); }		
+;
 
 relExpression
 	returns [string expr]:
+	'(' re=relExpression ')' { $expr = _localctx.re.GetText(); } 
+	|
 	{ System.Text.StringBuilder sb = new System.Text.StringBuilder(); } 
 	exp1=expression
 		{	sb.Append(_localctx.exp1.GetText()); }
@@ -147,11 +153,14 @@ relExpression
 			{
 				sb.Append(_localctx.relop.Text).Append(" ").Append(_localctx.exp2.GetText()); 
 			}
-		)+;
+		)+
+	{ $expr = sb.ToString(); } 
+;
 
 expression
-	returns [string expr]
-	:
+	returns [string expr]:
+		'(' e=expression ')' { $expr = _localctx.e.GetText(); } 
+		|
 		{ System.Text.StringBuilder sb = new System.Text.StringBuilder(); } 
 		(
 			operand1=operand
