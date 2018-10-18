@@ -18,7 +18,7 @@ QUnit.cases
         { dir: "desc" }
     ])
     .combinatorial([
-        { filter1: "OrderID lt 5000" },
+        { filter1: "OrderID lt 12000" },
         { filter1: "(OrderID gt 300)" },
         { filter1: "month(OrderDate) gt 2" }
     ])
@@ -41,8 +41,15 @@ QUnit.cases
             .done(result => {
                 assert.ok(result.value !== null, "Response is retrieved");
                 for (i = 0; i < result.value.length; i++) {
-                    assert.notEqual(result.value[i].Orders[0].OrderID, null, "OrderID should not be null");
-                    assert.notEqual(result.value[i].Orders[0].OrderDate, null, "OrderDate should not be null");
+                    var orders = result.value[i].Orders;
+                    for (var o in orders) {
+                        assert.notEqual(o.OrderID, null, "OrderID should not be null");
+                        assert.notEqual(o.OrderDate, null, "OrderDate should not be null");
+                    }
+                    var invoices = result.value[i].Invoices;
+                    for (var i in invoices) {
+                        assert.notEqual(o.InvoiceID, null, "InvoiceID should not be null");
+                    }
                 }
                 finishTest();
             });

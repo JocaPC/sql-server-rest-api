@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using static SqlServerRestApi.OData.ODataTranslatorParser;
 
 namespace SqlServerRestApi.OData
 {
@@ -46,7 +45,7 @@ namespace SqlServerRestApi.OData
                     select = props.ContainsKey("select") ? props["select"] : relation.columnList,
                     top = top,
                     skip = skip,
-                    predicate = props.ContainsKey("filter") ? relation.primaryKey + " AND " + props["filter"] : relation.primaryKey
+                    predicate = props.ContainsKey("filter") ? relation.primaryKey + " AND (" + props["filter"] + ")": relation.primaryKey
                 };
 
                 if (props.ContainsKey("orderBy"))
