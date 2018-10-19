@@ -156,28 +156,16 @@ Now you need to create async method that will serve JQuery DataTables AJAX reque
  - UriParser that will parse Http request parameters that JQuery DataTables component sends
  - QueryBuilder that will create T-SQL query that will be executed. 
 
-First, you need to parse Request parameters using UriParser in order to extract the definition of query (QuerySpec object). Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to JQuery DataTables using Response.Body:
+First, you need to define the structure of the table that will be used to populate DataTable. 
+Then, you need to process the request:
 
 ```
-       // GET api/People
-        [HttpGet]
-        public async Task Get(int draw, int start, int length)
-        {            
-            var querySpec = JQueryDataTables.UriParser.Parse(tableSpec, this.Request);
-            var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
-            
-            var header = System.Text.Encoding.UTF8.GetBytes(
-@"{
-    ""draw"":" + draw + @",
-    ""recordsTotal"": " + (start + length + 1) + @",
-    ""recordsFiltered"": " + (start + length + 1) + @",
-    ""data"":");
-            await Response.Body.WriteAsync(header, 0, header.Length);
-
-            await sqlQuery.Stream(sql, Response.Body, "[]");
-
-            await Response.Body.WriteAsync(System.Text.Encoding.UTF8.GetBytes("}"), 0, 1);
-        }
+       [HttpGet("table")]
+       public async Task Table()
+       {
+            var tableSpec = new TableSpec(schema: "Application", name: "People", columnList: "FullName,EmailAddress,PhoneNumber,FaxNumber");
+            await this.Table(tableSpec, queryService).Process();
+       }
  ```
  [JQuery DataTables](https://datatables.net/) component requires AJAX response in some pre-defined format, so you would need to wrap results from database with header that contains number of total and number of filtered records.
  Note that JQuery DataTables plugin uses **recordsTotal** and **recordsFiltered** to build pagination. Since you would need two additional queries . Reccomendation is to use alternative (paging plugins)[https://datatables.net/plug-ins/pagination/]
