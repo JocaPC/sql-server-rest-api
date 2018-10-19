@@ -22,7 +22,6 @@ grammar ODataTranslator;
 	}
 }
 
-
 @lexer::members {
 	internal SqlServerRestApi.TableSpec tableSpec;
 	internal SqlServerRestApi.QuerySpec querySpec;
@@ -54,7 +53,6 @@ orderBy
 		('asc'|('desc'{ $Direction = "desc"; }))?
 		{ $Expression = (_localctx.agg == null ? _localctx.e.expr:(_localctx.agg.Text +"("+_localctx.e.expr+")")); }
 ;
-
 
 //// Main production for $apply parameter - DO NOT MERGE ')' and ',' INTO '),' BECAUSE OTHER PROD RULES WILL FAIL
 apply : ('groupby((' columns ')' ',' aggregates ')') 
@@ -175,9 +173,6 @@ operand
 column 
 	returns [string Name]: c=IDENT { this.ValidateColumn(_localctx.c.Text); $Name = _localctx.c.Text;};
 
-
-
-
 //Translated tokens
 OPERATOR :  'add' { Text = "+"; } | 'sub' { Text = "-"; } |
 			'mul' { Text = "*"; } | 'div' { Text = "/"; } |
@@ -242,5 +237,5 @@ NUMBER : [0-9]+ {
 		this.querySpec.parameters.AddFirst(p);
 		Text = "@p"+(i++); 
 };
-//PROPERTY : [a-zA-Z][a-zA-Z0-9]* { this.ValidateColumn(Text);};
+
 PAR : [()];
