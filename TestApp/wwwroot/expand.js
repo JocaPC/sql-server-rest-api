@@ -45,10 +45,10 @@ QUnit.cases
                 for (i = 0; i < result.value.length; i++) {
                     var orders = result.value[i].Orders;
                     if (orders != null && params.param === "$top=2") {
-                        assert.equal(orders.length, 2, "Incorrect number of orders");
+                        assert.ok(orders.length <= 2, "Incorrect number of orders");
                     }
                     if (orders != null && params.param === "$select=OrderID,OrderDate,$skip=10,$top=4") {
-                        assert.equal(orders.length, 4, "Incorrect number of orders");
+                        assert.ok(orders.length <= 4, "Incorrect number of orders");
                     }
                     for (var keyo in orders) {
                         var o = orders[keyo];

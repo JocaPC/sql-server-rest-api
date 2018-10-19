@@ -174,7 +174,8 @@ namespace SqlServerRestApi.OData
                         // Pass the tokens to the parser
                         var parser = new ODataTranslatorParser(tokens, tabSpec, spec);
                         parser.ErrorHandler = FastFail;
-                        column = parser.orderByItemExpr().value;
+                        var orderBy = parser.orderBy();
+                        column = orderBy.Expression + " " + orderBy.Direction;
                         if (string.IsNullOrWhiteSpace(column))
                         {
                             _log.ErrorFormat("Cannot extract order by clause from $orderby= {orderby} value. ", orderby);

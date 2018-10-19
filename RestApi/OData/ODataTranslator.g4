@@ -2,17 +2,16 @@ grammar ODataTranslator;
 
 @parser::members {
 
-	public System.Collections.Generic.LinkedList<RestApi.OData.Aggregate> Aggregates =
+	internal System.Collections.Generic.LinkedList<RestApi.OData.Aggregate> Aggregates =
         new System.Collections.Generic.LinkedList<RestApi.OData.Aggregate>();
 	
-	public string GroupBy = null;
-	public Dictionary<string, QuerySpec> Relations = new Dictionary<string, QuerySpec>();
+	internal string GroupBy = null;
+	internal Dictionary<string, QuerySpec> Relations = new Dictionary<string, QuerySpec>();
 	
-
 	internal SqlServerRestApi.TableSpec tableSpec;
 	internal SqlServerRestApi.TableSpec currentTableScopeSpec; // Used to validate columns in the current scope.
 	internal SqlServerRestApi.QuerySpec querySpec;
-	public ODataTranslatorParser(ITokenStream input,
+	internal ODataTranslatorParser(ITokenStream input,
 							SqlServerRestApi.TableSpec tableSpec,
 							SqlServerRestApi.QuerySpec querySpec): this(input) 
 	{
@@ -29,7 +28,7 @@ grammar ODataTranslator;
 	internal SqlServerRestApi.QuerySpec querySpec;
 	string odataHelperSqlSchema = "odata";
 	int i = 0;
-	public ODataTranslatorLexer(ICharStream input,
+	internal ODataTranslatorLexer(ICharStream input,
 							SqlServerRestApi.TableSpec tableSpec,
 							SqlServerRestApi.QuerySpec querySpec,
 							string odataHelperSqlSchema = "odata"): this(input) 
@@ -47,26 +46,15 @@ grammar ODataTranslator;
 	}
 }
 
-orderByItem
-	returns [string orderByExpression, string orderByDirection]:
-		{ $orderByDirection = "asc"; /* default */ }
-		orderByExpr=orderByItemExpr { $orderByExpression = _localctx.orderByExpr.value; }
-			('asc'|('desc'{ $orderByDirection = "desc"; }))?
-		;
+// Order by expression with optional aggregation functions, without trailing asc/desc, such as "PersonID" or "Price with sum"
+orderBy
+	returns [string Expression, string Direction]:
+		e=expression
+		('with' agg=('sum'|'avg'|'min'|'max'|'count') )? 
+		('asc'|('desc'{ $Direction = "desc"; }))?
+		{ $Expression = (_localctx.agg == null ? _localctx.e.expr:(_localctx.agg.Text +"("+_localctx.e.expr+")")); }
+;
 
-// Order by expression with optional aggergaiton functions, without trailing asc/desc, such as "PersonID" or "Price with sum"
-orderByItemExpr
-	returns [string value]:
-		e=expression w=with_clause
-		{ $value = _localctx.w.fun==null?_localctx.e.expr:(_localctx.w.fun+"("+_localctx.e.expr+")"); };
-
-with_clause
-	returns [string fun]:
-		('with' agg=('sum'|'avg'|'min'|'max'|'count')
-		 { $fun = _localctx.agg.Text; } )
-		 |
-		 { $fun = null; }
-		 ;
 
 //// Main production for $apply parameter - DO NOT MERGE ')' and ',' INTO '),' BECAUSE OTHER PROD RULES WILL FAIL
 apply : ('groupby((' columns ')' ',' aggregates ')') 
@@ -76,14 +64,16 @@ columns: list=ids { this.GroupBy = _localctx.list.ColumnNames; } ;
 
 ids 
 	returns [string ColumnNames]: 
-		c1=column {$ColumnNames=_localctx.c1.Name;} ( ',' c2=column { $ColumnNames += ","+_localctx.c2.Name; } )* ;
+		c1=column {$ColumnNames=_localctx.c1.Name;} ( ',' c2=column { $ColumnNames += ","+_localctx.c2.Name; } )*
+;
 
 aggregates: aggregate (',' aggregate)*;
 
 aggregate: 'aggregate(' agg_exp = agg_function 'as' alias=IDENT ')'
 			{
 				this.AddAggregateExpression(_localctx.agg_exp.fun, _localctx.agg_exp.expr, _localctx.alias.Text);
-			};
+			}
+;
 
 agg_function
 	returns [string fun, string expr]
@@ -123,7 +113,7 @@ expandSpecItem
 		|
 		'$skip=' skip=NUMBER  { $key = "skip"; $value = _localctx.skip.Text; }
 		|
-		'$orderBy=' obi=orderByItem  { $key = "orderBy"; $value = _localctx.obi.orderByExpression + " " + _localctx.obi.orderByDirection; }
+		'$orderBy=' obi=orderBy  { $key = "orderBy"; $value = _localctx.obi.Expression + " " + _localctx.obi.Direction; }
 ;
 
 logExpression
@@ -160,25 +150,14 @@ relExpression
 
 expression
 	returns [string expr]:
+		opd=operand { $expr = _localctx.opd.GetText(); }
+		|
 		'(' e=expression ')' { $expr = _localctx.e.GetText(); } 
 		|
-		{ System.Text.StringBuilder sb = new System.Text.StringBuilder(); } 
-		(
-			operand1=operand
-			{
-				sb.Append(_localctx.operand1.GetText()); 
-			}
-		)
-		(
-			op=OPERATOR
-			operand2 = operand
-			{
-				sb.Append(_localctx.op.Text).Append(" ").Append(_localctx.operand2.GetText()); 
-			}
-		)*
-			{
-				$expr = sb.ToString();
-			}
+		operand1=expression
+		op=OPERATOR
+		operand2=expression
+		{	$expr = _localctx.operand1.GetText() + " " + _localctx.op.Text + " " + _localctx.operand2.GetText();	}
 		;
 
 operand

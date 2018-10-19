@@ -24,7 +24,7 @@ QUnit.cases
         var finishTest = assert.async();
         var data = null;
         $.ajax("/odata?" + (params.orderby ? "$orderby=" + params.orderby:"") +
-            "&$apply=(" + (params.groupby ? "groupby(" + params.groupby + ")," : "") +
+            "&$apply=" + (params.groupby ? "groupby(" + params.groupby + "," : "") +
             "aggregate(" + params.agg+ "))"
             , { dataType: "json" })
         .done(result => {
