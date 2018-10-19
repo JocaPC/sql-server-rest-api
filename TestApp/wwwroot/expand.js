@@ -11,6 +11,7 @@ QUnit.cases
     .combinatorial([
         { orderby: "OrderDate " },
         { orderby: "(-OrderID mod 4) " },
+        { orderby: "((OrderID add 3) mod (4 sub OrderID)) " },
         { orderby: "month(OrderDate) " }
     ])
     .combinatorial([
@@ -23,23 +24,31 @@ QUnit.cases
         { filter1: "month(OrderDate) gt 2" }
     ])
     .combinatorial([
-        { filter2: " or month(OrderDate) lt 10" },
+        { filter2: " or month(OrderDate) le 10" },
         { filter2: " and (month(OrderDate) lt 4)" },
         { filter2: " or (month(OrderDate) gt 4)" },
         { filter2: " and (((3 sub OrderID) mod 4) eq 1)" },
         { filter2: " and OrderID gt 0" }
     ])
     .combinatorial([
-        { param: "$skip=5,$top=10" },
-        { param: "$select=OrderID,OrderDate,$skip=10,$top=4" },
-        { param: "$top=2" }
+        { limit: "$skip=5,$top=10" },
+        { limit: "$skip=10,$top=50" },
+        { limit: "$top=2" }
+    ])
+    .combinatorial([
+        { selecto: "" },
+        { selecto: ",$select=OrderID,OrderDate" }
+    ])
+    .combinatorial([
+        { selecti: "" },
+        { selecti: ",$select=InvoiceID,InvoiceDate" }
     ])
     .test("$expand test", function (params, assert) {
         var finishTest = assert.async();
         var data = null;
-        $.ajax("/odata?$top=2&$expand=Invoices($top=3),Orders($orderBy=" + params.orderby + params.dir +
+        $.ajax("/odata?$top=2&$expand=Invoices(" + params.limit + params.selecti +"),Orders($orderBy=" + params.orderby + params.dir +
             ",$filter=" + params.filter1 + params.filter2 +
-            "," + params.param + ")", { dataType: "json" })
+            "," + params.limit + params.selecto + ")", { dataType: "json" })
             .done(result => {
                 assert.ok(result.value !== null, "Response is retrieved");
                 for (i = 0; i < result.value.length; i++) {
