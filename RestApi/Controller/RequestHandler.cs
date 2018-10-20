@@ -5,10 +5,8 @@ using Belgrade.SqlClient;
 using Common.Logging;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Data.SqlClient;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SqlServerRestApi
@@ -41,15 +39,6 @@ namespace SqlServerRestApi
                 .OnError(async e => await ReturnClientError(response, e))
                 .Stream(response.Body, IsSingletonResponse?"{}":"[]")
                 .ConfigureAwait(false);
-        }
-
-        [Obsolete("Use Process()")]
-        public virtual async Task Get()
-        {
-            response.ContentType = "application/json";
-            await pipe.Sql(cmd)
-                .OnError(async e => await ReturnClientError(response, e))
-                .Stream(response.Body, IsSingletonResponse ? "{}" : "[]");
         }
 
         internal static async Task ReturnClientError(HttpResponse response, Exception ex)

@@ -35,21 +35,6 @@ $@"{{
                 .Sql(cmd)
                 .Stream(response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}" });
         }
-
-        [Obsolete("Use Process()")]
-        public override async Task Get()
-        {
-            response.ContentType = "application/json";
-            var header =
-$@"{{ 
-    ""draw"":""{draw}"",
-    ""recordsTotal"":""{start + length + 1}"",
-    ""recordsFiltered"":""{start + length + 1}"",
-    ""data"":";
-            await pipe
-                .Sql(cmd)
-                .Stream(response.Body, new Options { Prefix = header, DefaultOutput="[]", Suffix = "}"});
-        }
     }
 
 }

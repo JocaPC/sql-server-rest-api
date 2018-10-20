@@ -56,7 +56,7 @@ namespace MyApp.Controllers
         [HttpGet("table")]
         public async Task Table()
         {
-            var tableSpec = new TableSpec("Application", "People", "FullName,EmailAddress,PhoneNumber,FaxNumber");
+            var tableSpec = new TableSpec(schema: "Application", name: "People", columnList: "FullName,EmailAddress,PhoneNumber,FaxNumber");
             await this.Table(tableSpec, queryService).Process();
         }
     }

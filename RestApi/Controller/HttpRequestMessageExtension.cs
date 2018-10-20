@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SqlServerRestApi
 {
-#if net46
+#if net47 || net46
     public static class HttpRequestMessageExtension
     { 
 

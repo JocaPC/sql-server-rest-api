@@ -16,10 +16,11 @@ Sql Server REST API library enables you to create OData REST services that suppo
  - $orderby that can sort entities by some column(s)
  - $top and $skip that can be used for pagination,
  - $count that enables you to get the total number of entities,
- - $search that search for entities by a keyword.
+ - $search that search for entities by a keyword,
+ - $expand that fetches related entries.
 
 OData services implemented using Sql Server REST API library provide minimal interface that web clients can use to
-query data without additional overhead introduced by advanced OData operators (e.g. $extend, all/any), or verbose response format.
+query data without additional overhead introduced by advanced OData operators, or verbose response format.
 
 > The goal of this project is not to support all standard OData features. Library provides the most important features, and
 > excludes features that cannot provide optimal performance. The most important benefits that this library provides are simplicity and speed. 
@@ -40,8 +41,8 @@ OData service can be implemented using any .Net project, such ASP.NET Core, ASP.
   "frameworks": {
     "net46":{
       "dependencies": {
-        "Antlr4.Runtime": "4.5.3",
-        "Sql-Server-Rest-Api": "0.3.2"
+        "Antlr4.Runtime": "4.6.5",
+        "MsServer.RestApi": "0.2"
       }
     }
    }
@@ -106,12 +107,35 @@ namespace MyApp.Controllers
         [HttpGet("odata")]
         public async Task OData()
         {
-            var tableSpec = new TableSpec("Application.People", "PersonID,FullName,PhoneNumber");
+            var tableSpec = new TableSpec("Application", name="People", "PersonID,FullName,PhoneNumber");
             await this.OData(tableSpec, cmd).Process();
+        }
+
+		[HttpGet("odata")]
+        public async Task People()
+        {
+            var tableSpec = new TableSpec("Application", "People", "PersonID,FullName,PhoneNumber,FaxNumber,EmailAddress,ValidTo")
+                .AddRelatedTable("Orders", "Sales", "Orders", "Application.People.PersonID = Sales.Orders.CustomerID", "OrderID,OrderDate,ExpectedDeliveryDate,Comments")
+                .AddRelatedTable("Invoices", "Sales", "Invoices", "Application.People.PersonID = Sales.Invoices.CustomerID", "InvoiceID,InvoiceDate,IsCreditNote,Comments");
+            await this.OData(tableSpec, queryService).Process();
         }
     }
 }
 ```
+
+OData service enables yo to fetch the information about related entities, such as Sales.Orders or Sales.Invoices that pelong to a person.
+You wouldneed to describe relationships in the table specification before you process the OData request.
+```
+	[HttpGet("odata")]
+	public async Task OData()
+	{
+		var tableSpec = new TableSpec(schema: "Application", name: "People", columnList: "PersonID,FullName,PhoneNumber,FaxNumber,EmailAddress,ValidTo")
+			.AddRelatedTable(relation: "Orders", schema: "Sales", name: "Orders", columnList: "Application.People.PersonID = Sales.Orders.CustomerID", "OrderID,OrderDate,ExpectedDeliveryDate,Comments")
+			.AddRelatedTable(relation: "Invoices", schema: "Sales", name: "Invoices", columnList: "Application.People.PersonID = Sales.Invoices.CustomerID", "InvoiceID,InvoiceDate,IsCreditNote,Comments");
+		await this.OData(tableSpec, this.cmd).Process();
+	}
+```
+
 
 When you run this app and open http://......./api/People/odata Url, you would be able to call all supported functions in OData service.
 
@@ -133,9 +157,10 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     log.Info("Started execution...");
 
     try{
+
         string ConnectionString = ConfigurationManager.ConnectionStrings["azure-db-connection"].ConnectionString;
         var sqlpipe = new QueryPipe(ConnectionString);
-        var tableSpec = new TableSpec("sys.objects", "object_id,name,type,schema_id,create_date");
+        var tableSpec = new TableSpec(schema: "sys", name: "objects", columnList: "object_id,name,type,schema_id,create_date");
         return await req.CreateODataResponse(tableSpec, sqlpipe);
         
     } catch (Exception ex) {

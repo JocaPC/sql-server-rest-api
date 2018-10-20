@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestApi", "RestApi\RestApi.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{CAE8AC4B-4F5D-4851-883D-2512F4CA71DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFunction", "TestFunction\TestFunction.csproj", "{5BF23A65-2B6D-49DD-ABED-14C7F7D3D35D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CAE8AC4B-4F5D-4851-883D-2512F4CA71DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAE8AC4B-4F5D-4851-883D-2512F4CA71DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAE8AC4B-4F5D-4851-883D-2512F4CA71DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BF23A65-2B6D-49DD-ABED-14C7F7D3D35D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BF23A65-2B6D-49DD-ABED-14C7F7D3D35D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BF23A65-2B6D-49DD-ABED-14C7F7D3D35D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BF23A65-2B6D-49DD-ABED-14C7F7D3D35D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

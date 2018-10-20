@@ -53,35 +53,7 @@ namespace SqlServerRestApi
                 throw new InvalidOperationException("Cannot generate response for metadata type: " + metadata); 
             }
         }
-
-        [Obsolete("Use Process()")]
-        public async override Task Get()
-        {
-            if (tableSpec.columns.Count == 0)
-                throw new Exception("Columns are not defined in table definition for table " + this.tableSpec.Schema + "." + this.tableSpec.Name);
-            if (this.countOnly)
-            {
-                await pipe.Sql(cmd).Stream(response.Body, "-1");
-            }
-            else if(metadata == Metadata.NONE)
-            {
-                response.ContentType = "application/json;odata.metadata=none;odata=nometadata";
-                await pipe
-                    .Sql(cmd)
-                    .OnError(async e => await ReturnClientError(response, e))
-                    .Stream(response.Body, "{\"value\":[]}");
-            }
-            else
-            {
-                response.ContentType = "application/json;odata.metadata=minimal";
-                var header = "{\"@odata.context\":\"" + this.metadataUrl + "#" + this.tableSpec.Name + "\",\"value\":";
-                await pipe
-                    .Sql(cmd)
-                    .OnError(async e => await ReturnClientError(response, e))
-                    .Stream(response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}"});
-            }
-        }
-
+        
         public static string GetRootMetadataJsonV4(string ODataMetadataUrl, TableSpec[] tables)
         {
             var sb = new StringBuilder();

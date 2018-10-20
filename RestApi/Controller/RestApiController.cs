@@ -4,7 +4,6 @@
 using Belgrade.SqlClient;
 using Common.Logging;
 using System;
-using System.Data.SqlClient;
 
 namespace SqlServerRestApi
 {
@@ -19,6 +18,13 @@ namespace SqlServerRestApi
             string metadataUrl = null,
             object id = null)
         {
+            return ctrl.Request.OData(tableSpec, sqlQuery, ctrl.Response, metadata,
+                metadataUrl: metadataUrl ??
+                    ((ctrl is ODataController) ? (ctrl as ODataController).MetadataUrl : null) ??
+                    ((ctrl.Request.Scheme + "://" + ctrl.Request.Host + ctrl.Request.Path.Value.Replace("/" + tableSpec.Name, ""))),
+                id: id);
+            #region Extracted & refactored
+            /*
             if (_log == null)
                 _log = StartUp.GetLogger<RequestHandler>();
             try
@@ -58,15 +64,10 @@ namespace SqlServerRestApi
             {
                 return new ErrorResponseHandler(ctrl.Response, ex);
             }
+            */
+            #endregion
         }
 
-        [Obsolete("Use Table(...) method instead of this one.")]
-        public static RequestHandler JQueryDataTables(this Microsoft.AspNetCore.Mvc.Controller ctrl,
-            TableSpec tableSpec,
-            IQueryPipe sqlQuery)
-        {
-            return Table(ctrl, tableSpec, sqlQuery);
-        }
 
         public static RequestHandler Table(
             this Microsoft.AspNetCore.Mvc.Controller ctrl,
