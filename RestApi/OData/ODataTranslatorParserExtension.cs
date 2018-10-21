@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using MsSql.RestApi;
 
-namespace SqlServerRestApi.OData
+namespace MsSql.OData
 {
     public static class ODataTranslatorParserExtension
     {
@@ -65,7 +66,7 @@ namespace SqlServerRestApi.OData
 
         internal static void AddAggregateExpression(this ODataTranslatorParser parser, string Method, string Column, string Alias)
         {
-            var agg = new RestApi.OData.Aggregate() { AggregateMethod = Method, AggregateColumn = Column, AggregateColumnAlias = Alias };
+            var agg = new Aggregate() { AggregateMethod = Method, AggregateColumn = Column, AggregateColumnAlias = Alias };
             parser.Aggregates.AddLast(agg);
         }
 

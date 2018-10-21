@@ -7,10 +7,10 @@ using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
 using System.Text;
+using MsSql.RestApi;
 
-namespace SqlServerRestApi.OData
+namespace MsSql.OData
 {
-
     public class UriParser
     {
         public static bool EnableODataExtensions { get; set; }

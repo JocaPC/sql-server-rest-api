@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using MsSql.RestApi;
 
-namespace SqlServerRestApi
+namespace MsSql.TableApi
 {
     public class JQueryDataTablesHandler : RequestHandler
     {

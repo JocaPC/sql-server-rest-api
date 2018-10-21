@@ -5,7 +5,7 @@ using System.Collections;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace SqlServerRestApi
+namespace MsSql.RestApi
 {
     public static class QueryBuilder
     {

@@ -7,13 +7,13 @@ using Belgrade.SqlClient.SqlDb.Rls;
 using Common.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RestApi.Util;
+using MsSql.RestApi.Util;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
-namespace SqlServerRestApi
+namespace MsSql.RestApi
 {
     public static class StartUp
     {
@@ -51,7 +51,7 @@ namespace SqlServerRestApi
 
             Belgrade.SqlClient.SqlDb.RetryErrorHandler.Enable(options.EnableRetryLogic);
             Belgrade.SqlClient.SqlDb.RetryErrorHandler.EnableDelayedRetries(options.EnableDelayedRetryLogic);
-            SqlServerRestApi.OData.UriParser.EnableODataExtensions = options.EnableODataExtensions;
+            MsSql.OData.UriParser.EnableODataExtensions = options.EnableODataExtensions;
 
             return services;
         }

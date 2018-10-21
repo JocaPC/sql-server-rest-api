@@ -2,7 +2,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace RestApi.Util
+namespace MsSql.RestApi.Util
 {
     public class CommonILogAdapter4ExtensionILogger: ILog
     {

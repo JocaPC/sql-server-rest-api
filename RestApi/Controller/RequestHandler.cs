@@ -10,7 +10,7 @@ using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
-namespace SqlServerRestApi
+namespace MsSql.RestApi
 {
     public class RequestHandler
     {

@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace SqlServerRestApi
+namespace MsSql.RestApi
 {
 #if net47 || net46
     public static class HttpRequestMessageExtension

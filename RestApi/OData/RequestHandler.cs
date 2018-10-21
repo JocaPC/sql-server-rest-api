@@ -7,8 +7,9 @@ using System;
 using System.Data.SqlClient;
 using System.Text;
 using System.Threading.Tasks;
+using MsSql.RestApi;
 
-namespace SqlServerRestApi
+namespace MsSql.OData
 {
     public class ODataHandler: RequestHandler
     {

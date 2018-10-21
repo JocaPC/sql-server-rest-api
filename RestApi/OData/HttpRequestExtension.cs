@@ -6,8 +6,9 @@ using Common.Logging;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Data.SqlClient;
+using MsSql.RestApi;
 
-namespace SqlServerRestApi
+namespace MsSql.OData
 {
     public static class HttpRequestMessageExtension
     {
@@ -45,7 +46,7 @@ namespace SqlServerRestApi
             if (_log == null)
                 _log = StartUp.GetLogger<RequestHandler>();
 
-            querySpec = SqlServerRestApi.OData.UriParser.Parse(tableSpec, req);
+            querySpec = MsSql.OData.UriParser.Parse(tableSpec, req);
             if (id != null)
             {
                 querySpec.predicate = tableSpec.primaryKey + " = @Id";

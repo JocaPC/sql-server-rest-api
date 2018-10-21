@@ -5,7 +5,7 @@ using Common.Logging;
 using System;
 using System.Collections.Generic;
 
-namespace SqlServerRestApi
+namespace MsSql.RestApi
 {
     public class ColumnSpec
     {

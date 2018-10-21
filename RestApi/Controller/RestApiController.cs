@@ -3,9 +3,11 @@
 
 using Belgrade.SqlClient;
 using Common.Logging;
+using MsSql.OData;
+using MsSql.TableApi;
 using System;
 
-namespace SqlServerRestApi
+namespace MsSql.RestApi
 {
     public static class RestApiControllerExtensions 
     {
@@ -72,7 +74,7 @@ namespace SqlServerRestApi
             this Microsoft.AspNetCore.Mvc.Controller ctrl,
             TableSpec tableSpec)
         {
-            var querySpec = JQueryDataTable.UriParser.Parse(tableSpec, ctrl.Request);
+            var querySpec = MsSql.TableApi.UriParser.Parse(tableSpec, ctrl.Request);
             var sql = QueryBuilder.Build(querySpec, tableSpec);
             if (!querySpec.count)
                 sql = sql.AsJson();

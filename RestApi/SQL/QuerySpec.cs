@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
-namespace SqlServerRestApi
+namespace MsSql.RestApi
 {
     public class QuerySpec
     {

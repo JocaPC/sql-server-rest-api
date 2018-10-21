@@ -1,19 +1,24 @@
 grammar ODataTranslator;
 
+@header {
+using MsSql.RestApi;
+}
+ 
+
 @parser::members {
 
-	internal System.Collections.Generic.LinkedList<RestApi.OData.Aggregate> Aggregates =
-        new System.Collections.Generic.LinkedList<RestApi.OData.Aggregate>();
+	internal System.Collections.Generic.LinkedList<Aggregate> Aggregates =
+        new System.Collections.Generic.LinkedList<Aggregate>();
 	
 	internal string GroupBy = null;
 	internal Dictionary<string, QuerySpec> Relations = new Dictionary<string, QuerySpec>();
 	
-	internal SqlServerRestApi.TableSpec tableSpec;
-	internal SqlServerRestApi.TableSpec currentTableScopeSpec; // Used to validate columns in the current scope.
-	internal SqlServerRestApi.QuerySpec querySpec;
+	internal TableSpec tableSpec;
+	internal TableSpec currentTableScopeSpec; // Used to validate columns in the current scope.
+	internal QuerySpec querySpec;
 	internal ODataTranslatorParser(ITokenStream input,
-							SqlServerRestApi.TableSpec tableSpec,
-							SqlServerRestApi.QuerySpec querySpec): this(input) 
+							TableSpec tableSpec,
+							QuerySpec querySpec): this(input) 
 	{
 		this.tableSpec = tableSpec;
 		this.querySpec = querySpec;
@@ -23,13 +28,13 @@ grammar ODataTranslator;
 }
 
 @lexer::members {
-	internal SqlServerRestApi.TableSpec tableSpec;
-	internal SqlServerRestApi.QuerySpec querySpec;
+	internal TableSpec tableSpec;
+	internal QuerySpec querySpec;
 	string odataHelperSqlSchema = "odata";
 	int i = 0;
 	internal ODataTranslatorLexer(ICharStream input,
-							SqlServerRestApi.TableSpec tableSpec,
-							SqlServerRestApi.QuerySpec querySpec,
+							TableSpec tableSpec,
+							QuerySpec querySpec,
 							string odataHelperSqlSchema = "odata"): this(input) 
 	{
 		this.tableSpec = tableSpec;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Belgrade.SqlClient;
 using Microsoft.AspNetCore.Http;
 
-namespace SqlServerRestApi
+namespace MsSql.RestApi
 {
     public class ErrorResponseHandler : RequestHandler
     {

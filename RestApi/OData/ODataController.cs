@@ -2,8 +2,9 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Microsoft.AspNetCore.Mvc;
+using MsSql.RestApi;
 
-namespace SqlServerRestApi
+namespace MsSql.OData
 {
     /// <summary>
     /// Controller class that should be used to expose OData REST API with minimal metadata.

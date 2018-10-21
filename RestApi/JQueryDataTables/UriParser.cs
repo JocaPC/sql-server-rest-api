@@ -2,10 +2,11 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Microsoft.AspNetCore.Http;
+using MsSql.RestApi;
 using System;
 using System.Collections;
 
-namespace SqlServerRestApi.JQueryDataTable
+namespace MsSql.TableApi
 {
     public class UriParser
     {
