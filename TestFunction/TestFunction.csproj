@@ -6,7 +6,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.1.3.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.6" />
-    <PackageReference Include="MsSql.RestApi" Version="0.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RestApi\RestApi.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

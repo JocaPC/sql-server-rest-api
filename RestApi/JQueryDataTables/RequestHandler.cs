@@ -15,14 +15,14 @@ namespace SqlServerRestApi
         private int length;
         private int start;
 
-        internal JQueryDataTablesHandler(SqlCommand cmd, string draw, int start, int length, IQueryPipe pipe, HttpResponse response): base(cmd, pipe, response)
+        internal JQueryDataTablesHandler(SqlCommand cmd, string draw, int start, int length, HttpResponse response): base(cmd, response)
         {
             this.draw = draw;
             this.start = start;
             this.length = length;
         }
         
-        public override async Task Process(bool useDefaultContentType = true)
+        public override async Task Process(IQueryPipe pipe, bool useDefaultContentType = true)
         {
             if (useDefaultContentType) response.ContentType = "application/json";
             var header = 

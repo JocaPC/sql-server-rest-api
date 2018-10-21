@@ -12,12 +12,12 @@ namespace SqlServerRestApi
     public class ErrorResponseHandler : RequestHandler
     {
         Exception ex;
-        internal ErrorResponseHandler(HttpResponse response, Exception ex) : base(null, null, response, true)
+        internal ErrorResponseHandler(HttpResponse response, Exception ex) : base(null, response, true)
         {
             this.ex = ex;
         }
 
-        public override async Task Process(bool useDefaultContentType = true)
+        public override async Task Process(IQueryPipe pipe, bool useDefaultContentType = true)
         {
             await ReturnClientError(response, ex);
         }

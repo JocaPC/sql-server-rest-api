@@ -18,7 +18,8 @@ namespace SqlServerRestApi
         private readonly string metadataUrl;
         private bool countOnly = false;
 
-        internal ODataHandler(SqlCommand cmd, IQueryPipe pipe, HttpResponse response, TableSpec tableSpec, string metadataUrl, Metadata metadata = Metadata.NONE, bool countOnly = false, bool returnSingleResult = false) : base(cmd, pipe, response, returnSingleResult)
+        internal ODataHandler(SqlCommand cmd, HttpResponse response, TableSpec tableSpec, string metadataUrl, Metadata metadata = Metadata.NONE, bool countOnly = false, bool returnSingleResult = false) :
+            base(cmd, response, returnSingleResult)
         {
             this.tableSpec = tableSpec;
             this.metadata = metadata;
@@ -26,7 +27,7 @@ namespace SqlServerRestApi
             this.countOnly = countOnly;
         }
 
-        public override async Task Process(bool useDefaultContentType = true)
+        public override async Task Process(IQueryPipe pipe, bool useDefaultContentType = true)
         {
             if (tableSpec.columns.Count == 0)
                 throw new Exception("Columns are not defined in table definition for table " + this.tableSpec.Schema + "." + this.tableSpec.Name);

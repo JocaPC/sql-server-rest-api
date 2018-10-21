@@ -9,16 +9,15 @@ namespace SqlServerRestApi
 {
     public static class RestApiControllerExtensions 
     {
-        private static ILog _log = null;
+        //private static ILog _log = null;
         public static RequestHandler OData(
             this Microsoft.AspNetCore.Mvc.Controller ctrl,
             TableSpec tableSpec,
-            IQueryPipe sqlQuery,
             ODataHandler.Metadata metadata = ODataHandler.Metadata.NONE,
             string metadataUrl = null,
             object id = null)
         {
-            return ctrl.Request.OData(tableSpec, sqlQuery, ctrl.Response, metadata,
+            return ctrl.Request.OData(tableSpec, ctrl.Response, metadata,
                 metadataUrl: metadataUrl ??
                     ((ctrl is ODataController) ? (ctrl as ODataController).MetadataUrl : null) ??
                     ((ctrl.Request.Scheme + "://" + ctrl.Request.Host + ctrl.Request.Path.Value.Replace("/" + tableSpec.Name, ""))),
@@ -71,14 +70,13 @@ namespace SqlServerRestApi
 
         public static RequestHandler Table(
             this Microsoft.AspNetCore.Mvc.Controller ctrl,
-            TableSpec tableSpec,
-            IQueryPipe sqlQuery)
+            TableSpec tableSpec)
         {
             var querySpec = JQueryDataTable.UriParser.Parse(tableSpec, ctrl.Request);
             var sql = QueryBuilder.Build(querySpec, tableSpec);
             if (!querySpec.count)
                 sql = sql.AsJson();
-            return new JQueryDataTablesHandler(sql, ctrl.Request.Query["draw"].ToString(), Convert.ToInt32(ctrl.Request.Query["start"]), Convert.ToInt32(ctrl.Request.Query["length"]), sqlQuery, ctrl.Response);
+            return new JQueryDataTablesHandler(sql, ctrl.Request.Query["draw"].ToString(), Convert.ToInt32(ctrl.Request.Query["start"]), Convert.ToInt32(ctrl.Request.Query["length"]), ctrl.Response);
         }
     }
 }

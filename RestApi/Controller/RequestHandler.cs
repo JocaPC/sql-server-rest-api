@@ -4,6 +4,7 @@
 using Belgrade.SqlClient;
 using Common.Logging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Data.SqlClient;
@@ -14,31 +15,48 @@ namespace SqlServerRestApi
     public class RequestHandler
     {
         protected SqlCommand cmd;
-        protected IQueryPipe pipe;
         protected HttpResponse response;
         protected bool IsSingletonResponse = false;
 
-        internal RequestHandler(SqlCommand cmd, IQueryPipe pipe, HttpResponse response, bool isSingleton = false)
+        internal RequestHandler(SqlCommand cmd, HttpResponse response, bool isSingleton = false)
         {
             this.cmd = cmd;
-            this.pipe = pipe;
             this.response = response;
             this.IsSingletonResponse = isSingleton;
         }
-
-        public virtual RequestHandler OnError(Action<Exception> onErrorHandler)
-        {
-            pipe.OnError(onErrorHandler);
-            return this;
-        }
-
-        public virtual async Task Process(bool useDefaultContentType = true)
+        
+        public virtual async Task Process(IQueryPipe pipe, bool useDefaultContentType = true)
         {
             if(useDefaultContentType) response.ContentType = "application/json";
             await pipe.Sql(cmd)
                 .OnError(async e => await ReturnClientError(response, e))
                 .Stream(response.Body, IsSingletonResponse?"{}":"[]")
                 .ConfigureAwait(false);
+        }
+        
+        public virtual async Task<IActionResult> GetResult(IQueryMapper mapper)
+        {
+            IActionResult result = null;
+            try
+            {
+                var json = await mapper
+                    .GetString(cmd)
+                    .ConfigureAwait(false);
+                result = new ContentResult() {
+                    Content = json,
+                    StatusCode = StatusCodes.Status200OK,
+                    ContentType = "application/json"
+                };
+            } catch (Exception ex)
+            {
+                result = new ContentResult()
+                {
+                    Content = ex.Message,
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
+
+            return result;
         }
 
         internal static async Task ReturnClientError(HttpResponse response, Exception ex)
