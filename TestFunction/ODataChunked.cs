@@ -13,19 +13,13 @@ namespace TestFunction
     {
         [FunctionName("ODataChunked")]
         public static async Task Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
             try
             {
-                string ConnectionString = "Server=.;Database=WideWorldImporters;Integrated Security=True";
-                var sqlpipe = new QueryPipe(ConnectionString);
+                var sqlpipe = new QueryPipe(Environment.GetEnvironmentVariable("SqlDb"));
                 var tableSpec = new TableSpec(schema: "sys", name: "objects", columnList: "object_id,name,type,schema_id,create_date");
-                await req
-                        .OData(tableSpec)
-                        .Process(sqlpipe);
+                await req.OData(tableSpec).Process(sqlpipe);
             }
             catch (Exception ex)
             {

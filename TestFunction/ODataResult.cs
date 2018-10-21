@@ -14,15 +14,13 @@ namespace TestFunction
     {
         [FunctionName("ODataResult")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             try
             {
-                string ConnectionString = "Server=.;Database=WideWorldImporters;Integrated Security=True";
-                var mapper = new QueryMapper(ConnectionString);
+                var mapper = new QueryMapper(Environment.GetEnvironmentVariable("SqlDb"));
                 var tableSpec = new TableSpec(schema: "sys", name: "objects", columnList: "object_id,name,type,schema_id,create_date");
                 return await req.OData(tableSpec).GetResult(mapper);
             }
