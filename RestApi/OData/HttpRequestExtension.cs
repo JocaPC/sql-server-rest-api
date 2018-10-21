@@ -8,9 +8,9 @@ using System;
 using System.Data.SqlClient;
 using MsSql.RestApi;
 
-namespace MsSql.OData
+namespace MsSql.RestApi
 {
-    public static class HttpRequestMessageExtension
+    public static class HttpRequestExtension
     {
         private static ILog _log = null;
         

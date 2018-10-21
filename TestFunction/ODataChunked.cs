@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using MsSql.OData;
 using MsSql.RestApi;
 using System;
 using System.Threading.Tasks;

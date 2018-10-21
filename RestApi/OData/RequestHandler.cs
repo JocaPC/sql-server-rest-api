@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MsSql.RestApi;
 
-namespace MsSql.OData
+namespace MsSql.RestApi
 {
     public class ODataHandler: RequestHandler
     {
