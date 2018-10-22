@@ -6,3 +6,4 @@ nuget/
 bin/
 obj/
 *.log
+*.pubxml

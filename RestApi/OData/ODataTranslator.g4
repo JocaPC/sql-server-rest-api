@@ -4,7 +4,6 @@ grammar ODataTranslator;
 using MsSql.RestApi;
 }
  
-
 @parser::members {
 
 	internal System.Collections.Generic.LinkedList<Aggregate> Aggregates =
@@ -50,7 +49,10 @@ using MsSql.RestApi;
 	}
 }
 
-// Order by expression with optional aggregation functions, without trailing asc/desc, such as "PersonID" or "Price with sum"
+// Order by expression with optional aggregation functions:
+// $orderBy=PersonID				->	ORDER BY PersonID
+// $orderBy=Price with sum			->	ORDER BY SUM(Price)
+// $orderBy=Price with sum desc		->	ORDER BY SUM(Price) DESC
 orderBy
 	returns [string Expression, string Direction]:
 		e=expression
@@ -60,6 +62,10 @@ orderBy
 ;
 
 //// Main production for $apply parameter - DO NOT MERGE ')' and ',' INTO '),' BECAUSE OTHER PROD RULES WILL FAIL
+// $apply=Price with avg as avgPrice								->	AVG(Price) as avgPrice	
+// $apply=Price with avg as avgPrice,Price with sum as totalPrice	->	AVG(Price) as avgPrice,SUM(Price) as totalPrice
+// $apply=groupby((State,City),Price with avg as avgPrice)			->	AVG(Price) as avgPrice ... GROUP BY State,City
+
 apply : ('groupby((' columns ')' ',' aggregates ')') 
 		| aggregates;
 
@@ -84,7 +90,13 @@ agg_function
 			{
 				$fun = _localctx.agg.Text; $expr = _localctx.agg_exp.expr;
 			};
-			
+
+// Expanded items
+// $expand=SalesOrders
+// $expand=SalesOrders,Invoices
+// $expand=SalesOrders($top=20,$skip=10,$select=OrderNo,OrderDate,$filter=OrderDate gt '2017-08-70',$orderBy=OrderNo)
+// $expand=SalesOrders($select=OrderNo,OrderDate,$filter=OrderDate gt '2017-08-70',$orderBy=OrderNo),Invoices($top=20,$skip=10)
+
 expandItems:
 	expandItem ( ',' expandItem )*;
 
@@ -119,6 +131,11 @@ expandSpecItem
 		'$orderBy=' obi=orderBy  { $key = "orderBy"; $value = _localctx.obi.Expression + " " + _localctx.obi.Direction; }
 ;
 
+// Logical expression
+// ( <logExpression> )
+// <relExpression> LOGOP <relExpression>
+// <relExpression> LOGOP <relExpression> LOGOP <relExpression>
+
 logExpression
 	returns [string expr]:
 	'(' le=logExpression ')' { $expr = _localctx.le.GetText(); } 
@@ -135,6 +152,11 @@ logExpression
 	{ $expr = sb.ToString(); }		
 ;
 
+// Relational expression
+// ( <relExpression> )
+// <expression> RELOP <expression>
+// <expression> RELOP <expression> RELOP <expression>
+
 relExpression
 	returns [string expr]:
 	'(' re=relExpression ')' { $expr = _localctx.re.GetText(); } 
@@ -150,6 +172,12 @@ relExpression
 		)+
 	{ $expr = sb.ToString(); } 
 ;
+
+// Expression
+// OPERAND
+// ( <expression> )
+// <expression> OPERATOR <expression>
+// <expression> OPERATOR <expression> OPERATOR <expression>
 
 expression
 	returns [string expr]:
