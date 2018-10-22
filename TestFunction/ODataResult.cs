@@ -20,9 +20,8 @@ namespace TestFunction
 
             try
             {
-                var mapper = new QueryMapper(Environment.GetEnvironmentVariable("SqlDb"));
                 var tableSpec = new TableSpec(schema: "sys", name: "objects", columnList: "object_id,name,type,schema_id,create_date");
-                return await req.OData(tableSpec).GetResult(mapper);
+                return await req.OData(tableSpec).GetResult(Environment.GetEnvironmentVariable("SqlDb"));
             }
             catch (Exception ex)
             {

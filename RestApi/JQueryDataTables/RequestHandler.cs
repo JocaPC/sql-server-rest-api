@@ -23,9 +23,9 @@ namespace MsSql.TableApi
             this.length = length;
         }
         
-        public override async Task Process(IQueryPipe pipe, bool useDefaultContentType = true)
+        public override async Task Process(IQueryPipe pipe)
         {
-            if (useDefaultContentType) response.ContentType = "application/json";
+            response.ContentType = "application/json";
             var header = 
 $@"{{ 
     ""draw"":""{draw}"",

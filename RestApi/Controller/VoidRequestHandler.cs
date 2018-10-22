@@ -17,7 +17,7 @@ namespace MsSql.RestApi
             this.ex = ex;
         }
 
-        public override async Task Process(IQueryPipe pipe, bool useDefaultContentType = true)
+        public override async Task Process(IQueryPipe pipe)
         {
             await ReturnClientError(response, ex);
         }

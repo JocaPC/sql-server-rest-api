@@ -28,7 +28,7 @@ namespace MsSql.RestApi
             this.countOnly = countOnly;
         }
 
-        public override async Task Process(IQueryPipe pipe, bool useDefaultContentType = true)
+        public override async Task Process(IQueryPipe pipe)
         {
             if (tableSpec.columns.Count == 0)
                 throw new Exception("Columns are not defined in table definition for table " + this.tableSpec.Schema + "." + this.tableSpec.Name);

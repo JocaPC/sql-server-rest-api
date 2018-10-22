@@ -17,9 +17,8 @@ namespace TestFunction
         {
             try
             {
-                var sqlpipe = new QueryPipe(Environment.GetEnvironmentVariable("SqlDb"));
                 var tableSpec = new TableSpec(schema: "sys", name: "objects", columnList: "object_id,name,type,schema_id,create_date");
-                await req.OData(tableSpec).Process(sqlpipe);
+                await req.OData(tableSpec).Process(Environment.GetEnvironmentVariable("SqlDb"));
             }
             catch (Exception ex)
             {
