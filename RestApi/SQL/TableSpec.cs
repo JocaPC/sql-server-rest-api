@@ -28,21 +28,21 @@ namespace MsSql.RestApi
 
         private static ILog _log = null;
 
-        public TableSpec(string schema, string name, string columnList = null, string primaryKey = null)
+        public TableSpec(string schema, string table, string columns = null, string primaryKey = null)
         {
-            this.Name = name;
+            this.Name = table;
             this.Schema = schema;
-            this.FullName = schema+"."+name;
-            this.columnList = columnList;
+            this.FullName = schema+"."+table;
+            this.columnList = columns;
             this.primaryKey = primaryKey;
             this.columnSet = new HashSet<string>();
             this.columns = new List<ColumnSpec>();
-            if (columnList != null)
+            if (columns != null)
             {
-                foreach (var col in columnList.Split(','))
+                foreach (var col in columns.Split(','))
                 {
                     columnSet.Add(col);
-                    columns.Add(new ColumnSpec() { Name = col });
+                    this.columns.Add(new ColumnSpec() { Name = col });
                     if(this.primaryKey == null)
                     {
                         this.primaryKey = col;
@@ -54,7 +54,7 @@ namespace MsSql.RestApi
                 _log = StartUp.GetLogger<RequestHandler>();
         }
         
-        public TableSpec AddRelatedTable(string relation, string schema, string name, string joinCondition, string columnList = null)
+        public TableSpec AddRelatedTable(string relation, string schema, string name, string joinCondition, string columns = null)
         {
             if (this.Relations == null)
                 this.Relations = new Dictionary<string, TableSpec>();
@@ -64,7 +64,21 @@ namespace MsSql.RestApi
                 if (_log != null) _log.ErrorFormat("The relation {relation} already exists in the {table}.", name, this);
                 throw new ArgumentException("The relation " + name + " already exists in the table.");
             }
-            this.Relations.Add(relation, new TableSpec(schema, name, columnList, primaryKey: joinCondition));
+            this.Relations.Add(relation, new TableSpec(schema, name, columns, primaryKey: joinCondition));
+            return this;
+        }
+
+        public TableSpec AddRelatedTable(string relation, TableSpec table)
+        {
+            if (this.Relations == null)
+                this.Relations = new Dictionary<string, TableSpec>();
+
+            if (Relations.ContainsKey(relation))
+            {
+                if (_log != null) _log.ErrorFormat("The relation {relation} already exists in the {table}.", relation, this.FullName);
+                throw new ArgumentException("The relation " + relation + " already exists in the table.");
+            }
+            this.Relations.Add(relation, table);
             return this;
         }
 

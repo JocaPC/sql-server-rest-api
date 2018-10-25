@@ -42,7 +42,7 @@ OData service can be implemented using any .Net project, such ASP.NET Core, ASP.
     "net46":{
       "dependencies": {
         "Antlr4.Runtime": "4.6.5",
-        "MsServer.RestApi": "0.2"
+        "MsServer.RestApi": "0.4"
       }
     }
    }
@@ -107,15 +107,15 @@ namespace MyApp.Controllers
         [HttpGet("odata")]
         public async Task OData()
         {
-            var tableSpec = new TableSpec("Application", name="People", "PersonID,FullName,PhoneNumber");
+            var tableSpec = new TableSpec(schema: "Application", table: "People", columns: "PersonID,FullName,PhoneNumber");
             await this.OData(tableSpec, cmd).Process();
         }
 
 		[HttpGet("odata")]
         public async Task People()
         {
-            var tableSpec = new TableSpec("Application", "People", "PersonID,FullName,PhoneNumber,FaxNumber,EmailAddress,ValidTo")
-                .AddRelatedTable("Orders", "Sales", "Orders", "Application.People.PersonID = Sales.Orders.CustomerID", "OrderID,OrderDate,ExpectedDeliveryDate,Comments")
+            var tableSpec = new TableSpec(schema: "Application", table: "People", columns: "PersonID,FullName,PhoneNumber,FaxNumber,EmailAddress,ValidTo")
+                .AddRelatedTable("Orders", "Sales", table: "Orders", columns: "Application.People.PersonID = Sales.Orders.CustomerID", "OrderID,OrderDate,ExpectedDeliveryDate,Comments")
                 .AddRelatedTable("Invoices", "Sales", "Invoices", "Application.People.PersonID = Sales.Invoices.CustomerID", "InvoiceID,InvoiceDate,IsCreditNote,Comments");
             await this.OData(tableSpec, queryService).Process();
         }
@@ -144,28 +144,37 @@ When you run this app and open http://......./api/People/odata Url, you would be
 Azure Functions are lightweight components that you can use to create some function in C#, Node.JS, or other languages, and expose the function
 as API. This might be combined with OData since you can create single Azure Function that will handle OData requests.
 
-You can go to Azure portal, create new Aure Function as HttpTrigger, add project.json, and put something lik the following code in Function body:
-
 ```
-using Belgrade.SqlClient.SqlDb;
-using System.Net;
-using System.Configuration;
-using SqlServerRestApi;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
+using MsSql.RestApi;
+using System;
+using System.Threading.Tasks;
 
-public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceWriter log)
+namespace TestFunction
 {
-    log.Info("Started execution...");
+    public static class ODataResult
+    {
+        [FunctionName("ODataResult")]
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
+        {
+            log.LogInformation("C# HTTP trigger function processed a request.");
 
-    try{
-
-        string ConnectionString = ConfigurationManager.ConnectionStrings["azure-db-connection"].ConnectionString;
-        var sqlpipe = new QueryPipe(ConnectionString);
-        var tableSpec = new TableSpec(schema: "sys", name: "objects", columnList: "object_id,name,type,schema_id,create_date");
-        return await req.CreateODataResponse(tableSpec, sqlpipe);
-        
-    } catch (Exception ex) {
-        log.Error($"C# Http trigger function exception: {ex.Message}");
-        return new HttpResponseMessage() { Content = new StringContent(ex.Message), StatusCode = HttpStatusCode.InternalServerError };
+            try
+            {
+                var tableSpec = new TableSpec(schema: "sys", table: "objects", columns: "object_id,name,type,schema_id,create_date");
+                return await req.OData(tableSpec).GetResult(Environment.GetEnvironmentVariable("SqlDb"));
+            }
+            catch (Exception ex)
+            {
+                log.LogError($"C# Http trigger function exception: {ex.Message}");
+                return new StatusCodeResult(500);
+            }
+        }
     }
 }
 ```
@@ -202,45 +211,14 @@ namespace MyMvcApp.Controllers
             this.pipe = sqlQueryService;
         }
 
-        public override TableSpec[] GetTableSpec { get { return tables; } }
-
-        static readonly TableSpec[] tables = new TableSpec[]
+        [HttpGet("table")]
+        public async Task Table()
         {
-            new TableSpec("sys", "objects")
-                .AddColumn("object_id", "int", isKeyColumn: true)
-                .AddColumn("name", "nvarchar", 128)
-                .AddColumn("type", "nvarchar", 20)
-                .AddColumn("schema_id", "int"),
-            new TableSpec("sys", "columns")
-                .AddColumn("object_id", "int", isKeyColumn: true)
-                .AddColumn("column_id", "int", isKeyColumn: true)
-                .AddColumn("name", "nvarchar", 128)
-        };
-
-        // GET api/values/objects
-        // GET api/values/objects/$count
-        [HttpGet("objects")]
-        [HttpGet("objects/$count")]
-        public async Task Objects()
-        {
+            var tableSpec = new TableSpec(schema: "Application", table: "People", columns: "FullName,EmailAddress,PhoneNumber,FaxNumber");
             await this
-                .OData(tables[0], sqlQueryService, ODataHandler.Metadata.MINIMAL)
-                .OnError(ex => Response.Body.Write(Encoding.UTF8.GetBytes(ex.Message), 0, (ex.Message).Length))
-                .Get();                                           
+                    .Table(tableSpec)
+                    .Process(this.pipe);
         }
-
-        // GET api/values/columns
-        // GET api/values/columns/$count
-        [HttpGet("columns")]
-        [HttpGet("columns/$count")]
-        public async Task Columns()
-        {
-            await this
-                .OData(tables[1], sqlQueryService, ODataHandler.Metadata.MINIMAL)
-                .OnError(ex => Response.Body.Write(Encoding.UTF8.GetBytes(ex.Message), 0, (ex.Message).Length))
-                .Get();
-        }
-
     }
 }
 ```

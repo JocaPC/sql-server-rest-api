@@ -1,4 +1,3 @@
-using Belgrade.SqlClient.SqlDb;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -20,7 +19,7 @@ namespace TestFunction
 
             try
             {
-                var tableSpec = new TableSpec(schema: "sys", name: "objects", columnList: "object_id,name,type,schema_id,create_date");
+                var tableSpec = new TableSpec(schema: "sys", table: "objects", columns: "object_id,name,type,schema_id,create_date");
                 return await req.OData(tableSpec).GetResult(Environment.GetEnvironmentVariable("SqlDb"));
             }
             catch (Exception ex)

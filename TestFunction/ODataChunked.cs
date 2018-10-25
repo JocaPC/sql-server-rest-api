@@ -17,7 +17,7 @@ namespace TestFunction
         {
             try
             {
-                var tableSpec = new TableSpec(schema: "sys", name: "objects", columnList: "object_id,name,type,schema_id,create_date");
+                var tableSpec = new TableSpec(schema: "sys", table: "objects", columns: "object_id,name,type,schema_id,create_date");
                 await req.OData(tableSpec).Process(Environment.GetEnvironmentVariable("SqlDb"));
             }
             catch (Exception ex)

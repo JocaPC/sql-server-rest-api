@@ -40,7 +40,7 @@ namespace MyApp.Controllers
         [HttpGet("odata")]
         public async Task OData()
         {
-            var tableSpec = new TableSpec("Application", "People", "PersonID,FullName,PhoneNumber,FaxNumber,EmailAddress,ValidTo")
+            var tableSpec = new TableSpec(schema: "Application", table: "People", columns: "PersonID,FullName,PhoneNumber,FaxNumber,EmailAddress,ValidTo")
                 .AddRelatedTable("Orders", "Sales", "Orders", "Application.People.PersonID = Sales.Orders.CustomerID", "OrderID,OrderDate,ExpectedDeliveryDate,Comments")
                 .AddRelatedTable("Invoices", "Sales", "Invoices", "Application.People.PersonID = Sales.Invoices.CustomerID", "InvoiceID,InvoiceDate,IsCreditNote,Comments");
             await this
@@ -56,7 +56,7 @@ namespace MyApp.Controllers
         [HttpGet("table")]
         public async Task Table()
         {
-            var tableSpec = new TableSpec(schema: "Application", name: "People", columnList: "FullName,EmailAddress,PhoneNumber,FaxNumber");
+            var tableSpec = new TableSpec(schema: "Application", table: "People", columns: "FullName,EmailAddress,PhoneNumber,FaxNumber");
             await this
                     .Table(tableSpec)
                     .Process(queryService);
