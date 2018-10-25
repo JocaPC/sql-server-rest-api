@@ -6,7 +6,7 @@ This library enables you to easily create REST services in ASP.NET based on the 
 
 Get REST API library from NuGet:
 ```
-PM> Install-Package Sql-Server-Rest-Api
+PM> Install-Package MsSql.RestApi
 ```
 
 You will need to configure data access components in Startup class (Configure service method):
@@ -25,7 +25,7 @@ namespace MyApp {
             services.AddSqlClient(Configuration["ConnectionStrings:MyConnection"]);
         }
 
-	}
+    }
 }
 ```
 Assumption in this example is that your connection string is stored in appsettings.config file under key MyConnection.
@@ -90,7 +90,7 @@ To implement OData Service, you would need to add the TableSpec object that desc
 ```
         IQueryPipe sqlQuery = null;
         
-        TableSpec tableSpec = new TableSpec("dbo.People", "name,surname,address,town");
+        TableSpec tableSpec = new TableSpec(schema: "dbo", table: "People", columns: "name,surname,address,town");
         
         public PeopleController(IQueryPipe sqlQueryService)
         {
@@ -107,12 +107,14 @@ First, you need to parse Request parameters using UriParser in order to extract 
 public async Task OData()
 {
     await this
-            .ODataHandler(tableSpec, pipe)
-            .Process();
+            .OData(tableSpec)
+            .Process(pipe);
 }
  ```
 
 That's everything that you need to do. With three lines of code you can create OData service on any table. You can find more more details in [OData documentation](doc/odata.md) page.
+
+You can see how to create OData services in the [SQL Server Wide World Importers sample app](https://github.com/Microsoft/sql-server-samples/blob/master/samples/databases/wide-world-importers/wwi-app/Controllers/ODataController.cs).
 
 ## Implement REST service that process JQuery DataTables Ajax request
 
@@ -144,7 +146,7 @@ In order to implement REST service that handles AJAX requests that JQuery DataTa
 ```
         IQueryPipe sqlQuery = null;
         
-        TableSpec tableSpec = new TableSpec("dbo.People", "name,surname,address,town");
+        TableSpec tableSpec = new TableSpec(schema: "dbo", table: "People", columns: "name,surname,address,town");
         
         public PeopleController(IQueryPipe sqlQueryService)
         {
@@ -156,30 +158,17 @@ Now you need to create async method that will serve JQuery DataTables AJAX reque
  - UriParser that will parse Http request parameters that JQuery DataTables component sends
  - QueryBuilder that will create T-SQL query that will be executed. 
 
-First, you need to parse Request parameters using UriParser in order to extract the definition of query (QuerySpec object). Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to JQuery DataTables using Response.Body:
+First, you need to parse Request parameters using UriParser in order to extract the definition of query (`QuerySpec` object). Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to JQuery DataTables using `Response.Body`:
 
 ```
-       // GET api/People
-        [HttpGet]
-        public async Task Get(int draw, int start, int length)
-        {            
-            var querySpec = JQueryDataTables.UriParser.Parse(tableSpec, this.Request);
-            var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson();
-            
-            var header = System.Text.Encoding.UTF8.GetBytes(
-@"{
-    ""draw"":" + draw + @",
-    ""recordsTotal"": " + (start + length + 1) + @",
-    ""recordsFiltered"": " + (start + length + 1) + @",
-    ""data"":");
-            await Response.Body.WriteAsync(header, 0, header.Length);
-
-            await sqlQuery.Stream(sql, Response.Body, "[]");
-
-            await Response.Body.WriteAsync(System.Text.Encoding.UTF8.GetBytes("}"), 0, 1);
+        private static readonly TableSpec purchaseorders = new TableSpec("WebApi","PurchaseOrders", "OrderDate,SupplierReference,ExpectedDeliveryDate,ContactName,ContactPhone,IsOrderFinalized,PurchaseOrderID");
+        public async Task PurchaseOrders()
+        {
+            await this.Table(purchaseorders).Process(this.sqlQuery);
         }
  ```
  [JQuery DataTables](https://datatables.net/) component requires AJAX response in some pre-defined format, so you would need to wrap results from database with header that contains number of total and number of filtered records.
  Note that JQuery DataTables plugin uses **recordsTotal** and **recordsFiltered** to build pagination. Since you would need two additional queries . Reccomendation is to use alternative (paging plugins)[https://datatables.net/plug-ins/pagination/]
  that don't require these options.
 
+You can see how to create services that are used by JQuery DataTables in the [SQL Server Wide World Importers sample app](https://github.com/Microsoft/sql-server-samples/blob/master/samples/databases/wide-world-importers/wwi-app/Controllers/TableController.cs).
