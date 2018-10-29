@@ -46,7 +46,7 @@ QUnit.cases
     .test("$expand test", function (params, assert) {
         var finishTest = assert.async();
         var data = null;
-        $.ajax("/odata?$top=2&$expand=Invoices(" + params.limit + params.selecti +"),Orders($orderBy=" + params.orderby + params.dir +
+        $.ajax("/odata?$top=2&$expand=Invoices(" + params.limit + params.selecti +"),Orders($orderby=" + params.orderby + params.dir +
             ",$filter=" + params.filter1 + params.filter2 +
             "," + params.limit + params.selecto + ")", { dataType: "json" })
             .done(result => {

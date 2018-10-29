@@ -50,9 +50,9 @@ using MsSql.RestApi;
 }
 
 // Order by expression with optional aggregation functions:
-// $orderBy=PersonID				->	ORDER BY PersonID
-// $orderBy=Price with sum			->	ORDER BY SUM(Price)
-// $orderBy=Price with sum desc		->	ORDER BY SUM(Price) DESC
+// $orderby=PersonID				->	ORDER BY PersonID
+// $orderby=Price with sum			->	ORDER BY SUM(Price)
+// $orderby=Price with sum desc		->	ORDER BY SUM(Price) DESC
 orderBy
 	returns [string Expression, string Direction]:
 		e=expression
@@ -94,7 +94,7 @@ agg_function
 // Expanded items
 // $expand=SalesOrders
 // $expand=SalesOrders,Invoices
-// $expand=SalesOrders($top=20,$skip=10,$select=OrderNo,OrderDate,$filter=OrderDate gt '2017-08-70',$orderBy=OrderNo)
+// $expand=SalesOrders($top=20,$skip=10,$select=OrderNo,OrderDate,$filter=OrderDate gt '2017-08-70',$orderby=OrderNo)
 // $expand=SalesOrders($select=OrderNo,OrderDate,$filter=OrderDate gt '2017-08-70',$orderBy=OrderNo),Invoices($top=20,$skip=10)
 
 expandItems:
@@ -128,7 +128,7 @@ expandSpecItem
 		|
 		'$skip=' skip=NUMBER  { $key = "skip"; $value = _localctx.skip.Text; }
 		|
-		'$orderBy=' obi=orderBy  { $key = "orderBy"; $value = _localctx.obi.Expression + " " + _localctx.obi.Direction; }
+		'$orderby=' obi=orderBy  { $key = "orderby"; $value = _localctx.obi.Expression + " " + _localctx.obi.Direction; }
 ;
 
 // Logical expression
