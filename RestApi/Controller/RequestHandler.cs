@@ -100,12 +100,17 @@ namespace MsSql.RestApi
             }
             try
             {
-                response.StatusCode = 500;
+                if(ex is ArgumentException ||
+                    ex is ArgumentNullException ||
+                    ex is ArgumentOutOfRangeException)
+                    response.StatusCode = 400;
+                else
+                    response.StatusCode = 500;
             }
             catch (Exception ex1){
                 if (log != null)
                 {
-                    log.ErrorFormat("Error {error} at {source} thrown while trying to set status code 500.\n{exception}", ex1.Message, ex1.Source, ex1);
+                    log.ErrorFormat("Error {error} at {source} thrown while trying to set status code.\n{exception}", ex1.Message, ex1.Source, ex1);
                 }
             };
             try
