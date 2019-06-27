@@ -37,6 +37,7 @@ namespace MsSql.RestApi
             }
             else if (metadata == Metadata.NONE)
             {
+                response.ContentType = "application/json;odata.metadata=none;odata=nometadata";
                 await pipe
                 .Sql(cmd)
                 .OnError(async e => await ReturnClientError(response, e))
