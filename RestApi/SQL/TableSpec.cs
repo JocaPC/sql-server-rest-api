@@ -145,6 +145,11 @@ namespace MsSql.RestApi
 
         public void HasColumn(string column)
         {
+            if(this.columnSet == null || this.columnSet.Count == 0)
+            {
+                if (_log != null) _log.ErrorFormat("The column {column} cannot be validated because the columns are not defined in the table {table}.", column, this);
+                throw new ArgumentOutOfRangeException($"The column '{column}' cannot be validated because the columns are not defined in the table.");
+            }
             if (!this.columnSet.Contains(column))
             {
                 if (_log != null) _log.ErrorFormat("The column {column} does not exists in the {table}.", column, this);

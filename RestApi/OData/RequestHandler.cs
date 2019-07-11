@@ -29,8 +29,6 @@ namespace MsSql.RestApi
 
         public override async Task Process(IQueryPipe pipe)
         {
-            if (tableSpec.columns.Count == 0)
-                throw new Exception("Columns are not defined in table definition for table " + this.tableSpec.Schema + "." + this.tableSpec.Name);
             if (this.countOnly)
             {
                 await pipe.Sql(cmd).Stream(response.Body, "-1");
@@ -52,7 +50,7 @@ namespace MsSql.RestApi
                     .Stream(response.Body, new Options() { Prefix = header, DefaultOutput = "[]", Suffix = "}" });
             } else
             {
-                throw new InvalidOperationException("Cannot generate response for metadata type: " + metadata); 
+                await ReturnClientError(response, new InvalidOperationException("Cannot generate response for metadata type: " + metadata)); 
             }
         }
         
