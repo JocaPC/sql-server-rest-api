@@ -35,9 +35,9 @@
 
   <ItemGroup>
     <PackageReference Include="Belgrade.Sql.Client" Version="1.1.4" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
-    <PackageReference Include="Antlr4.Runtime" Version="4.6.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.7" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
+    <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.8" />
     <PackageReference Include="Common.Logging" Version="3.4.1" />
   </ItemGroup>
 
@@ -46,7 +46,7 @@
       Include the ANTLR 4 code generator for building this project, but do not add a dependency to the resulting NuGet
       package.
     -->
-    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.5" PrivateAssets="all" />
+    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.6" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
