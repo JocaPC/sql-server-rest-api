@@ -11,7 +11,7 @@ QUnit.cases
     .combinatorial([
         { orderby: "PersonID " },
         { orderby: "(-PersonID mod 4) " },
-        { orderby: "((PersonID sub 3) mod (4 add PersonID)) " },
+        { orderby: "((PersonID sub -3) mod (4.1 add PersonID)) " },
         { orderby: "tolower(FullName) " }
     ])
     .combinatorial([
@@ -20,11 +20,11 @@ QUnit.cases
     ])
     .combinatorial([
         { filter1: "(PersonID lt 1000)" },
-        { filter1: "PersonID gt 100" }
+        { filter1: "PersonID gt 100.5" }
     ])
     .combinatorial([
         { filter2: " and length(FullName) gt 10" },
-        { filter2: " or (year(ValidTo) lt 2100)" },
+        { filter2: " or (year(ValidTo) lt 2100.5)" },
         { filter2: "" }
     ])
     .combinatorial([

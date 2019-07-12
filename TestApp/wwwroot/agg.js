@@ -18,7 +18,8 @@ QUnit.cases
     .combinatorial([
         { agg: "PersonID with sum as Total" },
         { agg: "2 mul PersonID with min as Total" },
-        { agg: "length(FullName) add PersonID with max as Total" }
+        { agg: "length(FullName) add (-3.5 mul PersonID) with max as Total" },
+        { agg: "(length(FullName) sub -3.5) add -3.5 mul PersonID with avg as Total" }
     ])
     .test("agg test", function(params, assert) {
         var finishTest = assert.async();

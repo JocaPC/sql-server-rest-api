@@ -264,11 +264,17 @@ STRING_LITERAL : ['].*?['] {
 		this.querySpec.parameters.AddFirst(p);
 		Text = "@p"+(i++);
 };
-NUMBER : [0-9]+ {
-		var p = new System.Data.SqlClient.SqlParameter("@p"+i, System.Data.SqlDbType.Int);
+NUMBER : [0-9]+('.'[0-9]+)? {
+	System.Data.SqlClient.SqlParameter p = null;
+	if(Text.Contains(".")){
+		p = new System.Data.SqlClient.SqlParameter("@p"+i, System.Data.SqlDbType.Decimal);
+		p.Value = System.Convert.ToDouble(Text);
+	} else {
+		p = new System.Data.SqlClient.SqlParameter("@p"+i, System.Data.SqlDbType.Int);
 		p.Value = System.Convert.ToInt32(Text);
-		this.querySpec.parameters.AddFirst(p);
-		Text = "@p"+(i++); 
+	}
+	this.querySpec.parameters.AddFirst(p);
+	Text = "@p"+(i++); 
 };
 
 PAR : [()];

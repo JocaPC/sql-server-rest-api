@@ -11,7 +11,7 @@ QUnit.cases
     .combinatorial([
         { orderby: "OrderDate " },
         { orderby: "(-OrderID mod 4) " },
-        { orderby: "((OrderID add 3) mod (4 sub OrderID)) " },
+        { orderby: "((OrderID add -3.5) mod (4 sub OrderID)) " },
         { orderby: "month(OrderDate) " }
     ])
     .combinatorial([
@@ -21,7 +21,8 @@ QUnit.cases
     .combinatorial([
         { filter1: "OrderID lt 12000" },
         { filter1: "(OrderID gt 300)" },
-        { filter1: "month(OrderDate) gt 2" }
+        { filter1: "month(OrderDate) gt 2" },
+        { filter1: "(month(OrderDate) gt 2 or OrderID gt -15.7)" }
     ])
     .combinatorial([
         { filter2: " or month(OrderDate) le 10" },
