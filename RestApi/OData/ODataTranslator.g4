@@ -206,6 +206,28 @@ operand
 column 
 	returns [string Name]: c=IDENT { this.ValidateColumn(_localctx.c.Text); $Name = _localctx.c.Text;};
 
+
+// https://azuresearch.github.io/odata-syntax-diagram/#geo_point
+
+/*geo_distance_call: 'geo.distance(' ( c1=column ',' g=geo_point | g=geo_point ',' c1=column ) ')' */
+
+geo_distance_call
+	returns [string expr]
+	: 'geo.distance(' ( c1=column ',' g=geo_point) ')'
+{
+	$expr = _localctx.c1.Name + ".STDistance(WKT(" + _localctx.g.GetText() + "))";
+};
+
+geo_intersects_call: 'geo.intersects(' column ',' geo_polygon ')';
+
+geo_polygon: 'geography\'POLYGON(('LONLAT ',' LONLAT ',' LONLAT ',' lon_lat_list '))\'';
+
+lon_lat_list: LONLAT ( ',' LONLAT )*;
+
+geo_point: 'geography\'POINT(' LONLAT ')\'';
+
+LONLAT  : [0-9]+('.'[0-9]+)? ' ' [0-9]+('.'[0-9]+)?;
+
 //Translated tokens
 OPERATOR :  'add' { Text = "+"; } | 'sub' { Text = "-"; } |
 			'mul' { Text = "*"; } | 'div' { Text = "/"; } |
