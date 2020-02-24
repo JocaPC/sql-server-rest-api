@@ -10,12 +10,16 @@ using System.Threading.Tasks;
 
 namespace MsSql.RestApi
 {
-#if net47 || net46
+#if net47 || net46 || NETCOREAPP3_1
     public static class HttpRequestMessageExtension
     { 
 
         public static async Task<HttpResponseMessage> CreateODataResponse(
-            this HttpRequestMessage req,
+#if NETCOREAPP3_1
+            this Microsoft.AspNetCore.Http.HttpRequest req,
+#else
+            this System.Net.Http.HttpRequestMessage req,
+#endif
             TableSpec tableSpec,
             IQueryPipe sqlQuery)
         {
@@ -27,7 +31,11 @@ namespace MsSql.RestApi
         }
 
         public static async Task<HttpResponseMessage> CreateSqlResponse(
-            this HttpRequestMessage req,
+#if NETCOREAPP3_1
+            this Microsoft.AspNetCore.Http.HttpRequest req,
+#else
+            this System.Net.Http.HttpRequestMessage req,
+#endif
             IQueryPipe pipe,
             SqlCommand sql
         )
@@ -42,7 +50,11 @@ namespace MsSql.RestApi
         }
 
         public static async Task<HttpResponseMessage> CreateODataResponse(
-            this HttpRequestMessage req,
+#if NETCOREAPP3_1
+            this Microsoft.AspNetCore.Http.HttpRequest req,
+#else
+            this System.Net.Http.HttpRequestMessage req,
+#endif
             TableSpec tableSpec,
             IQueryMapper mapper)
         {
@@ -52,7 +64,11 @@ namespace MsSql.RestApi
         }
 
         public static async Task<HttpResponseMessage> CreateSqlResponse(
-            this HttpRequestMessage req,
+#if NETCOREAPP3_1
+            this Microsoft.AspNetCore.Http.HttpRequest req,
+#else
+            this System.Net.Http.HttpRequestMessage req,
+#endif
             IQueryMapper mapper,
             SqlCommand sql
         )
@@ -60,10 +76,14 @@ namespace MsSql.RestApi
             var httpStatus = HttpStatusCode.OK;
             string body = await mapper
                                 .OnError(ex => { httpStatus = HttpStatusCode.InternalServerError; })
+#if NETCOREAPP3_1
+                                .GetString(sql);
+#else
                                 .GetStringAsync(sql);
+#endif
 
             return new HttpResponseMessage() { Content = new StringContent(body), StatusCode = httpStatus };
         }
     }
 #endif
-}
+    }
