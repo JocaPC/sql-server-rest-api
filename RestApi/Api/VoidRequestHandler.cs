@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Belgrade.SqlClient;
+﻿using MsSql.RestApi.DAO;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Threading.Tasks;
 
 namespace MsSql.RestApi
 {
@@ -17,7 +13,7 @@ namespace MsSql.RestApi
             this.ex = ex;
         }
 
-        public override async Task Process(IQueryPipe pipe)
+        public override async Task Process(TSqlCommand pipe)
         {
             await ReturnClientError(response, ex);
         }

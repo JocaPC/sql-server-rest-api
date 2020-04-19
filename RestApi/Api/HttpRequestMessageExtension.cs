@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Belgrade.SqlClient;
 using System.Data.SqlClient;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using MsSql.RestApi.DAO;
 
 namespace MsSql.RestApi
 {
@@ -21,7 +21,7 @@ namespace MsSql.RestApi
             this System.Net.Http.HttpRequestMessage req,
 #endif
             TableSpec tableSpec,
-            IQueryPipe sqlQuery)
+            TSqlCommand sqlQuery)
         {
             var querySpec = OData.UriParser.Parse(tableSpec, req);
             var sql = QueryBuilder.Build(querySpec, tableSpec);
@@ -36,7 +36,7 @@ namespace MsSql.RestApi
 #else
             this System.Net.Http.HttpRequestMessage req,
 #endif
-            IQueryPipe pipe,
+            TSqlCommand pipe,
             SqlCommand sql
         )
         {
@@ -48,7 +48,7 @@ namespace MsSql.RestApi
                 return new HttpResponseMessage() { Content = new StringContent(sw.ToString()), StatusCode = httpStatus };
             }
         }
-
+ /*
         public static async Task<HttpResponseMessage> CreateODataResponse(
 #if NETCOREAPP3_1
             this Microsoft.AspNetCore.Http.HttpRequest req,
@@ -56,7 +56,7 @@ namespace MsSql.RestApi
             this System.Net.Http.HttpRequestMessage req,
 #endif
             TableSpec tableSpec,
-            IQueryMapper mapper)
+            IQueryPipe mapper)
         {
             var querySpec = OData.UriParser.Parse(tableSpec, req);
             var sql = QueryBuilder.Build(querySpec, tableSpec).AsJson("value");
@@ -69,7 +69,7 @@ namespace MsSql.RestApi
 #else
             this System.Net.Http.HttpRequestMessage req,
 #endif
-            IQueryMapper mapper,
+            IQueryPipe mapper,
             SqlCommand sql
         )
         {
@@ -84,6 +84,8 @@ namespace MsSql.RestApi
 
             return new HttpResponseMessage() { Content = new StringContent(body), StatusCode = httpStatus };
         }
+*/
     }
+
 #endif
     }

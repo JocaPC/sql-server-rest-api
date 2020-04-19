@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Belgrade.SqlClient;
 using Microsoft.AspNetCore.Http;
+using MsSql.RestApi.DAO;
 using System;
 using System.Data.SqlClient;
 using System.Text;
@@ -27,7 +27,7 @@ namespace MsSql.RestApi
             this.countOnly = countOnly;
         }
 
-        public override async Task Process(IQueryPipe pipe)
+        public override async Task Process(TSqlCommand pipe)
         {
             if (this.countOnly)
             {

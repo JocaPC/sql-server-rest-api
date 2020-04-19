@@ -28,8 +28,9 @@ namespace MyApp
         {
             services.AddLogging();
                         
-            services
-                .AddSqlClient(Configuration["ConnectionStrings:WWI"]);
+            //services.AddSqlClient(Configuration["ConnectionStrings:WWI"]);
+
+            services.AddSqlConnection(Configuration["ConnectionStrings:WWI"]);
 
             services.AddMvc();
 

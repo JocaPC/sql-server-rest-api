@@ -7,7 +7,9 @@ using Belgrade.SqlClient.SqlDb.Rls;
 using Common.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MsSql.RestApi.DAO;
 using MsSql.RestApi.Util;
+using RestApi.Belgrade.Api;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -15,7 +17,7 @@ using System.Linq;
 
 namespace MsSql.RestApi
 {
-    public static class StartUp
+    public static class StartUpExtension
     {
         public static IServiceCollection AddSqlClient(this IServiceCollection services, string ConnString, Action<Option> init = null)
         {
@@ -33,25 +35,29 @@ namespace MsSql.RestApi
 
             switch (options.ServiceScope) {
                 case Option.ServiceScopeEnum.SCOPED:
+                    services.AddScoped<TSqlCommand>(sp => new TSqlCommandAdapter(CreateCommand(options, sp)));
                     services.AddScoped<IQueryPipe>(sp => CreateQueryPipe(options, sp));
                     services.AddScoped<IQueryMapper>(sp => CreateQueryMapper(options, sp));
                     services.AddScoped<ICommand>(sp => CreateCommand(options, sp));
                     break;
-                case Option.ServiceScopeEnum.TRANSIENT:
-                    services.AddTransient<IQueryPipe>(sp => CreateQueryPipe(options, sp));
-                    services.AddTransient<IQueryMapper>(sp => CreateQueryMapper(options, sp));
-                    services.AddTransient<ICommand>(sp => CreateCommand(options, sp));
-                    break;
                 case Option.ServiceScopeEnum.SINGLETON:
+                    services.AddSingleton<TSqlCommand>(sp => new TSqlCommandAdapter(CreateCommand(options, sp))); 
                     services.AddSingleton<IQueryPipe>(sp => CreateQueryPipe(options, sp));
                     services.AddSingleton<IQueryMapper>(sp => CreateQueryMapper(options, sp));
                     services.AddSingleton<ICommand>(sp => CreateCommand(options, sp));
+                    break;
+                case Option.ServiceScopeEnum.TRANSIENT:
+                default:
+                    services.AddTransient<TSqlCommand>(sp => new TSqlCommandAdapter(CreateCommand(options, sp)));
+                    services.AddTransient<IQueryPipe>(sp => CreateQueryPipe(options, sp));
+                    services.AddTransient<IQueryMapper>(sp => CreateQueryMapper(options, sp));
+                    services.AddTransient<ICommand>(sp => CreateCommand(options, sp));
                     break;
             }
 
             Belgrade.SqlClient.SqlDb.RetryErrorHandler.Enable(options.EnableRetryLogic);
             Belgrade.SqlClient.SqlDb.RetryErrorHandler.EnableDelayedRetries(options.EnableDelayedRetryLogic);
-            MsSql.OData.UriParser.EnableODataExtensions = options.EnableODataExtensions;
+            
 
             return services;
         }
@@ -131,20 +137,21 @@ namespace MsSql.RestApi
         }
     }
 
-    public class Option {
+    public class Option
+    {
 
         public string ConnString;
         public bool ReadScaleOut = false;
         public string ReadOnlyConnString;
         public void UseSqlServer(string ConnString) => this.ConnString = ConnString;
-        public bool EnableRetryLogic = true;
+        public bool EnableRetryLogic = false;
         public bool EnableDelayedRetryLogic = false;
         public bool EnableODataExtensions = true;
 
         public enum ServiceScopeEnum { SINGLETON, SCOPED, TRANSIENT };
 
-        public ServiceScopeEnum ServiceScope = ServiceScopeEnum.SCOPED;
+        public ServiceScopeEnum ServiceScope = ServiceScopeEnum.TRANSIENT;
 
-        public Dictionary<string, Func<IServiceProvider, string>> SessionContext = new Dictionary<string, Func<IServiceProvider, string>>(); 
+        public Dictionary<string, Func<IServiceProvider, string>> SessionContext = new Dictionary<string, Func<IServiceProvider, string>>();
     }
 }

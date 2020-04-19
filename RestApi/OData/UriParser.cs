@@ -13,7 +13,7 @@ namespace MsSql.OData
 {
     public class UriParser
     {
-        public static bool EnableODataExtensions { get; set; }
+        public static bool EnableODataExtensions { get; set; } = true;
         internal static Common.Logging.ILog _log { get; set; }
         private static BailErrorStrategy FastFail = new BailErrorStrategy();
 

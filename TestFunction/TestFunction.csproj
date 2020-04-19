@@ -8,7 +8,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RestApi\RestApi.csproj" />
+    <ProjectReference Include="..\RestApi.Belgrade\RestApi.Belgrade.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

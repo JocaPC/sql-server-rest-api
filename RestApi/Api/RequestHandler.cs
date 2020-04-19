@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Belgrade.SqlClient;
+using MsSql.RestApi.DAO;
 using Common.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,20 +28,9 @@ namespace MsSql.RestApi
         /// <summary>
         /// Process the current request and returns result using the target database.
         /// </summary>
-        /// <param name="target">Connection string to the target database where results will be fetched.</param>
-        /// <returns>Async task that will stream results.</returns>
-        public virtual async Task Process(string target)
-        {
-            var pipe = new Belgrade.SqlClient.SqlDb.QueryPipe(target);
-            await Process(pipe);
-        }
-
-        /// <summary>
-        /// Process the current request and returns result using the target database.
-        /// </summary>
         /// <param name="pipe">Sql Pipe that will be used to fetch the data.</param>
         /// <returns>Async task that will stream results.</returns>
-        public virtual async Task Process(IQueryPipe pipe)
+        public virtual async Task Process(TSqlCommand pipe)
         {
             response.ContentType = "application/json";
             await pipe.Sql(cmd)
@@ -50,29 +39,20 @@ namespace MsSql.RestApi
                 .ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Created IActionResult object that contains the processed response result.
-        /// </summary>
-        /// <param name="target">Connection string to the target database where results will be fetched.</param>
-        /// <returns>ContentResult with the data processed by request.</returns>
-        public virtual async Task<IActionResult> GetResult(string target)
-        {
-            var mapper = new Belgrade.SqlClient.SqlDb.QueryMapper(target);
-            return await GetResult(mapper);
-        }
 
         /// <summary>
         /// Created IActionResult object that contains the processed response result.
         /// </summary>
         /// <param name="pipe">Sql Pipe that will be used to fetch the data.</param>
         /// <returns>ContentResult with the data processed by request.</returns>
-        public virtual async Task<IActionResult> GetResult(IQueryMapper mapper)
+        public virtual async Task<IActionResult> GetResult(TSqlCommand mapper)
         {
             IActionResult result = null;
             try
             {
                 var json = await mapper
-                    .GetString(cmd)
+                    .Sql(cmd)
+                    .GetString()
                     .ConfigureAwait(false);
                 result = new ContentResult() {
                     Content = json,

@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Belgrade.SqlClient;
 using Microsoft.AspNetCore.Http;
-using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using MsSql.RestApi;
+using MsSql.RestApi.DAO;
 
 namespace MsSql.TableApi
 {
@@ -23,7 +22,7 @@ namespace MsSql.TableApi
             this.length = length;
         }
         
-        public override async Task Process(IQueryPipe pipe)
+        public override async Task Process(TSqlCommand pipe)
         {
             response.ContentType = "application/json";
             var header = 

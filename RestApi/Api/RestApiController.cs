@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Belgrade.SqlClient;
-using Common.Logging;
 using MsSql.OData;
 using MsSql.TableApi;
 using System;

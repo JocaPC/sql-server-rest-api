@@ -1,5 +1,4 @@
-﻿using Belgrade.SqlClient;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MsSql.RestApi;
 using MsSql.RestApi.DAO;
@@ -7,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace MyApp.Controllers
 {
-    public class RestApiController : Controller
+    public class DapperRestApiController : Controller
     {
         private readonly TSqlCommand queryService;
         private readonly ILogger _logger;
 
-        public RestApiController(TSqlCommand queryService, ILogger<RestApiController> logger)
+        public DapperRestApiController(TSqlCommand queryService, ILogger<RestApiController> logger)
         {
             this.queryService = queryService;
             this._logger = logger;
@@ -23,7 +22,7 @@ namespace MyApp.Controllers
             await queryService
                 .Sql("SELECT * FROM sys.objects FOR JSON PATH")
                 .OnError(e=> { this._logger.LogError("Error: {error}", new { Exc = e }); throw e; })
-                .Stream(Response.Body);
+                .Stream(Response.Body,"");
         }
 
         public async Task GetCsv()

@@ -1,12 +1,10 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Belgrade.SqlClient;
 using Common.Logging;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Data.SqlClient;
-using MsSql.RestApi;
 
 namespace MsSql.RestApi
 {
