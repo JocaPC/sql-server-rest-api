@@ -115,14 +115,15 @@ expandSpec
 	returns [Dictionary<string, string> props]:
 		{ $props = new Dictionary<string, string>(); }
 		e=expandSpecItem { $props.Add(_localctx.e.key, _localctx.e.value); } 
-			( ',' e2=expandSpecItem { $props.Add(_localctx.e2.key, _localctx.e2.value); } )*
+			( ';' e2=expandSpecItem { $props.Add(_localctx.e2.key, _localctx.e2.value); } )*
 ;
 
 expandSpecItem
 	returns [string key, string value]:
 		'$select=' columnList=columns { $key = "select"; $value = _localctx.columnList.GetText(); }
 		|
-		'$filter=' where=logExpression { $key = "filter"; $value = _localctx.where.GetText(); }
+		// I'm getting parsing issues when I use logExpression. Disabled for now
+		'$filter=' where=relExpression { $key = "filter"; $value = _localctx.where.GetText(); }
 		|
 		'$top=' top=NUMBER  { $key = "top"; $value = _localctx.top.Text; }
 		|
