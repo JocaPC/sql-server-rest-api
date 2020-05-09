@@ -17,10 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper.Stream" Version="0.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\RestApi\RestApi.csproj" />
+    <PackageReference Include="TSql.RestApi.Core" Version="0.9.0" />
   </ItemGroup>
 
 </Project>
