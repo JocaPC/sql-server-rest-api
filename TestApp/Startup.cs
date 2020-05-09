@@ -28,9 +28,9 @@ namespace MyApp
         {
             services.AddLogging();
                         
-            services.AddSqlClient(Configuration["ConnectionStrings:WWI"]);
+            services.AddBelgradeSqlClient(Configuration["ConnectionStrings:WWI"]);
 
-            //services.AddSqlConnection(Configuration["ConnectionStrings:WWI"]);
+            //services.AddDapperSqlConnection(Configuration["ConnectionStrings:WWI"]);
 
             services.AddMvc();
 

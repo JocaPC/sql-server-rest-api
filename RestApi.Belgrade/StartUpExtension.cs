@@ -19,7 +19,7 @@ namespace MsSql.RestApi
 {
     public static class StartUpExtension
     {
-        public static IServiceCollection AddSqlClient(this IServiceCollection services, string ConnString, Action<Option> init = null)
+        public static IServiceCollection AddBelgradeSqlClient(this IServiceCollection services, string ConnString, Action<Option> init = null)
         {
             return AddSqlClient(services, options =>
                                             {

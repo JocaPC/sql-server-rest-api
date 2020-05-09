@@ -12,7 +12,7 @@ namespace MsSql.RestApi
 {
     public static class StartUpExtension
     {
-        public static IServiceCollection AddSqlConnection(this IServiceCollection services, 
+        public static IServiceCollection AddDapperSqlConnection(this IServiceCollection services, 
                                                             string ConnString, Action<Option> init = null)
         {
             return AddSqlConnection(services, options =>

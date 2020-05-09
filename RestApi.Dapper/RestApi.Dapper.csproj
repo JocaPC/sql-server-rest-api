@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Dapper.TSqlRestApi</PackageId>
+    <Version>0.8.0</Version>
+    <Authors>Jovan Popovic</Authors>
+    <Company>Jovan Popovic</Company>
+    <Product>Dapper.TSql.RestApi</Product>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/JocaPC/sql-server-rest-api</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/JocaPC/sql-server-rest-api</RepositoryUrl>
+    <PackageTags>REST API, OData, SQL Server, Azure SQL, Dapper ORM</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>

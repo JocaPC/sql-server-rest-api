@@ -9,18 +9,18 @@ namespace MyApp.Controllers
 {
     public class RestApiController : Controller
     {
-        private readonly TSqlCommand queryService;
+        private readonly TSqlCommand DbCommand;
         private readonly ILogger _logger;
 
-        public RestApiController(TSqlCommand queryService, ILogger<RestApiController> logger)
+        public RestApiController(TSqlCommand command, ILogger<RestApiController> logger)
         {
-            this.queryService = queryService;
+            this.DbCommand = command;
             this._logger = logger;
         }
         
         public async Task GetObjects()
         {
-            await queryService
+            await DbCommand
                 .Sql("SELECT * FROM sys.objects FOR JSON PATH")
                 .OnError(e=> { this._logger.LogError("Error: {error}", new { Exc = e }); throw e; })
                 .Stream(Response.Body);
@@ -28,7 +28,7 @@ namespace MyApp.Controllers
 
         public async Task GetCsv()
         {
-            await queryService
+            await DbCommand
                 .Sql("SELECT STRING_AGG(CONCAT_WS(cast(',' as nvarchar(max)),object_id, name, create_date),CHAR(0x0d)+CHAR(0x0a)) FROM sys.objects")
                 .Stream(Response.Body);
         }
@@ -46,7 +46,7 @@ namespace MyApp.Controllers
                 .AddRelatedTable("Invoices", "Sales", "Invoices", "Application.People.PersonID = Sales.Invoices.CustomerID", "InvoiceID,InvoiceDate,IsCreditNote,Comments");
             await this
                     .OData(tableSpec)
-                    .Process(queryService);
+                    .Process(DbCommand);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace MyApp.Controllers
             var tableSpec = new TableSpec(schema: "Application", table: "People", columns: "FullName,EmailAddress,PhoneNumber,FaxNumber");
             await this
                     .Table(tableSpec)
-                    .Process(queryService);
+                    .Process(DbCommand);
         }
     }
 }

@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>Jovan Popovic</Authors>
+    <PackageId>Belgrade.TSql.RestApi</PackageId>
+    <Product>Belgrade.TSql.RestApi</Product>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Copyright>Jovan Popovic</Copyright>
+    <PackageProjectUrl>https://github.com/JocaPC/sql-server-rest-api</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/JocaPC/sql-server-rest-api</RepositoryUrl>
+    <PackageTags>Rest API, SQL, TSQL, SQL Server, Azure SQL, OData, JQuery Data Table</PackageTags>
+    <Version>0.9.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
