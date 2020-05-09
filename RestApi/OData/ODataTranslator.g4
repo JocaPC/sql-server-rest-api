@@ -105,11 +105,12 @@ expandItem :
 	{
 		this.SetValidationScope(_localctx.expand.Text);
 	}
-	'(' es = expandSpec ')'
-	{ 
-		this.ResetValidationScope();
-		this.AddExpandRelation(_localctx.expand.Text, _localctx.es == null ? null : _localctx.es.props);
-	}; 
+	(  '(' es = expandSpec ')' )?
+		{ 
+			this.ResetValidationScope();
+			this.AddExpandRelation(_localctx.expand.Text, _localctx.es == null ? null : _localctx.es.props);
+		}
+	; 
 
 expandSpec
 	returns [Dictionary<string, string> props]:

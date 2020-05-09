@@ -21,7 +21,6 @@ QUnit.cases
     .combinatorial([
         //{ filter1: "(month(OrderDate) gt 2 or OrderID gt -15.7)" },
         { filter1: "OrderID lt 12000" },
-        { filter1: "(OrderID gt 300)" },
         { filter1: "(month(OrderDate) lt 4)" },
         { filter1: "(((3 sub OrderID) mod 4) eq 1)" },
         { filter1: "(OrderID mod 2) eq 1" }
@@ -35,24 +34,51 @@ QUnit.cases
     ])*/
     .combinatorial([
         { limit: "$skip=5;$top=10" },
-        { limit: "$skip=10;$top=50" },
-        { limit: "$top=2" }
+        { limit: "$top=2" },
+        { limit: "" }
     ])
     .combinatorial([
         { selecto: "" },
-        { selecto: ";$select=OrderID,OrderDate" }
+        { selecto: "$select=OrderID,OrderDate" }
     ])
     .combinatorial([
         { selecti: "" },
-        { selecti: ";$select=InvoiceID,InvoiceDate" }
+        { selecti: "$select=InvoiceID,InvoiceDate" }
+    ])
+    .combinatorial([
+        //{ expandType: 01 },
+        //{ expandType: 02 },
+        { expandType: 10 }
+        //,{ expandType: 11 }
+        ,{ expandType: 12 }
     ])
     .test("$expand test", function (params, assert) {
         var finishTest = assert.async();
         var data = null;
-        $.ajax("/odata?$top=2&$expand=Invoices(" + params.limit + params.selecti +"),Orders($orderby=" + params.orderby + params.dir +
-            ";$filter=" + params.filter1 + /* params.filter2 + */
-            ";" + params.limit + params.selecto + ")", { dataType: "json" })
-            .done(result => {
+        var expand1 = [params.limit, params.selecti].filter(s=>s!="").join(";");
+        if (expand1 != "")
+            expand1 = "Invoices(" + expand1 + ")"
+        else
+            expand1 = "Invoices";
+        var expand2 =  ["$orderby=" + params.orderby + params.dir, 
+                        "$filter=" + params.filter1 /* + params.filter2 */,
+                        params.limit,
+                        params.selecto].filter(s => s != "").join(";");
+        expand2 = "Orders(" + expand2 + ")";
+        expand = "";
+        switch (params.expandType) {
+            case 01: expand = "Orders"; break;
+            case 02: expand = expand2; break;
+            case 10: expand = expand1; break;
+            case 11: expand = expand1 + ",Orders"; break;
+            case 12: expand = expand1 + "," + expand2; break;
+            default: expand = "Invoices"; break;
+        }
+
+
+        $.ajax("/odata?$top=2&$expand=" + expand, { dataType: "json" })
+            .done(result =>
+            {
                 assert.ok(result.value !== null, "Response is retrieved");
                 for (i = 0; i < result.value.length; i++) {
                     var orders = result.value[i].Orders;
@@ -79,6 +105,9 @@ QUnit.cases
                         assert.notEqual(i.InvoiceID, null, "InvoiceID should not be null");
                     }
                 }
-                finishTest();
-            });
+                
+            })
+            .fail(result => console.log(result))
+            .always(() => finishTest())
+             ;
     });
