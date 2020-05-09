@@ -1,5 +1,4 @@
-﻿using Belgrade.SqlClient;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MsSql.RestApi;
 using MsSql.RestApi.DAO;
