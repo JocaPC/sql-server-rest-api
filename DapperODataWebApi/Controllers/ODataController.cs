@@ -21,7 +21,7 @@ namespace MyApp.Controllers
         
         public async Task Objects()
         {
-            var tableSpec = new TableSpec(schema: "sys", table: "objects", columns: "object_id,name,create_date")
+            var tableSpec = new TableSpec(schema: "sys", table: "objects", columns: "object_id,name,type,type_desc,create_date,modify_date")
                                     .AddRelatedTable("Columns", "sys", "columns", "sys.columns.object_id = sys.objects.object_id", "column_id,name,system_type_id,is_nullable,is_identity")
                                     .AddRelatedTable("Parameters", "sys", "parameters", "sys.parameters.object_id = sys.objects.object_id", "parameter_id,name");
             await this
