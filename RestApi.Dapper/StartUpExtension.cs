@@ -15,14 +15,14 @@ namespace MsSql.RestApi
         public static IServiceCollection AddDapperSqlConnection(this IServiceCollection services, 
                                                             string ConnString, Action<Option> init = null)
         {
-            return AddSqlConnection(services, options =>
+            return AddDapperSqlConnection(services, options =>
                                             {
                                                 options.UseSqlServer(ConnString);
-                                                if(init!=null) init(options);
+                                                init?.Invoke(options);
                                             });
         }
         
-        public static IServiceCollection AddSqlConnection(this IServiceCollection services, Action<Option> init)
+        public static IServiceCollection AddDapperSqlConnection(this IServiceCollection services, Action<Option> init)
         {
             Option options = new Option();
             init(options);

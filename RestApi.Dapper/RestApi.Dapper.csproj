@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageId>Dapper.TSqlRestApi</PackageId>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <PackageId>Dapper.TSql.RestApi</PackageId>
     <Version>0.8.0</Version>
     <Authors>Jovan Popovic</Authors>
     <Company>Jovan Popovic</Company>

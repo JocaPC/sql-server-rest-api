@@ -21,14 +21,14 @@ namespace MsSql.RestApi
     {
         public static IServiceCollection AddBelgradeSqlClient(this IServiceCollection services, string ConnString, Action<Option> init = null)
         {
-            return AddSqlClient(services, options =>
+            return AddBelgradeSqlClient(services, options =>
                                             {
                                                 options.UseSqlServer(ConnString);
-                                                if(init!=null) init(options);
+                                                init?.Invoke(options);
                                             });
         }
         
-        public static IServiceCollection AddSqlClient(this IServiceCollection services, Action<Option> init)
+        public static IServiceCollection AddBelgradeSqlClient(this IServiceCollection services, Action<Option> init)
         {
             Option options = new Option();
             init(options);
