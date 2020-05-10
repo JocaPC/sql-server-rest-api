@@ -42,4 +42,13 @@ public async Task People() {
 }
 ```
 
-You just need to set schema and name of you table with a list of table columns that you want to expose. One you run the modified application and open `https://localhost:5001/odata/People` URL you will be able to access the rows from your table.
+You need to set schema and name of you table with a list of table columns that you want to expose. One you run the modified application and open `https://localhost:5001/odata/People` URL you will be able to access the rows from your table.
+
+## Deployment to Azure Service
+
+Use the following [deployment template](https://github.com/Azure/azure-quickstart-templates/tree/master/201-web-app-github-deploy) to deploy
+code from GitHub repository with the following parameters:
+- Repository URL: https://github.com/JocaPC/sql-server-rest-api
+- branch: belgrade-odata-api 
+
+Once the application deployment is finished, add connection string in portal using Configure > Connection strings and call it `Database`
