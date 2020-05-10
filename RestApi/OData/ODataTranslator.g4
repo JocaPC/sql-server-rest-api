@@ -216,7 +216,7 @@ OPERATOR :  'add' { Text = "+"; } | 'sub' { Text = "-"; } |
 RELOP : 'eq' { Text = "="; } | 'ne' { Text = "<>"; } |
 			'gt' { Text = ">"; } | 'ge' { Text = ">="; } |
 			'lt' { Text = "<"; } | 'le' { Text = "<="; } | 
-			'is' { Text = "IS"; };
+			'is' { Text = " IS "; };
 
 // Operators that are not translated but they need to skip identifier check.
 LOGOP:		'and' { Text = " AND "; } | 'or' { Text = " OR "; } |
