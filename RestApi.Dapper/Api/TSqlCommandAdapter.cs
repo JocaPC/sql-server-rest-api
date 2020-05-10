@@ -83,20 +83,17 @@ namespace RestApi.Dapper.Api
 
         public override Task Stream(Stream output, string defaultOnNoResult)
         {
-            return this.connection.QueryAsyncInto(output, this.SqlText, param: this.parameters,  defaultOutput: defaultOnNoResult);
+            return this.connection.QueryAsyncInto(output, this.SqlText, param: this.parameters, defaultOutput: defaultOnNoResult);
         }
 
         public override Task Stream(Stream body, Options options)
         {
-            throw new NotImplementedException();
-            /*
-             * return this.pipe.Stream(body, options: new BSC.Options() {
+            var dso = new DapperStreamOptions() { 
                 Prefix = options.Prefix,
-                Suffix = options.Suffix, 
-                DefaultOutput = options.DefaultOutput
-                // @@TODO: Encoding????
-            });
-            */
+                DefaultOutput = options.DefaultOutput,
+                Suffix = options.Suffix
+            };
+            return this.connection.QueryAsyncInto(body, this.SqlText, dso, param: this.parameters);
         }
 
         public override Task Stream(StringWriter output, string defaultOnNoResult)
