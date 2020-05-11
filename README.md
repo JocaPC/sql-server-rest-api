@@ -1,10 +1,10 @@
-# Database-driven SQL OData API with Belgrade SLQ data access library
+# Database-driven SQL OData API with Belgrade SQL data access library
 
 This sample application shows how to expose three OData endpoints using OData protocol and `Belgrade.TSql.RestApi` library. With this sample application you can create OData REST API on any database engine that uses latest T-SQL language, for example, SQL Server 2016+, Azure SQL, or Synapse SQL.
 
 ## Setup
 
-Get the sample from [GitHub repository](https://github.com/JocaPC/sql-server-rest-api/tree/belgrade-odata-api). you cna donload the sample or get the code from `dapper-odata-api` branch.
+Get the sample from [GitHub repository](https://github.com/JocaPC/sql-server-rest-api/tree/belgrade-odata-api). You can download the sample or get the code from `belgrade-odata-api` branch.
 
 Open 'appsettings.json` file and change the connection string:
 
