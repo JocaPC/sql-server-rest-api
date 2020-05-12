@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net46;netstandard1.6;netstandard2.0;netcoreapp1.0;netcoreapp1.1;netcoreapp2.0;netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
-    <RootNamespace>MsSql.RestApi</RootNamespace>
+    <RootNamespace>TSql.RestApi</RootNamespace>
     <PackageId>TSql.RestApi.Core</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Jovan Popovic</Authors>
@@ -50,7 +50,7 @@
 
   <ItemGroup>
     <Antlr4 Update="OData\ODataTranslator.g4">
-      <CustomToolNamespace>MsSql.OData</CustomToolNamespace>
+      <CustomToolNamespace>TSql.OData</CustomToolNamespace>
     </Antlr4>
   </ItemGroup>
 

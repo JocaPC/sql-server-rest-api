@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using MsSql.OData;
-using MsSql.TableApi;
 using System;
+using TSql.OData;
+using TSql.TableApi;
 
-namespace MsSql.RestApi
+namespace TSql.RestApi
 {
     public static class RestApiControllerExtensions 
     {
@@ -72,7 +72,7 @@ namespace MsSql.RestApi
             this Microsoft.AspNetCore.Mvc.Controller ctrl,
             TableSpec tableSpec)
         {
-            var querySpec = MsSql.TableApi.UriParser.Parse(tableSpec, ctrl.Request);
+            var querySpec = TSql.TableApi.UriParser.Parse(tableSpec, ctrl.Request);
             var sql = QueryBuilder.Build(querySpec, tableSpec);
             if (!querySpec.count)
                 sql = sql.AsJson();

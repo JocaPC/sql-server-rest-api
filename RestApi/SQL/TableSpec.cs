@@ -7,6 +7,18 @@ using System.Collections.Generic;
 
 namespace MsSql.RestApi
 {
+    [Obsolete("use TSql.RestApi namespace")]
+    public class ColumnSpec : TSql.RestApi.ColumnSpec { }
+
+    [Obsolete("use TSql.RestApi namespace")]
+    public class TableSpec : TSql.RestApi.TableSpec {
+        public TableSpec(string schema, string table, string columns = null, string primaryKey = null)
+            : base(schema, table, columns, primaryKey) { }
+    }
+}
+
+namespace TSql.RestApi
+{
     public class ColumnSpec
     {
         public string Name;

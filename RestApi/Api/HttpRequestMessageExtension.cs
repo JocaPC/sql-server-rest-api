@@ -6,9 +6,8 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using MsSql.RestApi.DAO;
 
-namespace MsSql.RestApi
+namespace TSql.RestApi
 {
 #if net47 || net46 || NETCOREAPP3_1
     public static class HttpRequestMessageExtension

@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MsSql.RestApi;
-using Serilog;
+using TSql.RestApi;
 
 namespace MyApp
 {
@@ -28,9 +27,9 @@ namespace MyApp
         {
             services.AddLogging();
                         
-            //services.AddBelgradeSqlClient(Configuration["ConnectionStrings:WWI"]);
+            services.AddBelgradeSqlClient(Configuration["ConnectionStrings:WWI"]);
 
-            services.AddDapperSqlConnection(Configuration["ConnectionStrings:WWI"]);
+            //services.AddDapperSqlConnection(Configuration["ConnectionStrings:WWI"]);
 
             services.AddMvc();
 

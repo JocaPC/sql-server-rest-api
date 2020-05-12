@@ -4,12 +4,22 @@
 using Microsoft.AspNetCore.Http;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using MsSql.RestApi;
-using MsSql.RestApi.DAO;
+using TSql.RestApi;
+using System;
 
 namespace MsSql.TableApi
 {
-    public class JQueryDataTablesHandler : RequestHandler
+    [Obsolete("use TSql.RestApi namespace")]
+    public class JQueryDataTablesHandler : TSql.TableApi.JQueryDataTablesHandler
+    {
+        internal JQueryDataTablesHandler(SqlCommand cmd, string draw, int start, int length, HttpResponse response)
+            : base(cmd, draw, start, length, response) { }
+    }
+}
+
+namespace TSql.TableApi
+{
+    public class JQueryDataTablesHandler : TSql.RestApi.RequestHandler
     {
         private string draw;
         private int length;

@@ -5,7 +5,7 @@ using System.Collections;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace MsSql.RestApi
+namespace TSql.RestApi
 {
     public static class SqlCommandExtensions
     {

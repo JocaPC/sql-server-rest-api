@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Data.SqlClient;
 
-namespace MsSql.RestApi
+namespace TSql.RestApi
 {
     public static class HttpRequestExtension
     {
@@ -44,7 +44,7 @@ namespace MsSql.RestApi
             if (_log == null)
                 _log = StartUp.GetLogger<RequestHandler>();
 
-            querySpec = MsSql.OData.UriParser.Parse(tableSpec, req);
+            querySpec = TSql.OData.UriParser.Parse(tableSpec, req);
             if (id != null)
             {
                 querySpec.predicate = tableSpec.primaryKey + " = @Id";

@@ -7,9 +7,17 @@ using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
 using System.Text;
-using MsSql.RestApi;
+using TSql.RestApi;
 
 namespace MsSql.OData
+{
+    [Obsolete("use TSql.OData")]
+    internal class UriParser: TSql.OData.UriParser
+    {
+    }
+}
+
+namespace TSql.OData
 {
     public class UriParser
     {

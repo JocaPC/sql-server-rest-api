@@ -2,13 +2,23 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Microsoft.AspNetCore.Http;
-using MsSql.RestApi.DAO;
+using TSql.RestApi;
 using System;
 using System.Data.SqlClient;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MsSql.RestApi
+{
+    [Obsolete("use TSql.RestApi namespace")]
+    public class ODataHandler : TSql.RestApi.ODataHandler {
+        internal ODataHandler(SqlCommand cmd, HttpResponse response, TableSpec tableSpec, string metadataUrl, Metadata metadata = Metadata.NONE, bool countOnly = false, bool returnSingleResult = false) :
+                base(cmd, response, tableSpec, metadataUrl, metadata, countOnly, returnSingleResult)
+        { } 
+    }
+}
+
+namespace TSql.RestApi
 {
     public class ODataHandler: RequestHandler
     {

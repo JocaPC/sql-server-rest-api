@@ -2,12 +2,18 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Microsoft.AspNetCore.Http;
-using MsSql.RestApi;
 using System;
 using System.Collections;
 
 namespace MsSql.TableApi
 {
+    [Obsolete("use TSql.RestApi namespace")]
+    public class UriParser : TSql.TableApi.UriParser { }
+}
+
+namespace TSql.TableApi
+{
+    using TSql.RestApi;
     public class UriParser
     {
         public static QuerySpec Parse (TableSpec tabSpec, HttpRequest Request)

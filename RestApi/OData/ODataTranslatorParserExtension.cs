@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using MsSql.RestApi;
+using TSql.RestApi;
 
-namespace MsSql.OData
+namespace TSql.OData
 {
     public static class ODataTranslatorParserExtension
     {

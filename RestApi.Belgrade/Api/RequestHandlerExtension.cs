@@ -1,11 +1,10 @@
 ﻿using Belgrade.SqlClient;
 using Belgrade.SqlClient.SqlDb;
 using Microsoft.AspNetCore.Mvc;
-using MsSql.RestApi;
 using RestApi.Belgrade.Api;
 using System.Threading.Tasks;
 
-namespace MsSql.RestApi
+namespace TSql.RestApi
 {
     public static class BgRequestHandlerExtension
     {

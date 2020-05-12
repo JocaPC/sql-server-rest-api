@@ -1,7 +1,8 @@
 grammar ODataTranslator;
 
 @header {
-using MsSql.RestApi;
+using TSql.RestApi;
+using TSql.OData;
 }
  
 @parser::members {

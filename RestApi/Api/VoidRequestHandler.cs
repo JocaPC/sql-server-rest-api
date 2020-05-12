@@ -1,9 +1,9 @@
-﻿using MsSql.RestApi.DAO;
+﻿using TSql.RestApi;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
 
-namespace MsSql.RestApi
+namespace TSql.RestApi
 {
     public class ErrorResponseHandler : RequestHandler
     {

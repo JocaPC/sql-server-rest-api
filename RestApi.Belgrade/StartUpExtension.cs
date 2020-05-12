@@ -7,15 +7,14 @@ using Belgrade.SqlClient.SqlDb.Rls;
 using Common.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MsSql.RestApi.DAO;
-using MsSql.RestApi.Util;
+using TSql.RestApi.Util;
 using RestApi.Belgrade.Api;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
-namespace MsSql.RestApi
+namespace TSql.RestApi
 {
     public static class StartUpExtension
     {

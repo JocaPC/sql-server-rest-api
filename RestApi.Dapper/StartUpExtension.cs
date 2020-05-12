@@ -2,13 +2,13 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Microsoft.Extensions.DependencyInjection;
-using MsSql.RestApi.DAO;
+using TSql.RestApi;
 using RestApi.Dapper.Api;
 using System;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace MsSql.RestApi
+namespace TSql.RestApi
 {
     public static class StartUpExtension
     {
@@ -53,11 +53,7 @@ namespace MsSql.RestApi
     {
 
         public string ConnString;
-        public bool ReadScaleOut = false;
-        public string ReadOnlyConnString;
         public void UseSqlServer(string ConnString) => this.ConnString = ConnString;
-        public bool EnableRetryLogic = true;
-        public bool EnableDelayedRetryLogic = false;
         public bool EnableODataExtensions = true;
 
         public enum ServiceScopeEnum { SINGLETON, SCOPED, TRANSIENT };

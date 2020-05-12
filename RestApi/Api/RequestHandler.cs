@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using MsSql.RestApi.DAO;
 using Common.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,17 @@ using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
+
 namespace MsSql.RestApi
+{
+    [Obsolete("use TSql.RestApi")]
+    public class RequestHandler: TSql.RestApi.RequestHandler {
+        internal RequestHandler(SqlCommand cmd, HttpResponse response, bool isSingleton = false)
+            :base(cmd, response, isSingleton) { }
+    }
+}
+
+namespace TSql.RestApi
 {
     public class RequestHandler
     {
@@ -73,7 +82,7 @@ namespace MsSql.RestApi
 
         internal static async Task ReturnClientError(HttpResponse response, Exception ex)
         {
-            ILog log = StartUp.GetLogger<RequestHandler>();
+            ILog log = TSql.RestApi.StartUp.GetLogger<RequestHandler>();
             if (log != null)
             {
                 log.ErrorFormat("Error {error} at {source} thrown while processing request.\n{exception}", ex.Message, ex.Source, ex);

@@ -4,13 +4,21 @@
 using Common.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MsSql.RestApi.Util;
+using TSql.RestApi.Util;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
 namespace MsSql.RestApi
+{
+    [Obsolete("use TSql.RestApi namespace")]
+    public class StartUp: TSql.RestApi.StartUp
+    { }
+
+}
+
+namespace TSql.RestApi
 {
     public class StartUp
     {    

@@ -1,5 +1,5 @@
 ﻿using Belgrade.SqlClient;
-using MsSql.RestApi.DAO;
+using TSql.RestApi;
 using System;
 using System.Data.SqlClient;
 using System.IO;
@@ -46,7 +46,7 @@ namespace RestApi.Belgrade.Api
             return this.pipe.Stream(output, defaultOnNoResult);
         }
 
-        public override Task Stream(Stream body, MsSql.RestApi.DAO.Options options)
+        public override Task Stream(Stream body, TSql.RestApi.Options options)
         {
             return this.pipe.Stream(body, options: new BSC.Options() {
                 Prefix = options.Prefix,

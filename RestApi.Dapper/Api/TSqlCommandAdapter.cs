@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using Dapper;
-using MsSql.RestApi.DAO;
+using TSql.RestApi;
 
 namespace RestApi.Dapper.Api
 {

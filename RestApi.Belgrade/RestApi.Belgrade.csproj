@@ -12,7 +12,7 @@
     <PackageProjectUrl>https://github.com/JocaPC/sql-server-rest-api</PackageProjectUrl>
     <RepositoryUrl>https://github.com/JocaPC/sql-server-rest-api</RepositoryUrl>
     <PackageTags>Rest API, SQL, TSQL, SQL Server, Azure SQL, OData, JQuery Data Table</PackageTags>
-    <Version>0.9.1</Version>
+    <Version>0.9.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
