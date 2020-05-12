@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MsSql.RestApi;
-using MsSql.RestApi.DAO;
 using System.Threading.Tasks;
+using TSql.RestApi;
 
 namespace MyApp.Controllers
 {
