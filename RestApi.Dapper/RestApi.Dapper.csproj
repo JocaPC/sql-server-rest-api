@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp2.0;netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
     <PackageId>Dapper.TSql.RestApi</PackageId>
-    <Version>0.8.3</Version>
+    <Version>0.8.4</Version>
     <Authors>Jovan Popovic</Authors>
     <Company>Jovan Popovic</Company>
     <Product>Dapper.TSql.RestApi</Product>
@@ -13,6 +13,7 @@
     <PackageTags>REST API, OData, SQL Server, Azure SQL, Dapper ORM</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <AutoGenerateBindingRedirects></AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>

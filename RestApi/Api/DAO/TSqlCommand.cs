@@ -3,12 +3,6 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace MsSql.RestApi.DAO
-{
-    [Obsolete("Use TSql.RestApi namespace")]
-    public abstract class TSqlCommand {    }
-}
-
 namespace TSql.RestApi
 {
     public abstract class TSqlCommand
