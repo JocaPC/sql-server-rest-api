@@ -1,11 +1,11 @@
-﻿# Sql Server REST API - OData Service
+﻿# TSql REST API - OData Service
 
-Sql Server REST API library enables you to easily create OData services. In this page you can find out how to create
+TSql REST API library enables you to easily create OData services. In this page you can find out how to create
 OData service and what features from OData standard are supported.
 
 # Supported query parameters
 
-Sql Server REST API library enables you to create OData REST services that support the following operations:
+TSql REST API library enables you to create OData REST services that support the following operations:
  - $select that enables the caller to choose what fields should be returned in response,
  - $filter that can filter entities using entity properties, and expressions with:
    - Arithmetical operators 'add', 'sub', 'mul', 'div' , 'mod'
@@ -17,8 +17,9 @@ Sql Server REST API library enables you to create OData REST services that suppo
  - $top and $skip that can be used for pagination,
  - $count that enables you to get the total number of entities,
  - $search that search for entities by a keyword.
+ - $expand that enables you to get related entities.
 
-OData services implemented using Sql Server REST API library provide minimal interface that web clients can use to
+OData services implemented using TSql REST API library provide minimal interface that web clients can use to
 query data without additional overhead introduced by advanced OData operators (e.g. $extend, all/any), or verbose response format.
 
 > The goal of this project is not to support all standard OData features. Library provides the most important features, and
@@ -32,35 +33,22 @@ OData spec. By default, it returns no-metadata; however, it can be configured to
 
 # Implement OData service
 
-OData service can be implemented using any .Net project, such ASP.NET Core, ASP.NET Web Api, Azure Function (C#). You just need to reference nuget package in project.json file:
+OData service can be implemented using any .Net project, such ASP.NET Core, ASP.NET Web Api, Azure Function (C#). You just need to reference nuget package.
 
-''project.json''
-```
-{
-  "frameworks": {
-    "net46":{
-      "dependencies": {
-        "Antlr4.Runtime": "4.5.3",
-        "Sql-Server-Rest-Api": "0.3.2"
-      }
-    }
-   }
-}
-```
-This setting will take Sql Server Rest Api from NuGet and also load Antlr4.Runtime that is used to parse requests. Once you reference these nuget packages, you can create your OData service.
+This setting will take TSql Rest Api from NuGet and also load Antlr4.Runtime that is used to parse requests. Once you reference these nuget packages, you can create your OData service.
 
 ## No-metadata OData service and ASP.NET Core
 
 You can implement OData service using ASP.NET Core application as a method of any controller. 
 First, you need to setup Sql Client in Startup class: 
- - Add the reference to ''SqlServerRestApi'' in Startup class
+ - Add the reference to `TSql.RestApi` in Startup class
  - Initialize SqlClient component that will be used to read data from table and return it as OData response.
 
 Example of code is shown in the following listing:
 
 ''Startup.cs''
 ```
-using SqlServerRestApi;
+using TSql.RestApi;
 
 namespace MyMvcApp
 {
@@ -69,7 +57,11 @@ namespace MyMvcApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSqlClient(Configuration["ConnectionStrings:azure-db-connection"]);
+             services.AddBelgradeSqlClient(Configuration["ConnectionStrings:WWI"]);
+
+            // If you are using Dapper version use this command:
+            //services.AddDapperSqlConnection(Configuration["ConnectionStrings:WWI"]);
+
             // Add framework services.
             services.AddMvc();
         }
@@ -92,11 +84,13 @@ namespace MyMvcApp.Controllers
     [Route("api/[controller]")]
     public class PeopleController : Controller
     {
-        IQueryPipe pipe = null;
-        public PeopleController(IQueryPipe sqlQueryService)
+        private readonly TSqlCommand DbCommand;
+        
+        public PeopleController(TSqlCommand command)
         {
-            this.pipe = sqlQueryService;
+            this.DbCommand = command;
         }
+        
 
         /// <summary>
         /// Endpoint that exposes People information using OData protocol.
@@ -106,8 +100,12 @@ namespace MyMvcApp.Controllers
         [HttpGet("odata")]
         public async Task OData()
         {
-            var tableSpec = new TableSpec("dbo.People", "name,surname,address,town");
-            await this.OData(tableSpec, pipe).Process();
+            var tableSpec = new TableSpec(schema: "dbo", table: "People", columns: "PersonID,FullName,PhoneNumber,FaxNumber,EmailAddress,ValidTo")
+                .AddRelatedTable("Orders", "Sales", "Orders", "Application.People.PersonID = Sales.Orders.CustomerID", "OrderID,OrderDate,ExpectedDeliveryDate,Comments")
+                .AddRelatedTable("Invoices", "Sales", "Invoices", "Application.People.PersonID = Sales.Invoices.CustomerID", "InvoiceID,InvoiceDate,IsCreditNote,Comments");
+            await this
+                    .OData(tableSpec)
+                    .Process(DbCommand);
         }
     }
 }

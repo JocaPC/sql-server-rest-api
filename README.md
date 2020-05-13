@@ -4,15 +4,21 @@ This library enables you to easily create REST services in ASP.NET based on the 
 
 # Setup
 
-Get REST API library from NuGet:
+Get REST API library from NuGet. there are two packages that you can use - one that uses Belgrade Data access, and another that uses Dapper ORM.
+
+If you want to use Dapper ORM for data access, you should install following package:
 ```
-PM> Install-Package MsSql.RestApi
+PM> Install-Package Belgrade.TSql.RestApi
+```
+If you want to use Dapper ORM for data access, you should install following package:
+```
+PM> Install-Package Dapper.TSql.RestApi
 ```
 
 You will need to configure data access components in Startup class (Configure service method):
 
 ```
-using SqlServerRestApi;
+using TSQL.RestApi;
 
 namespace MyApp {
 
@@ -22,7 +28,7 @@ namespace MyApp {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSqlClient(Configuration["ConnectionStrings:MyConnection"]);
+            services.AddBelgradeSqlClient(Configuration["ConnectionStrings:MyConnection"]);
         }
 
     }
