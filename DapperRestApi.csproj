@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Belgrade.TSql.RestApi" Version="0.9.3" />
+    <PackageReference Include="Dapper.TSql.RestApi" Version="0.8.4" />
   </ItemGroup>
 
 </Project>

@@ -25,7 +25,7 @@ namespace BelgradeODataWebApi
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {            
-            services.AddBelgradeSqlClient(Configuration.GetConnectionString("Database"));
+            services.AddDapperSqlConnection(Configuration.GetConnectionString("Database"));
             services.AddControllers();
         }
 
