@@ -38,7 +38,11 @@ namespace TSql.OData
         [HttpGet]
         public ActionResult Root()
         {
+#if (!NETSTANDARD1_6 && !NETCOREAPP1_0 && !NETCOREAPP1_1)
+            return this.GetODataServiceDocumentJsonV4(this.GetTableSpec, MetadataAction: Metadata);
+#else
             return this.GetODataServiceDocumentJsonV4(this.GetTableSpec, "$metadata");
+#endif
             //this.Response.Headers.Add("OData-Version", "4.0");
             //return this.Content(ODataHandler.GetRootMetadataJsonV4(this.MetadataUrl, this.GetTableSpec), 
             //    "application/json; odata.metadata=minimal");

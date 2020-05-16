@@ -66,12 +66,14 @@ namespace TSql.RestApi
         
         public static string GetRootMetadataJsonV4(string ODataMetadataUrl, TableSpec[] tables)
         {
+            var entityRootUrl = ODataMetadataUrl.Substring(0, ODataMetadataUrl.LastIndexOf('/')+1);
+
             var sb = new StringBuilder();
             sb.Append("{\"@odata.context\":\"").Append(ODataMetadataUrl).Append("\",\"value\":[");
             for (int i = 0; i < tables.Length; i++)
             {
                 var t = tables[i];
-                sb.Append("{\"name\":\"").Append(t.Name).Append("\",\"kind\":\"EntitySet\",\"url\":\"").Append(t.Name).Append("\"}");
+                sb.Append("{\"name\":\"").Append(t.Name).Append("\",\"kind\":\"EntitySet\",\"url\":\"").Append(entityRootUrl + t.Name).Append("\"}");
                 if(i<tables.Length-1)
                     sb.Append(",");
             }

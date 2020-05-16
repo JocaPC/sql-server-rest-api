@@ -66,7 +66,11 @@ namespace MyApp.Controllers
 
         public ActionResult OData()
         {
+#if (!NETSTANDARD1_6 && !NETCOREAPP1_0 && !NETCOREAPP1_1)
+            return this.GetODataServiceDocumentJsonV4(tables, MetadataAction: ODataMetadata);
+#else
             return this.GetODataServiceDocumentJsonV4(tables, "restapi/odata/$metadata");
+#endif
         }
 
         [HttpGet("[controller]/odata/$metadata")]

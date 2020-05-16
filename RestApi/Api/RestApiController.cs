@@ -3,6 +3,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Reflection;
 using TSql.OData;
 using TSql.TableApi;
 
@@ -67,6 +68,31 @@ namespace TSql.RestApi
             */
             #endregion
         }
+
+#if (!NETSTANDARD1_6 && !NETCOREAPP1_0 && !NETCOREAPP1_1)
+        public static ActionResult GetODataServiceDocumentJsonV4(
+          this Microsoft.AspNetCore.Mvc.Controller ctrl,
+          TableSpec[] tables,
+          Func<ActionResult> MetadataAction)
+        {
+            var mi = MetadataAction.GetMethodInfo();
+            var httpAttr = Attribute.GetCustomAttribute(mi, typeof(HttpGetAttribute)) as HttpGetAttribute;
+            if(httpAttr == null)
+            {
+                throw new InvalidOperationException($"Action {mi.Name} must have [HttpGet] attribute");
+            }
+            if (string.IsNullOrWhiteSpace(httpAttr.Template))
+            {
+                throw new InvalidOperationException($"Action {mi.Name} don't have template in [HttpGet(<template>)] atttribute.");
+            }
+
+            var url = httpAttr.Template
+                                .Replace("[controller]", ctrl.GetType().Name.Replace("Controller", ""))
+                                .Replace("[action]", mi.Name);
+
+            return GetODataServiceDocumentJsonV4(ctrl, tables, url);
+        }
+#endif
 
         public static ActionResult GetODataServiceDocumentJsonV4(
           this Microsoft.AspNetCore.Mvc.Controller ctrl,
