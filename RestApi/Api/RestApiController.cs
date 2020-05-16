@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Jovan Popovic. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+using Microsoft.AspNetCore.Mvc;
 using System;
 using TSql.OData;
 using TSql.TableApi;
@@ -67,6 +68,28 @@ namespace TSql.RestApi
             #endregion
         }
 
+        public static ActionResult GetODataServiceDocumentJsonV4(
+          this Microsoft.AspNetCore.Mvc.Controller ctrl,
+          TableSpec[] tables,
+          string MetadataPath)
+        {
+            ctrl.Response.Headers.Add("OData-Version", "4.0");
+            return ctrl.Content(ODataHandler.GetRootMetadataJsonV4(
+                                    ctrl.Request.Scheme + "://" + ctrl.Request.Host + "/" + MetadataPath,
+                                    tables),
+                                "application/json; odata.metadata=minimal");
+        }
+
+        public static ActionResult GetODataMetadataXmlV4(
+            this Microsoft.AspNetCore.Mvc.Controller ctrl,
+            TableSpec[] tables,
+            string ModelNamespace = null)
+        {
+            if (string.IsNullOrWhiteSpace(ModelNamespace))
+                ModelNamespace = ctrl.ControllerContext.ActionDescriptor.ControllerName + ".Models";
+            ctrl.Response.Headers.Add("OData-Version", "4.0"); // Probably not nessecary but someone might need it as root.
+            return ctrl.Content(ODataHandler.GetMetadataXmlV4(tables, ModelNamespace), "application/xml");
+        }
 
         public static RequestHandler Table(
             this Microsoft.AspNetCore.Mvc.Controller ctrl,

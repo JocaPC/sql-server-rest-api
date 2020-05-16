@@ -16,11 +16,12 @@ namespace TSql.OData
         /// </summary>
         public virtual string MetadataUrl
         {
-            get
-            {
-                return this.Request.Scheme + "://" + this.Request.Host + "/" + this.ControllerContext.ActionDescriptor.AttributeRouteInfo.Template + "/$metadata";
+            get {
+                return this.Request.Scheme + "://" + this.Request.Host + "/" + this.MetadataPath;
             }
         }
+
+        public abstract string MetadataPath { get; }
 
         public virtual string ModelNamespace
         {
@@ -32,18 +33,22 @@ namespace TSql.OData
 
         public abstract TableSpec[] GetTableSpec { get; }
 
-        [Produces("application/json; odata.metadata=minimal")]
+        // see https://services.odata.org/TripPinRESTierService/(S(0rl14bktppv5tp5hy3obiftc))/
+        //[Produces("application/json; odata.metadata=minimal")]
         [HttpGet]
-        public string Root()
+        public ActionResult Root()
         {
-            return ODataHandler.GetRootMetadataJsonV4(this.MetadataUrl, this.GetTableSpec);
+            return this.GetODataServiceDocumentJsonV4(this.GetTableSpec, "$metadata");
+            //this.Response.Headers.Add("OData-Version", "4.0");
+            //return this.Content(ODataHandler.GetRootMetadataJsonV4(this.MetadataUrl, this.GetTableSpec), 
+            //    "application/json; odata.metadata=minimal");
         }
 
-        [Produces("application/xml")]
-        [HttpGet("$metadata")]
-        public string Metadata()
+        [HttpGet("[controller]/$metadata")]
+        public ActionResult Metadata()
         {
-            return ODataHandler.GetMetadataXmlV4(this.GetTableSpec, this.ModelNamespace);
+            return this.GetODataMetadataXmlV4(this.GetTableSpec);
+            //return base.Content(ODataHandler.GetMetadataXmlV4(this.GetTableSpec, this.ModelNamespace), "application/xml");
         }
     }
 }

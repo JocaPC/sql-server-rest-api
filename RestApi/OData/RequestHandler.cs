@@ -68,9 +68,12 @@ namespace TSql.RestApi
         {
             var sb = new StringBuilder();
             sb.Append("{\"@odata.context\":\"").Append(ODataMetadataUrl).Append("\",\"value\":[");
-            foreach (var t in tables)
+            for (int i = 0; i < tables.Length; i++)
             {
-                sb.Append("{\"name\":\"").Append(ODataMetadataUrl).Append("\",\"kind\":\"EntitySet\",\"url\":\"").Append(ODataMetadataUrl).Append("\"}");
+                var t = tables[i];
+                sb.Append("{\"name\":\"").Append(t.Name).Append("\",\"kind\":\"EntitySet\",\"url\":\"").Append(t.Name).Append("\"}");
+                if(i<tables.Length-1)
+                    sb.Append(",");
             }
             sb.Append("]}");
             return sb.ToString();

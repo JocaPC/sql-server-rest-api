@@ -76,7 +76,7 @@ QUnit.cases
         }
 
 
-        $.ajax("/odata?$top=2&$expand=" + expand, { dataType: "json" })
+        $.ajax("/restapi/odata/people?$top=2&$expand=" + expand, { dataType: "json" })
             .done(result =>
             {
                 assert.ok(result.value !== null, "Response is retrieved");

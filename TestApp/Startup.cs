@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -31,7 +32,10 @@ namespace MyApp
 
             //services.AddDapperSqlConnection(Configuration["ConnectionStrings:WWI"]);
 
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                //options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
+            });
 
         }
 

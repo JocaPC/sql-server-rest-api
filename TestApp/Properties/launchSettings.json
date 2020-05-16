@@ -18,7 +18,7 @@
     "TestApp": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "odata?$top=3&$expand=Orders($top=2),Invoices($top=3)",
+      "launchUrl": "restapi/odata",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

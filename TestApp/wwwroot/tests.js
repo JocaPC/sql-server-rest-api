@@ -35,7 +35,7 @@ QUnit.cases
     .test("query test", function(params, assert) {
         var finishTest = assert.async();
         var data = null;
-        $.ajax("/odata?$orderby=" + params.orderby + params.dir +
+        $.ajax("/restapi/odata/people?$orderby=" + params.orderby + params.dir +
             "&$filter=" + params.filter1 + params.filter2 +
             "&" + params.param, { dataType: "json" })
         .done(result => {
