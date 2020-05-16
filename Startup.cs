@@ -43,7 +43,7 @@ namespace BelgradeODataWebApi
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=OData}/{action=Objects}");
+                    pattern: "{controller=OData}/{action=Index}");
             });
         }
     }
