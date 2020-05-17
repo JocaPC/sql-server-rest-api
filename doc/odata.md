@@ -70,18 +70,16 @@ namespace MyMvcApp
 }
 ```
 
-Then you need to create a controller that will expose OData service using some method.
- - Add references to Belgrade.SqlClient and SqlServerApi namespace in controller,
- - Initialize IQueryPipe field using constructor injection,
+Then you need to create a controller that will expose OData service using some method, you would need to:
+ - Add references to TSql.RestApi namespace in controller,
+ - Initialize TSqlCommand field using constructor injection,
  - Create a method that will expose OData REST Api.
 
 ```
-using Belgrade.SqlClient;
-using SqlServerRestApi;
+using TSql.RestApi;
 
 namespace MyMvcApp.Controllers
 {
-    [Route("api/[controller]")]
     public class PeopleController : Controller
     {
         private readonly TSqlCommand DbCommand;
@@ -91,12 +89,10 @@ namespace MyMvcApp.Controllers
             this.DbCommand = command;
         }
         
-
         /// <summary>
         /// Endpoint that exposes People information using OData protocol.
         /// </summary>
         /// <returns>OData response.</returns>
-        // GET api/People/odata
         [HttpGet("odata")]
         public async Task OData()
         {
@@ -111,7 +107,7 @@ namespace MyMvcApp.Controllers
 }
 ```
 
-When you run this app and open http://......./api/People/odata Url, you would be able to call all supported functions in OData service.
+When you run this app and open http://......./People/odata Url, you would be able to call all supported functions in OData service.
 
 ## No-metadata OData service and Azure Function
 
@@ -151,72 +147,11 @@ When you call this Url, you can add any OData parameter to filter or sort result
 
 ## Minimal metadata OData service with ASP.NET Core
 
-Some clients such as LinqPad require at least minimal OData metadata infor to use OData service. In this case you can create a OData service with minimal-metadata.
+Some clients such as Excel and LinqPad require at least minimal OData metadata info to use OData service. No-metadata OData service implemented using the instructions in this doc provide minimal required set of features that enable you to use rich REST query language over your data. However, no-metadata services don't enable Excelt&linqPad to consule OData service. If you want to enable tools that generate code based on OData endpoint, you need to provide at least minimal meatata about the OData service. 
 
-Then you need to create a controller that will expose OData service using some method.
- - Add references to Belgrade.SqlClient and SqlServerApi namespace in controller,
- - Derive Controller from OData Controller,
- - Initialize IQueryPipe field using constructor injection,
- - Define properties of the tables that will be exposed via OData endpoints by overriding GetTableSpec method,
- - Create methods that will expose OData REST Api.
+In this case you can create a OData service with minimal-metadata using the [instructions described here](odata-min-metadata.md).
 
-```
-using Belgrade.SqlClient;
-using SqlServerRestApi;
-
-namespace MyMvcApp.Controllers
-{
-    [Route("api/[controller]")]
-    public class PeopleController : ODataController
-    {
-        IQueryPipe pipe = null;
-        public PeopleController(IQueryPipe sqlQueryService)
-        {
-            this.pipe = sqlQueryService;
-        }
-
-        public override TableSpec[] GetTableSpec { get { return tables; } }
-
-        static readonly TableSpec[] tables = new TableSpec[]
-        {
-            new TableSpec("sys", "objects")
-                .AddColumn("object_id", "int", isKeyColumn: true)
-                .AddColumn("name", "nvarchar", 128)
-                .AddColumn("type", "nvarchar", 20)
-                .AddColumn("schema_id", "int"),
-            new TableSpec("sys", "columns")
-                .AddColumn("object_id", "int", isKeyColumn: true)
-                .AddColumn("column_id", "int", isKeyColumn: true)
-                .AddColumn("name", "nvarchar", 128)
-        };
-
-        // GET api/values/objects
-        // GET api/values/objects/$count
-        [HttpGet("objects")]
-        [HttpGet("objects/$count")]
-        public async Task Objects()
-        {
-            await this
-                .OData(tables[0], sqlQueryService, ODataHandler.Metadata.MINIMAL)
-                .OnError(ex => Response.Body.Write(Encoding.UTF8.GetBytes(ex.Message), 0, (ex.Message).Length))
-                .Get();                                           
-        }
-
-        // GET api/values/columns
-        // GET api/values/columns/$count
-        [HttpGet("columns")]
-        [HttpGet("columns/$count")]
-        public async Task Columns()
-        {
-            await this
-                .OData(tables[1], sqlQueryService, ODataHandler.Metadata.MINIMAL)
-                .OnError(ex => Response.Body.Write(Encoding.UTF8.GetBytes(ex.Message), 0, (ex.Message).Length))
-                .Get();
-        }
-
-    }
-}
-```
+## Generate table specification
 
 You can generate table specification directly using T-SQL query by querying system views:
 
