@@ -56,7 +56,7 @@ namespace MyApp
                 routes.MapRoute(
                     "FrontEnd",
                     "{controller}/{action}",
-                    new { controller = "RestApi", action = "GetObjects" });
+                    new { controller = "RestApi", action = "Index" });
             }
             );
             
