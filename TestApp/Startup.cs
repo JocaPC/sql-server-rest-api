@@ -32,10 +32,7 @@ namespace MyApp
 
             //services.AddDapperSqlConnection(Configuration["ConnectionStrings:WWI"]);
 
-            services.AddMvc(options =>
-            {
-                //options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
-            });
+            services.AddMvc();
 
         }
 
