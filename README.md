@@ -58,17 +58,16 @@ You need to create standard ASP.NET Controller that will handle Http requests fr
 As a first step you need to setup IQueryPipe interface that will be used to execute queries against the database. Usually you will use standard dependency injection to initialize member of controller that will be used as data access component:
 
 ```
-using Belgrade.SqlClient;
-using System.Threading.Tasks;
+using TSql.RestApi;
 
 namespace Catalog.Controllers
 {
     [Route("api/[controller]")]
     public class PeopleController : Controller
     {
-        IQueryPipe sqlQuery = null;
+        TSqlCommand sqlQuery = null;
 
-        public PeopleController(IQueryPipe sqlQueryService)
+        public PeopleController(TSqlCommand sqlQueryService)
         {
             this.sqlQuery = sqlQueryService;
         }
@@ -77,7 +76,7 @@ namespace Catalog.Controllers
 
 ## Implement REST API method
 
-Now you need to create async method that will serve requests. The only thing that you need to do is to call Stream method of IQueryPipe interface, provide query that should be executed in database, the output stream (HttpResponse.Body) where results of the query should be sent, and the text that should be returned to the client if SQL query don't return any result.
+Now you need to create async method that will serve requests. The only thing that you need to do is to call Stream method of TSqlCommand, provide T-SQL query that should be executed in database, the output stream (HttpResponse.Body) where results of the query should be sent, and the text that should be returned to the client if SQL query don't return any result.
 
 ```
         // GET api/People/Load
@@ -94,27 +93,25 @@ Note that FOR JSON clause is used in SQL query. FOR JSON clause will generate JS
 
 To implement OData Service, you would need to add the TableSpec object that describes the structure of the table that will be queried (name and columns). An example is shown in the following code:
 ```
-        IQueryPipe sqlQuery = null;
+        TSqlCommand sqlQuery = null;
         
         TableSpec tableSpec = new TableSpec(schema: "dbo", table: "People", columns: "name,surname,address,town");
         
-        public PeopleController(IQueryPipe sqlQueryService)
+        public PeopleController(TSqlCommand sqlQueryService)
         {
             this.sqlQuery = sqlQueryService;
         }
 ```
 
-Now you need to create async method that will serve OData requests with following classes:
- - UriParser that will parse OData Http request and extract information from $select, $filter, $orderby, $top, and $skip parameters. $count is also supported.
- - QueryBuilder that will create T-SQL query that will be executed. 
-First, you need to parse Request parameters using UriParser in order to extract the definition of query (QuerySpec object). Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to client using Response.Body:
+Now you need to create async method that will serve OData requests that process OData reques using table specification and process it
+by issueing a T-SQL query via sqlQuery object:
 
 ```
 public async Task OData()
 {
     await this
             .OData(tableSpec)
-            .Process(pipe);
+            .Process(this.sqlQuery);
 }
  ```
 
@@ -150,21 +147,18 @@ The last option is list of the columns that should be shown. This library suppor
 
 In order to implement REST service that handles AJAX requests that JQuery DataTables sends in server-side mode, you would need to add the TableSpec object that describes the structure of the table that will be queried (name and columns). An example is shown in the following code:
 ```
-        IQueryPipe sqlQuery = null;
+        TSqlCommand sqlQuery = null;
         
         TableSpec tableSpec = new TableSpec(schema: "dbo", table: "People", columns: "name,surname,address,town");
         
-        public PeopleController(IQueryPipe sqlQueryService)
+        public PeopleController(TSqlCommand sqlQueryService)
         {
             this.sqlQuery = sqlQueryService;
         }
 ```
 
-Now you need to create async method that will serve JQuery DataTables AJAX requests with following classes:
- - UriParser that will parse Http request parameters that JQuery DataTables component sends
- - QueryBuilder that will create T-SQL query that will be executed. 
-
-First, you need to parse Request parameters using UriParser in order to extract the definition of query (`QuerySpec` object). Then you need to use QueryBuilder to create SQL query using the QuerySpec. Then you need to provide sql query to QueryPipe that will stream results to JQuery DataTables using `Response.Body`:
+Now you need to create async method that will serve JQuery DataTables AJAX requests.
+First, you need to parse Request parameters using Table function based on table specification in order to extract the definition of query. Then you need to process this info using the TSqlCommand that will stream results to JQuery DataTables using `Response.Body`:
 
 ```
         private static readonly TableSpec purchaseorders = new TableSpec("WebApi","PurchaseOrders", "OrderDate,SupplierReference,ExpectedDeliveryDate,ContactName,ContactPhone,IsOrderFinalized,PurchaseOrderID");
@@ -174,7 +168,7 @@ First, you need to parse Request parameters using UriParser in order to extract 
         }
  ```
  [JQuery DataTables](https://datatables.net/) component requires AJAX response in some pre-defined format, so you would need to wrap results from database with header that contains number of total and number of filtered records.
- Note that JQuery DataTables plugin uses **recordsTotal** and **recordsFiltered** to build pagination. Since you would need two additional queries . Reccomendation is to use alternative (paging plugins)[https://datatables.net/plug-ins/pagination/]
+ Note that JQuery DataTables plugin uses **recordsTotal** and **recordsFiltered** to build pagination. Since you would need two additional queries . Reccomendation is to use alternative [paging plugins](https://datatables.net/plug-ins/pagination/)
  that don't require these options.
 
 You can see how to create services that are used by JQuery DataTables in the [SQL Server Wide World Importers sample app](https://github.com/Microsoft/sql-server-samples/blob/master/samples/databases/wide-world-importers/wwi-app/Controllers/TableController.cs).
