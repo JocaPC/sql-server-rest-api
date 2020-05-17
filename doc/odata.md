@@ -168,3 +168,7 @@ group by t.schema_id, t.name
 ```
 
 Text generated with this query can be copied into controller body.
+
+## Example
+
+Fully functional code sample can be found in [this branch](https://github.com/JocaPC/sql-server-rest-api/tree/belgrade-odata-api).
