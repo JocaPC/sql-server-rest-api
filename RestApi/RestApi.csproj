@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Authors>Jovan Popovic</Authors>
-    <Version>0.9.3</Version>
+    <Version>0.9.4</Version>
     <Description>ASP.NET Library that enables fast development of REST API that read data from SQL Server 2016+ and Azure SQL Database. Enables easy creation of server-side processing JQuery DataTable API and OData v4 REST API.</Description>
     <PackageTags>SqlServer,REST,C#,OData,JQueryDataTables</PackageTags>
     <RepositoryUrl>https://github.com/JocaPC/sql-server-rest-api</RepositoryUrl>
