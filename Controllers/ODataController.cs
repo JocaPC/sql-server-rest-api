@@ -41,5 +41,13 @@ namespace MyApp.Controllers
                     .OData(tableSpec)
                     .Process(DbCommand);
         }
+
+        public async Task People()
+        {
+            var tableSpec = new TableSpec(schema: "Application", table: "dbo.People", "PersonID,FirstName,LastName");
+            await this
+                    .OData(tableSpec)
+                    .Process(DbCommand);
+        }
     }
 }
