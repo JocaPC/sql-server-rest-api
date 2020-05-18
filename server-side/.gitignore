@@ -1,0 +1,9 @@
+*.user
+.vs/
+.vscode/
+packages/
+nuget/
+bin/
+obj/
+*.log
+*.pubxml
