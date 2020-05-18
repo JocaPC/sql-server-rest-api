@@ -26,6 +26,18 @@ namespace BelgradeODataWebApi
         public void ConfigureServices(IServiceCollection services)
         {            
             services.AddBelgradeSqlClient(Configuration.GetConnectionString("Database"));
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Cors",
+                                  builder =>
+                                  {
+                                      builder.AllowAnyOrigin()
+                                                          .AllowAnyHeader()
+                                                          .AllowAnyMethod();
+                                  });
+            });
+
             services.AddControllers();
         }
 
@@ -38,6 +50,7 @@ namespace BelgradeODataWebApi
             }
 
             app.UseRouting();
+            app.UseCors("Cors");
 
             app.UseEndpoints(endpoints =>
             {
