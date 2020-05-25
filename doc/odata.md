@@ -15,9 +15,11 @@ TSql REST API library enables you to create OData REST services that support the
    - Non-standard functions: 'json_value', 'json_query', and 'isjson'
  - $orderby that can sort entities by some column(s)
  - $top and $skip that can be used for pagination,
- - $count that enables you to get the total number of entities,
- - $search that search for entities by a keyword.
- - $expand that enables you to get related entities.
+ - $search that search for entities by a keyword,
+ - $expand that enables you to get related entities,
+ - $apply (partially) that enables you to apply some aggregate functions on groups. 
+ 
+ > $count is not supported. Use `$apply=aggregate(object_id with count as c)` as an alternative
 
 OData services implemented using TSql REST API library provide minimal interface that web clients can use to
 query data without additional overhead introduced by advanced OData operators (e.g. $extend, all/any), or verbose response format.
