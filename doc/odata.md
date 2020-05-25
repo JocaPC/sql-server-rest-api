@@ -18,8 +18,7 @@ TSql REST API library enables you to create OData REST services that support the
  - $search that search for entities by a keyword,
  - $expand that enables you to get related entities,
  - $apply (partially) that enables you to apply some aggregate functions on groups. 
- 
- > $count is not supported. Use `$apply=aggregate(object_id with count as c)` as an alternative
+ - $count that returns total count of entities. You need to add a route that [handles /$count URL](https://github.com/JocaPC/sql-server-rest-api/blob/master/TestApp/Controllers/RestApiController.cs#L88). You can use `$apply=aggregate(object_id with count as c)` as an alternative
 
 OData services implemented using TSql REST API library provide minimal interface that web clients can use to
 query data without additional overhead introduced by advanced OData operators (e.g. $extend, all/any), or verbose response format.
