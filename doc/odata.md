@@ -17,7 +17,7 @@ TSql REST API library enables you to create OData REST services that support the
  - $top and $skip that can be used for pagination,
  - $search that search for entities by a keyword,
  - $expand that enables you to get related entities,
- - $apply that enables you to apply some aggregate functions on groups. 
+ - $apply (partially) that enables you to apply some aggregate functions on groups. 
  
  > $count is not supported. Use `$apply=aggregate(object_id with count as c)` as an alternative
 
