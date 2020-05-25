@@ -86,6 +86,7 @@ namespace MyApp.Controllers
         /// <returns>OData response.</returns>
         // GET /RestApi/objects
         [HttpGet("[controller]/odata/objects")]
+        [HttpGet("[controller]/odata/objects/$count")]
         public async Task Objects()
         {
             var tableSpec = new TableSpec(schema: "sys", table: "objects", columns: "object_id,name,type,type_desc,create_date,modify_date")
@@ -97,6 +98,7 @@ namespace MyApp.Controllers
         }
 
         [HttpGet("[controller]/odata/columns")]
+        [HttpGet("[controller]/odata/columns/$count")]
         public async Task columns()
         {
             await this
