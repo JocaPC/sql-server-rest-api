@@ -44,7 +44,7 @@ namespace TSql.RestApi
         {
             this.Name = table;
             this.Schema = schema;
-            this.FullName = schema+"."+table;
+            this.FullName = string.IsNullOrEmpty(schema)? table : (schema+"."+table);
             this.columnList = columns;
             this.primaryKey = primaryKey;
             this.columnSet = new HashSet<string>();
