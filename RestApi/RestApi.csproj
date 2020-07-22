@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net46;netstandard1.6;netstandard2.0;netcoreapp1.0;netcoreapp1.1;netcoreapp2.0;netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net46;netstandard1.6;netstandard2.0;netcoreapp1.0;netcoreapp1.1;netcoreapp2.0;netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
     <RootNamespace>TSql.RestApi</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -52,6 +52,36 @@
     <Antlr4 Update="OData\ODataTranslator.g4">
       <CustomToolNamespace>TSql.OData</CustomToolNamespace>
     </Antlr4>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="GraphQL-Parser">
+      <Version>5.1.2</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <PackageReference Include="GraphQL-Parser">
+      <Version>5.1.2</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="GraphQL-Parser">
+      <Version>5.1.2</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <PackageReference Include="GraphQL-Parser">
+      <Version>5.1.2</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="GraphQL-Parser">
+      <Version>5.1.2</Version>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
