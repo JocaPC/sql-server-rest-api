@@ -54,15 +54,26 @@ namespace TSql.RestApi
         /// </summary>
         /// <param name="pipe">Sql Pipe that will be used to fetch the data.</param>
         /// <returns>ContentResult with the data processed by request.</returns>
+        public virtual Task<string> GetString(TSqlCommand mapper)
+        {
+            var res = mapper
+                .Sql(cmd)
+                .GetString();
+
+            return res;
+        }
+
+        /// <summary>
+        /// Created IActionResult object that contains the processed response result.
+        /// </summary>
+        /// <param name="pipe">Sql Pipe that will be used to fetch the data.</param>
+        /// <returns>ContentResult with the data processed by request.</returns>
         public virtual async Task<IActionResult> GetResult(TSqlCommand mapper)
         {
             IActionResult result = null;
             try
             {
-                var json = await mapper
-                    .Sql(cmd)
-                    .GetString()
-                    .ConfigureAwait(false);
+                var json = await GetString(mapper);
                 result = new ContentResult() {
                     Content = json,
                     StatusCode = StatusCodes.Status200OK,

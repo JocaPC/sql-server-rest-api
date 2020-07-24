@@ -64,9 +64,10 @@ namespace TSql.RestApi
             }
         }
         
-        public static string GetRootMetadataJsonV4(string ODataMetadataUrl, TableSpec[] tables)
+        public static string GetRootMetadataJsonV4(string ODataMetadataUrl, TableSpec[] tables, string entityRootUrl = null)
         {
-            var entityRootUrl = ODataMetadataUrl.Substring(0, ODataMetadataUrl.LastIndexOf('/')+1);
+            if(entityRootUrl==null)
+                entityRootUrl = ODataMetadataUrl.Substring(0, ODataMetadataUrl.LastIndexOf('/')+1);
 
             var sb = new StringBuilder();
             sb.Append("{\"@odata.context\":\"").Append(ODataMetadataUrl).Append("\",\"value\":[");

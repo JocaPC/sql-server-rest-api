@@ -1,9 +1,9 @@
 ﻿using Belgrade.SqlClient;
-using TSql.RestApi;
 using System;
 using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
+using TSql.RestApi;
 using BSC = Belgrade.SqlClient;
 
 namespace RestApi.Belgrade.Api
@@ -24,9 +24,13 @@ namespace RestApi.Belgrade.Api
         public BSC.ICommand cmd { get; }
         public BSC.IQueryPipe pipe { get; }
 
-        public override Task<string> GetString(string defaultOnNoResult = "")
-        {
-            throw new NotImplementedException(); // -> check is it null
+        public override async Task<string> GetString(string defaultOnNoResult = "") { 
+        
+            MemoryStream stream = new MemoryStream();
+            await this.pipe.Stream(stream, defaultOnNoResult);
+            return System.Text.Encoding.UTF8.GetString(stream.ToArray());
+
+            //throw new NotImplementedException(); // -> check is it null
         }
 
         public override TSqlCommand OnError(Action<Exception> handler)
