@@ -1,5 +1,6 @@
 ﻿using Belgrade.SqlClient;
 using System;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
@@ -29,8 +30,6 @@ namespace RestApi.Belgrade.Api
             MemoryStream stream = new MemoryStream();
             await this.pipe.Stream(stream, defaultOnNoResult);
             return System.Text.Encoding.UTF8.GetString(stream.ToArray());
-
-            //throw new NotImplementedException(); // -> check is it null
         }
 
         public override TSqlCommand OnError(Action<Exception> handler)
@@ -63,6 +62,12 @@ namespace RestApi.Belgrade.Api
         public override Task Stream(StringWriter output, string defaultOnNoResult)
         {
             return this.pipe.Stream(output, defaultOnNoResult);
+        }
+
+
+        public override Task Execute(Action<DbDataReader> handler)
+        {
+            return this.cmd.Map(handler);
         }
     }
 }
