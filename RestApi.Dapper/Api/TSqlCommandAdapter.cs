@@ -73,7 +73,8 @@ namespace RestApi.Dapper.Api
         {
             this.SqlText = cmd.CommandText;
 
-            this.parameters = new DynamicParameters();
+            if(this.parameters == null)
+                this.parameters = new DynamicParameters();
             for (int i = 0; i < cmd.Parameters.Count; i++) {
                 var p = cmd.Parameters[i];
                 parameters.Add(p.ParameterName, p.Value, dbType: typeMap[p.SqlDbType], size: p.Size, direction: p.Direction);
@@ -105,6 +106,12 @@ namespace RestApi.Dapper.Api
         public override Task Execute(Action<DbDataReader> handler)
         {
             throw new NotImplementedException("Execute() is not supported in Dapper implementation");
+        }
+
+        public override TSqlCommand Param(string name, object value)
+        {
+            this.parameters.Add(name, value);
+            return this;
         }
     }
 }

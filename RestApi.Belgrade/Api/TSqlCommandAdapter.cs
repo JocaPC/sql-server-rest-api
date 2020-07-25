@@ -65,6 +65,13 @@ namespace RestApi.Belgrade.Api
         }
 
 
+        public override TSqlCommand Param(string name, object value)
+        {
+            this.cmd.Param(name, value);
+            return this;
+        }
+
+
         public override Task Execute(Action<DbDataReader> handler)
         {
             return this.cmd.Map(handler);

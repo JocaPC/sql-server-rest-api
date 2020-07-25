@@ -12,6 +12,8 @@ namespace TSql.RestApi
 
         public TSqlCommand Sql(string cmd) { return Sql(new SqlCommand(cmd)); }
 
+        public abstract TSqlCommand Param(string name, object value);
+
         public abstract TSqlCommand OnError(Action<Exception> handler);
 
         public abstract Task Stream(Stream output, string defaultOnNoResult = "");
