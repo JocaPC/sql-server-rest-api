@@ -105,7 +105,7 @@ namespace RestApi.Dapper.Api
 
         public override Task Execute(Action<DbDataReader> handler)
         {
-            throw new NotImplementedException("Execute() is not supported in Dapper implementation");
+            return this.connection.ExecuteAsync(this.SqlText, param: this.parameters);
         }
 
         public override TSqlCommand Param(string name, object value)

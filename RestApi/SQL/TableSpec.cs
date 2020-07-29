@@ -35,6 +35,30 @@ namespace TSql.RestApi
         private ISet<string> derivedColumns;
         public string columnList;
         private ISet<string> columnSet;
+
+        internal void InferPrimaryKey()
+        {
+            ColumnSpec primaryKeyColumn = null;
+            if (string.IsNullOrEmpty(this.primaryKey))
+                foreach (var c in this.columns)
+                {
+                    if (c.IsKey)
+                    {
+                        this.primaryKey = c.Name;
+                        return;
+                    }
+                    if (c.Name.ToLower() == "id" ||
+                        this.Name.ToLower() + c.Name.ToLower() == this.Name.ToLower() + "id" ||
+                        this.Name.ToLower() + "_" + c.Name.ToLower() == this.Name.ToLower() + "_id")
+                    {
+                        this.primaryKey = c.Name;
+                        primaryKeyColumn = c;
+                    }
+                }
+            if (primaryKeyColumn != null)
+                primaryKeyColumn.IsKey = true;
+        }
+
         public string primaryKey;
         public Dictionary<string, TableSpec> Relations = null;
 
@@ -109,7 +133,7 @@ namespace TSql.RestApi
             else
                 this.columnList += "," + name;
 
-            if (this.primaryKey == null)
+            if (isKeyColumn)
             {
                 this.primaryKey = name;
             }

@@ -19,7 +19,7 @@ namespace TSql.RestApi
         public string SchemaName { get; }
         public string TableName { get; }
 
-        public TableSpec GetTable()
+        public async Task<TableSpec> GetTable()
         {
             TableSpec result = new TableSpec(this.SchemaName, this.TableName);
 
@@ -27,12 +27,16 @@ namespace TSql.RestApi
 @"
 select c.name, type = t.name, c.max_length
 from sys.columns c
-join sys.types t on c.system_type_id = t.system_type_id" +
+join sys.types t on c.user_type_id = t.user_type_id " +
 $"where object_id = OBJECT_ID('{this.SchemaName}.{this.TableName}')";
 
-            this.Command.Sql(sql).Execute(row=> {
-                result.AddColumn(row["name"].ToString(), row["type"].ToString(), Convert.ToInt32(row["max_length"]));
+            await this.Command.Sql(sql).Execute(row=> {
+                result.AddColumn(row["name"].ToString(),
+                    row["type"].ToString(),
+                    Convert.ToInt32(row["max_length"]));
             });
+
+            result.InferPrimaryKey();
 
             return result;
         }
