@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script>
+        function preview() {
+            let model = document.querySelector("#modelPath").value;
+            window.open("/api/cdm/GetModel?entity=a&modelPath=" + model, "", "titlebar=no,width=800,height=600");
+        }
+    </script>
+</head>
+<body class="container">
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                    Entities
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="entities.html">List</a>
+                    <a class="dropdown-item disabled" href="#">Add new</a>
+                    <a class="dropdown-item" href="/api/cdm/odata">OData (root)</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                    Locations
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="locations.html">List</a>
+                    <a class="dropdown-item" href="add-location.html">Add new</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    <h1>Add new CDM entity from model.json file</h1>
+    <p>Enter the path to model.json file and the name of entity that should be added in web API.</p>
+    <form class="form" action="api/cdm/RegisterModel">
+        <div class="form-group">
+            <label for="modelPath">Model.json URI address:</label>
+            <input type="text" class="form-control" name="modelPath" id="modelPath"
+                   value="https://jovanpoptest.blob.core.windows.net/hackaton2020/model.json"
+                   placeholder="https://<adls storage account>.blob.core.windows.net/<path>/model.json" required>
+            <button type="button" class="btn btn-link" onclick="preview()">Preview</button>
+            <br />
+            <span>*If you cannot preview the model.json, add <a href="locations.html">ADLS root URL with SAS key</a></span>
+        </div>
+        <div class="form-group">
+            <label for="entity">CDM Entity name (from model.json):</label>
+            <input type="text" class="form-control" name="entity" id="entity" value="lead" required>
+        </div>
+        <div class="form-group">
+            <label for="schema">Database schema (for the generated view):</label>
+            <input type="text" class="form-control" name="schema" id="schema" value="dbo" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+</body>
+</html>

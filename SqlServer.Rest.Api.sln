@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestApi.Belgrade", "RestApi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestApi.Dapper", "RestApi.Dapper\RestApi.Dapper.csproj", "{D687EA44-8A52-4485-BBEF-91B753A2F6D4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CdmFunction", "CdmFunction\CdmFunction.csproj", "{D86B9D4F-057E-42EE-A6DA-77FD62EA8027}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynapseCDM", "SynapseCDM\SynapseCDM.csproj", "{96880A0D-ECDC-48B1-8D3C-D32D09951E89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,14 @@ Global
 		{D687EA44-8A52-4485-BBEF-91B753A2F6D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D687EA44-8A52-4485-BBEF-91B753A2F6D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D687EA44-8A52-4485-BBEF-91B753A2F6D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D86B9D4F-057E-42EE-A6DA-77FD62EA8027}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D86B9D4F-057E-42EE-A6DA-77FD62EA8027}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D86B9D4F-057E-42EE-A6DA-77FD62EA8027}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D86B9D4F-057E-42EE-A6DA-77FD62EA8027}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96880A0D-ECDC-48B1-8D3C-D32D09951E89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96880A0D-ECDC-48B1-8D3C-D32D09951E89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96880A0D-ECDC-48B1-8D3C-D32D09951E89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96880A0D-ECDC-48B1-8D3C-D32D09951E89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax("/api/cdm/odata")
+                .done(root => {
+                    $('#locations').DataTable({
+                        "data": root.value,
+                        "dataSrc": "value",
+                        "columns": [
+                            { "data": "name" },
+                            {
+                                "data": "url",
+                                render: function (data, type) {
+                                    return '<a href="' + data + '?$top=10" target="_blank">Preview</a>';
+                                }
+                            }
+                        ]
+                    });
+            });
+        });
+    </script>
+</head>
+<body class="container">
+
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                    Entities
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item disabled" href="entities.html">List</a>
+                    <a class="dropdown-item" href="add-entity.html">Add new</a>
+                    <a class="dropdown-item" href="/api/cdm/odata">OData (root)</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link dropdown-toggle" href="locations.html" id="navbardrop">
+                    Locations
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <h1>CDM entities</h1>
+    <p>Here are the entities that you can query using OData service endpoints.</p>
+    <table id="locations" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>CDM entity</th>
+                <th>OData URI (preview)</th>
+            </tr>
+        </thead>
+    </table>
+
+</body>
+</html>

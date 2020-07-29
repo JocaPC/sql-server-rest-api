@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CdmFunction": {
+      "commandName": "Project",
+      "httpPort": 31685
+    }
+  }
+}

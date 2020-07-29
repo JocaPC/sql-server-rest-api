@@ -1,0 +1,90 @@
+﻿@model TSql.RestApi.TableSpec[]
+swagger: "2.0"
+info:
+	description: "Web service exposing information aboyt Synapse CDM entities."
+	version: "1.0.0"
+	title: "Azure Synapse CDM"
+	termsOfService: "http://swagger.io/terms/"
+	contact:
+		email: "jovanpop@microsoft.com"
+	license:
+		name: "Apache 2.0"
+		url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost:64959"
+basePath: "/api/odata"
+tags:@foreach (var t in Model)
+{
+	<text>
+- name: @t.Name
+	description: "Information about @t.Name"</text>
+}
+schemes:
+- "https"
+- "http"
+paths:
+@foreach (var t in Model)
+{
+	<text>
+	/@t.Name:
+		get:
+			summary: "Provides information about @t.Name using OData protocol."
+			description: "Enables querying @t.Name information using OData parameters."
+			operationId: "@t.Name"
+			produces:
+			- "application/json"
+			parameters:
+			- name: "$select"
+				in: "query"
+				description: "Selecting the @t.Name properties that should be returned by service."
+				required: false
+				type: "array"
+				items:
+					type: "string"
+					enum:</text>@foreach (var c in t.columns)
+	{<text>
+					- "@c.Name"</text>
+}<text>
+		collectionFormat: "multi"
+		- name: "$orderby"
+			in: "query"
+			description: "Ordering results by properties"
+			required: false
+			type: "array"
+			items:
+				type: "string"
+				enum:</text>@foreach (var c in t.columns)
+{<text>
+					- "@c.Name"
+					- "@c.Name" asc
+					- "@c.Name" desc</text>
+}<text>
+		collectionFormat: "multi"
+		- name: "$top"
+			in: "query"
+			description: "Selecting the @t.Name properties that should be returned by the API."
+			required: false
+			type: "integer"
+		- name: "$skip"
+			in: "query"
+			description: "Specify number of @t.Name records that should be skipped."
+			required: false
+			type: "integer"
+		- name: "$apply"
+			in: "query"
+			description: "Aggregation function that should be applied on the results."
+			required: false
+			type: "string"
+		- name: "$filter"
+			in: "query"
+			description: "Condition that returned @t.Name items must satisfy. It can contain and, or, not logical operators and lt, le, gt, ge, ne, eq relational operators."
+			required: false
+			type: "string"
+		responses:
+			200:
+				description: "Provided information about @t.Name."
+			400:
+				description: "The OData request is not valid"
+			500:
+				description: "OData service cannot process request"
+</text>
+				}
