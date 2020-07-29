@@ -158,7 +158,7 @@ You can generate table specification directly using T-SQL query by querying syst
 
 ```
 select CONCAT('new TableSpec("',schema_name(t.schema_id), '","', t.name, '")') +
-	string_agg(CONCAT('.AddColumn("', c.name, '", "', tp.name, '", isKeyColumn:', IIF(ix.is_primary_key = 1, 'true', 'false'), '))'),'')
+	string_agg(CONCAT('.AddColumn("', cast(c.name as NVARCHAR(MAX)), '", "', tp.name, '", isKeyColumn:', IIF(ix.is_primary_key = 1, 'true', 'false'), '))'),'')
 from sys.tables t
 	join sys.columns c on t.object_id = c.object_id
 	join sys.types tp on c.system_type_id = tp.system_type_id

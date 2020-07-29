@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 
 namespace TSql.RestApi
 {
-    public static class HttpRequestExtension
+    public static partial class HttpRequestExtension
     {
         private static ILog _log = null;
         

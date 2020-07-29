@@ -38,5 +38,17 @@ namespace TSql.RestApi
             return rh.GetResult(pipeAdapter);
         }
 
+        /// <summary>
+        /// Returns text from <code>RequestHandler</code> as single string.
+        /// </summary>
+        /// <param name="connection">Connection string to the target database where results will be fetched.</param>
+        /// <returns>Async tatsk with ActionResult contianing the results.</returns>
+        public static Task<string> GetString(this RequestHandler rh, string connection)
+        {
+            var pipe = new QueryPipe(connection);
+            var pipeAdapter = new TSqlCommandAdapter(pipe);
+            return rh.GetString(pipeAdapter);
+        }
+
     }
 }

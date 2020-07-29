@@ -64,9 +64,10 @@ namespace TSql.RestApi
             }
         }
         
-        public static string GetRootMetadataJsonV4(string ODataMetadataUrl, TableSpec[] tables)
+        public static string GetRootMetadataJsonV4(string ODataMetadataUrl, TableSpec[] tables, string entityRootUrl = null)
         {
-            var entityRootUrl = ODataMetadataUrl.Substring(0, ODataMetadataUrl.LastIndexOf('/')+1);
+            if(entityRootUrl==null)
+                entityRootUrl = ODataMetadataUrl.Substring(0, ODataMetadataUrl.LastIndexOf('/')+1);
 
             var sb = new StringBuilder();
             sb.Append("{\"@odata.context\":\"").Append(ODataMetadataUrl).Append("\",\"value\":[");
@@ -151,8 +152,8 @@ namespace TSql.RestApi
                 case "bit": return "Edm.Boolean";
                 case "char": return "Edm.String";
                 case "date": return "Edm.DateTime";
-                case "datetime": return "Edm.DateTime";
-                case "datetime2": return "Edm.DateTime";
+                case "datetime": return "Edm.String"; // Conversion error in LinqPad: "Edm.DateTime";
+                case "datetime2": return "Edm.String"; // Conversion error in LinqPad: "Edm.DateTime";
                 case "datetimeoffset": return "Edm.DateTimeOffset";
                 case "decimal": return "Edm.Decimal";
                 case "float": return "Edm.Double";
