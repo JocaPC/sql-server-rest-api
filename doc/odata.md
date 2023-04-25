@@ -158,18 +158,15 @@ You can generate table specification directly using T-SQL query by querying syst
 
 ```
 select CONCAT('new TableSpec("',schema_name(t.schema_id), '","', t.name, '")') +
-	string_agg(CONCAT('.AddColumn("', cast(c.name as NVARCHAR(MAX)), '", "', tp.name, '", isKeyColumn:', IIF(ix.is_primary_key = 1, 'true', 'false'), '))'),'')
+	string_agg(CONCAT('.AddColumn("', cast(c.name as NVARCHAR(MAX)), '", "', tp.name, '", isKeyColumn:', IIF(ix.is_primary_key = 1, 'true', 'false'), ')'),'')
 from sys.tables t
 	join sys.columns c on t.object_id = c.object_id
 	join sys.types tp on c.system_type_id = tp.system_type_id
 	left join sys.index_columns ic on c.column_id = ic.column_id and c.object_id = ic.object_id
 	left join sys.indexes ix on ic.index_id = ix.index_id and ic.object_id = ix.object_id
---where t.name in ('','','') --> specify target tables if needed.
+--where t.name in ('') --> specify target tables if needed.
+and tp.name <> 'sysname'
 group by t.schema_id, t.name
 ```
 
 Text generated with this query can be copied into controller body.
-
-## Example
-
-Fully functional code sample can be found in [this branch](https://github.com/JocaPC/sql-server-rest-api/tree/belgrade-odata-api).
